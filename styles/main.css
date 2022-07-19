@@ -1,0 +1,46 @@
+:root {
+    --bg-color: #000122;
+    --panel-color: #073763;
+    --element-color: #537EAD; /* For borders and other "neutral" colours */
+
+    --red-theme: #EB0D0D;
+    --cyan-theme: #10C4FB;
+    --yellow-theme: #EFE11D;
+    --green-theme: #2EE337;
+    --orange-theme: #FF802F;
+    --purple-theme: #CE0FC4;
+    --greyblue-theme: #4A86E8;
+    --white-theme: #CECECE;
+}
+
+.red-elem {
+    --parent-color: var(--red-theme);
+}
+
+.cyan-elem {
+    --parent-color: var(--cyan-theme);
+}
+
+.yellow-elem {
+    --parent-color: var(--yellow-theme);
+}
+
+.green-elem {
+    --parent-color: var(--green-theme);
+}
+
+.orange-elem {
+    --parent-color: var(--orange-theme);
+}
+
+.purple-elem {
+    --parent-color: var(--purple-theme);
+}
+
+.greyblue-elem {
+    --parent-color: var(--greyblue-theme);
+}
+
+.white-elem {
+    --parent-color: var(--greyblue-theme);
+}
