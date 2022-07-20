@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Predicator v0</title>
+    <link href="../styles/main.css" rel="stylesheet">
+    <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+
+<body>
+    <div class="big-window h-flex-container" id="formula-entry">
+        <div id="proof-left-panel" class="panel grid-container">
+            <button id="proof-or-int-button" class="inheriting-button proof-step-button cyan-elem" draggable="true">
+                ⋁<span class="math-font">I</span>
+            </button>
+            <button id="proof-or-elim-button" class="inheriting-button proof-step-button cyan-elem" draggable="true">
+                ⋁<span class="math-font">E</span>
+            </button>
+
+            <button id="proof-and-int-button" class="inheriting-button proof-step-button yellow-elem" draggable="true">
+                ⋀<span class="math-font">I</span>
+            </button>
+            <button id="proof-and-elim-button" class="inheriting-button proof-step-button yellow-elem" draggable="true">
+                ⋀<span class="math-font">E</span>
+            </button>
+
+            <button id="proof-not-int-button" class="inheriting-button proof-step-button red-elem" draggable="true">
+                <span class="bold">¬</span><span class="math-font">I</span>
+            </button>
+            <button id="proof-not-elim-button" class="inheriting-button proof-step-button red-elem" draggable="true">
+                <span class="bold">¬</span><span class="math-font">E</span>
+            </button>
+
+            <button id="proof-imp-int-button" class="inheriting-button proof-step-button orange-elem" draggable="true">
+                →<span class="math-font">I</span>
+            </button>
+            <button id="proof-imp-elim-button" class="inheriting-button proof-step-button orange-elem" draggable="true">
+                →<span class="math-font">E</span>
+            </button>
+
+            <button id="proof-iff-int-button" class="inheriting-button proof-step-button purple-elem" draggable="true">
+                ↔<span class="math-font">I</span>
+            </button>
+            <button id="proof-iff-elim-button" class="inheriting-button proof-step-button purple-elem" draggable="true">
+                ↔<span class="math-font">E</span>
+            </button>
+
+            <button id="proof-bot-int-button" class="inheriting-button proof-step-button cyan-elem" draggable="true">
+                <span class="bold">⊥</span><span class="math-font">I</span>
+            </button>
+            <button id="proof-bot-elim-button" class="inheriting-button proof-step-button cyan-elem" draggable="true">
+                <span class="bold">⊥</span><span class="math-font">E</span>
+            </button>
+
+            <button id="proof-taut-int-button" class="inheriting-button proof-step-button yellow-elem" draggable="true">
+                <span class="bold">⊤</span><span class="math-font">I</span>
+            </button>
+            <button id="proof-notnot-elim-button" class="inheriting-button proof-step-button yellow-elem" draggable="true">
+                <span class="long-proof-button-label"><span class="bold">¬¬</span><span class="math-font">E</span></span>
+            </button>
+
+            <button id="proof-em-button" class="inheriting-button proof-step-button white-elem" draggable="true">
+                <span class="bold italic">EM</span>
+            </button>
+            <button id="proof-pc-button" class="inheriting-button proof-step-button white-elem" draggable="true">
+                <span class="bold italic">PC</span>
+            </button>
+
+            <button id="proof-all-int-button" class="inheriting-button proof-step-button red-elem" draggable="true">
+                ∀<span class="math-font">I</span>
+            </button>
+            <button id="proof-all-elim-button" class="inheriting-button proof-step-button red-elem" draggable="true">
+                ∀<span class="math-font">E</span>
+            </button>
+
+            <button id="proof-exists-int-button" class="inheriting-button proof-step-button green-elem" draggable="true">
+                ∃<span class="math-font">I</span>
+            </button>
+            <button id="proof-exists-elim-button" class="inheriting-button proof-step-button green-elem" draggable="true">
+                ∃<span class="math-font">E</span>
+            </button>
+
+            <button id="proof-eq-sym-button" class="inheriting-button proof-step-button greyblue-elem" draggable="true">
+                <span class="long-proof-button-label">=Sym</span>
+            </button>
+            <button id="proof-eq-sub-button" class="inheriting-button proof-step-button greyblue-elem" draggable="true">
+                <span class="long-proof-button-label">=Sub</span>
+            </button>
+
+            <button id="proof-all-imp-elim-button" class="inheriting-button proof-step-button orange-elem" draggable="true">
+                <span class="long-proof-button-label">∀→<span class="math-font">E</span></span>
+            </button>
+
+            <div id="proof-tutorial-box">
+                <p id="proof-tutorial-title" class="proof-tutorial-header">⋀-Elimination</p>
+                <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain either or both of ɸ, Ѱ once ɸ⋀Ѱ has been proved.</p>
+                <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
+                    <div id="proof-source-step">
+                        <p id="proof-model-source-step" class="proof-model-step">> Source Step ()</p>
+                        <p class="proof-model-step italic"> - Of form ɸ⋀Ѱ</p>
+                        <br>
+                        <p id="proof-model-dest-step" class="proof-model-step">> Destination Step ()</p>
+                        <p class="proof-model-step italic"> - Goal or Empty Step</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <div id="proof-right-panel" class="window-body v-flex-container">
+            <div id="given-holder" class="v-flex-container">
+                <div id="first-given" class="expression entry-expression">
+                    <p class="expression-number italic">1:</p>
+                <div class="expanding-expression-input"><input type="text" class="expression-input red-elem"></div> <!--Begins as empty formula-->
+                </div>
+
+                <div id="first-given" class="expression entry-expression">
+                    <p class="expression-number italic">1:</p>
+                <div class="expanding-expression-input"><input type="text" class="expression-input cyan-elem"></div> <!--Begins as empty formula-->
+                </div>
+
+                <div id="first-given" class="expression entry-expression">
+                    <p class="expression-number italic">1:</p>
+                <div class="expanding-expression-input"><input type="text" class="expression-input green-elem"></div> <!--Begins as empty formula-->
+                </div>
+
+                <div id="first-given" class="expression entry-expression">
+                    <p class="expression-number italic">1:</p>
+                <div class="expanding-expression-input"><input type="text" class="expression-input yellow-elem"></div> <!--Begins as empty formula-->
+                </div>
+
+                <div id="first-given" class="expression entry-expression">
+                    <p class="expression-number italic">1:</p>
+                <div class="expanding-expression-input"><input type="text" class="expression-input orange-elem"></div> <!--Begins as empty formula-->
+                </div>
+
+                <div id="first-given" class="expression entry-expression">
+                    <p class="expression-number italic">1:</p>
+                <div class="expanding-expression-input"><input type="text" class="expression-input purple-elem"></div> <!--Begins as empty formula-->
+                </div>
+            </div>
+
+
+            <hr>
+            <div id="goal-holder" class="expression entry-expression">
+                <p class="expression-number italic">Goal:</p>
+                <div class="expanding-expression-input"><input type="text" class="expression-input green-elem"></div> <!--Begins as empty formula-->
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
