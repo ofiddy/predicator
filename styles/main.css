@@ -280,22 +280,24 @@ body {
     border: var(--element-color) 2px solid;
     min-height: 300px;
     background-color: var(--bg-color);
-    --parent-color: var(--yellow-theme); /* Default red, change with JS when each selected */
     color: var(--white-theme);
 }
 
 .proof-tutorial-header {
     font-style: italic;
-    font-weight: bold;
+    font-weight: 100;
     text-decoration: underline;
     color: var(--parent-color);
     font-size: 20px;
+    margin: 6px 0 0 0;
 }
 
 .proof-tutorial-expl {
     font-size: 16px;
+    margin-top: 2px;
 }
 
 .proof-model-step {
     margin: 0;
+    font-size: 14px;
 }
