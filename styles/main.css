@@ -1,6 +1,9 @@
+/* Useful declarations */
+@import url('https://fonts.googleapis.com/css2?family=Roboto&family=Staatliches&display=swap');
+
 :root {
     --bg-color: #000122;
-    --panel-color: #073763;
+    --panel-color: #05213b;
     --element-color: #537EAD; /* For borders and other "neutral" colours */
 
     --red-theme: #EB0D0D;
@@ -10,31 +13,46 @@
     --orange-theme: #FF802F;
     --purple-theme: #CE0FC4;
     --greyblue-theme: #4A86E8;
-    --white-theme: #CECECE;
+    --white-theme: #f0f0f0;
+
+    --red-theme-bg: #eb0d0d27;
+    --cyan-theme-bg: #10C4FB27;
+    --yellow-theme-bg: #EFE11D27;
+    --green-theme-bg: #2EE33727;
+    --orange-theme-bg: #FF802F27;
+    --purple-theme-bg: #CE0FC427;
+    --greyblue-theme-bg: #4A86E827;
+    --white-theme-bg: #f0f0f027;
 }
 
 .red-elem {
     --parent-color: var(--red-theme);
+    --parent-color-bg: var(--red-theme-bg);
 }
 
 .cyan-elem {
     --parent-color: var(--cyan-theme);
+    --parent-color-bg: var(--cyan-theme-bg);
 }
 
 .yellow-elem {
     --parent-color: var(--yellow-theme);
+    --parent-color-bg: var(--yellow-theme-bg);
 }
 
 .green-elem {
     --parent-color: var(--green-theme);
+    --parent-color-bg: var(--green-theme-bg);
 }
 
 .orange-elem {
     --parent-color: var(--orange-theme);
+    --parent-color-bg: var(--orange-theme-bg);
 }
 
 .purple-elem {
     --parent-color: var(--purple-theme);
+    --parent-color-bg: var(--purple-theme-bg);
 }
 
 .greyblue-elem {
@@ -42,5 +60,175 @@
 }
 
 .white-elem {
-    --parent-color: var(--greyblue-theme);
+    --parent-color: var(--white-theme);
+}
+
+/* Layout definitions */
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    margin: 0px;
+}
+
+.h-flex-container {
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+
+.v-flex-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    margin: 0px;
+    padding: 0px;
+}
+
+.grid-container {
+    display: grid;
+}
+
+/* General element styling */
+.panel {
+    background-color: var(--panel-color);
+}
+
+.window-body {
+    background-color: var(--bg-color);
+}
+
+.inheriting-button {
+    font-family: 'Roboto', sans-serif;
+    border: none;
+    color: var(--parent-bg);
+    width: 100%;
+    height: 50px;
+    margin-bottom: 0%;
+    padding: 0px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 30px;
+    cursor: pointer;
+    word-wrap: break-word;
+    transition: background-color 0.4s, color 0.4s;
+    background-color: var(--parent-bg);
+    color: var(--parent-color);
+    border: 2px solid var(--parent-color);
+}
+
+.inheriting-button:hover {
+    background-color: var(--parent-color);
+    color: var(--parent-bg);
+}
+
+.inheriting-label {
+    font-family: 'Roboto', sans-serif;
+    margin: 0px 0px 10px 0px;
+    font-size: 16px;
+    color: var(--parent-color);
+}
+
+.italic {
+    font-style: italic;
+}
+
+.bold {
+    font-weight: bolder;
+}
+
+.expression {
+    display: flex;
+    flex-direction: row;
+    margin: 0px;
+    padding: 0px;
+    align-items: center;
+}
+
+.expression-number {
+    font-family: 'Roboto', sans-serif;
+    text-align: center;
+    font-size: 30px;
+    min-width: 80px;
+    color: var(--white-theme);
+    margin: 8px 30px 8px 8px;
+}
+
+.expression-input {
+    background-color: var(--parent-color-bg);
+    color: var(--parent-color);
+    border: var(--parent-color) 1px solid;
+    transition: border 0.1s linear;
+    font-size: 24px;
+    width: 6ch;
+    text-align: center;
+}
+
+.expression-input:focus {
+    outline: none !important;
+    border: var(--parent-color) 1px transparent;
+    border-bottom: var(--parent-color) 6px solid;
+    font-style: italic;
+}
+
+/* Formula entry element styling */
+.entry-button-holder {
+    width: auto;
+    margin: auto;
+    align-content: center;
+    text-align: center;
+    margin: 0px 6px 0px 6px;
+}
+
+#entry-left-panel {
+    min-width: 240px;
+    grid-template-columns: auto auto;
+    align-content: start;
+    --parent-bg: var(--panel-color);
+    padding-top: 4px;
+}
+
+#entry-right-panel {
+    flex-grow: 1;
+}
+
+#entry-not-button-label {
+    margin: -20px;
+    font-size: 50px;
+}
+
+.entry-text-button-label {
+    font-size: 20px;
+    margin: -10px -30px -10px -30px;
+}
+
+#entry-atom-label {
+    font-size: 5px;
+    transform: scale(2) translate(0px, 2px);
+}
+
+#entry-eq-button-label {
+    margin: -20px;
+    font-size: 50px;
+}
+
+#entry-neq-button-label {
+    margin: -20px;
+    font-size: 40px;
+}
+
+.v-flex-container>hr {
+    border-color: var(--element-color);
+    flex-grow: 1;
+    margin: 0;
+}
+
+.given-holder {
+    margin: 0px;
+    height: fit-content;
 }

@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Predicator v0</title>
+    <link href="../styles/main.css" rel="stylesheet">
+    <link rel="shortcut icon" type="image/x-icon" href="../favicon.ico">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+
+<body>
+    <div class="big-window h-flex-container" id="formula-entry">
+        <div id="entry-left-panel" class="panel grid-container">
+            <div id="entry-or-holder" class="entry-button-holder cyan-elem">
+                <button id="entry-or-button" class="inheriting-button" draggable="true">⋁</button>
+                <p id="entry-or-label" class="inheriting-label italic">+</p>
+            </div>
+
+            <div id="entry-and-holder" class="entry-button-holder yellow-elem">
+                <button id="entry-and-button" class="inheriting-button" draggable="true">⋀</button>
+                <p id="entry-and-label" class="inheriting-label italic">&</p>
+            </div>
+
+            <div id="entry-not-holder" class="entry-button-holder red-elem">
+                <button id="entry-not-button" class="inheriting-button" draggable="true"><div id="entry-not-button-label">¬</div></button>
+                <p id="entry-not-label" class="inheriting-label italic">~</p>
+            </div>
+
+            <div id="entry-atom-holder" class="entry-button-holder green-elem">
+                <button id="entry-atom-button" class="inheriting-button" draggable="true"><div class="entry-text-button-label">Atom</div></button>
+                <p id="entry-atom-label" class="inheriting-label italic">Any Letter</p>
+            </div>
+
+            <div id="entry-implies-holder" class="entry-button-holder orange-elem">
+                <button id="entry-implies-button" class="inheriting-button" draggable="true">→</button>
+                <p id="entry-implies-label" class="inheriting-label italic">></p>
+            </div>
+
+            <div id="entry-iff-holder" class="entry-button-holder purple-elem">
+                <button id="entry-iff-button" class="inheriting-button" draggable="true">↔</button>
+                <p id="entry-iff-label" class="inheriting-label italic"><</p>
+            </div>
+
+            <div id="entry-eq-holder" class="entry-button-holder greyblue-elem">
+                <button id="entry-eq-button" class="inheriting-button" draggable="true"><div id="entry-eq-button-label">=</div></button>
+                <p id="entry-eq-label" class="inheriting-label italic"><</p>
+            </div>
+
+            <div id="entry-neq-holder" class="entry-button-holder white-elem">
+                <button id="entry-neq-button" class="inheriting-button" draggable="true"><div id="entry-neq-button-label">≠</div></button>
+                <p id="entry-neq-label" class="inheriting-label italic"><</p>
+            </div>
+
+            <div id="entry-top-holder" class="entry-button-holder cyan-elem">
+                <button id="entry-top-button" class="inheriting-button" draggable="true">⊥</button>
+                <p id="entry-top-label" class="inheriting-label italic">!</p>
+            </div>
+
+            <div id="entry-bot-holder" class="entry-button-holder yellow-elem">
+                <button id="entry-bot-button" class="inheriting-button" draggable="true">⊤</button>
+                <p id="entry-bot-label" class="inheriting-label italic">?</p>
+            </div>
+
+            <div id="entry-all-holder" class="entry-button-holder red-elem">
+                <button id="entry-all-button" class="inheriting-button" draggable="true">∀</button>
+                <p id="entry-all-label" class="inheriting-label italic">@</p>
+            </div>
+
+            <div id="entry-exists-holder" class="entry-button-holder green-elem">
+                <button id="entry-exists-button" class="inheriting-button" draggable="true">∃</button>
+                <p id="entry-exists-label" class="inheriting-label italic">$</p>
+            </div>
+
+            <div id="entry-pred-holder" class="entry-button-holder orange-elem">
+                <button id="entry-pred-button" class="inheriting-button" draggable="true"><div class="entry-text-button-label">Predicate</div></button>
+                <p id="entry-pred-label" class="inheriting-label italic">(</p>
+            </div>
+
+            <div id="entry-func-holder" class="entry-button-holder purple-elem">
+                <button id="entry-func-button" class="inheriting-button" draggable="true"><div class="entry-text-button-label">Function</div></button>
+                <p id="entry-func-label" class="inheriting-label italic">)</p>
+            </div>
+
+        </div>
+        
+        <div id="entry-right-panel" class="window-body v-flex-container">
+            <div id="given-holder" class="v-flex-container">
+                <div id="first-given" class="expression entry-expression">
+                    <p class="expression-number italic">1:</p>
+                <div class="expanding-expression-input"><input type="text" class="expression-input red-elem"></div> <!--Begins as empty formula-->
+                </div>
+
+                <div id="first-given" class="expression entry-expression">
+                    <p class="expression-number italic">1:</p>
+                <div class="expanding-expression-input"><input type="text" class="expression-input cyan-elem"></div> <!--Begins as empty formula-->
+                </div>
+
+                <div id="first-given" class="expression entry-expression">
+                    <p class="expression-number italic">1:</p>
+                <div class="expanding-expression-input"><input type="text" class="expression-input green-elem"></div> <!--Begins as empty formula-->
+                </div>
+
+                <div id="first-given" class="expression entry-expression">
+                    <p class="expression-number italic">1:</p>
+                <div class="expanding-expression-input"><input type="text" class="expression-input yellow-elem"></div> <!--Begins as empty formula-->
+                </div>
+
+                <div id="first-given" class="expression entry-expression">
+                    <p class="expression-number italic">1:</p>
+                <div class="expanding-expression-input"><input type="text" class="expression-input orange-elem"></div> <!--Begins as empty formula-->
+                </div>
+
+                <div id="first-given" class="expression entry-expression">
+                    <p class="expression-number italic">1:</p>
+                <div class="expanding-expression-input"><input type="text" class="expression-input purple-elem"></div> <!--Begins as empty formula-->
+                </div>
+            </div>
+
+
+            <hr>
+            <div id="goal-holder" class="expression entry-expression">
+                <p class="expression-number italic">Goal:</p>
+                <div class="expanding-expression-input"><input type="text" class="expression-input green-elem"></div> <!--Begins as empty formula-->
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
