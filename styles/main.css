@@ -151,10 +151,15 @@ body {
     font-family: 'Roboto', sans-serif;
     display: flex;
     flex-direction: row;
-    margin: 0px;
+    margin: 0px 12px 0 0;
     padding: 0px;
     align-items: center;
     color: var(--white-theme);
+}
+
+.expression:hover {
+    background-color: var(--greyblue-theme-bg);
+    transition: background-color 0.2s ease;
 }
 
 .expression-number {
@@ -163,7 +168,7 @@ body {
     min-width: 80px;
     width: auto;
     color: var(--white-theme);
-    margin: 8px 20px 8px 8px;
+    margin: 8px 8px 8px 8px;
 }
 
 .expression-input {
@@ -191,6 +196,7 @@ body {
 .expression-list {
     width: fit-content;
     overflow-y: auto;
+    margin-left: 20px;
 }
 
 /* Formula entry element styling */
@@ -320,7 +326,7 @@ body {
 }
 
 .proof-expression {
-    --parent-font-size: 20px;
+    --parent-font-size: 18px;
 }
 
 .expression-body {
@@ -329,7 +335,7 @@ body {
 }
 
 .expression-origin {
-    margin: 1px 1px 1px auto;
+    margin: 1px 10px 1px auto;
     padding-left: 70px;
     text-align: right;
     font-size: var(--parent-font-size);
