@@ -329,7 +329,9 @@ body {
 }
 
 .expression-origin {
-    margin-left: auto;
-    padding-left: 40px;
+    margin: 1px 1px 1px auto;
+    padding-left: 70px;
     text-align: right;
+    font-size: var(--parent-font-size);
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
 }
