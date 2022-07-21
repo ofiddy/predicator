@@ -186,6 +186,10 @@ body {
     border-bottom: var(--parent-color) 6px solid;
 }
 
+.expression-list {
+    overflow-y: auto;
+}
+
 /* Formula entry element styling */
 .entry-button-holder {
     width: auto;
@@ -201,6 +205,8 @@ body {
     align-content: start;
     --parent-bg: var(--panel-color);
     padding-top: 4px;
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 #entry-right-panel {
@@ -256,13 +262,17 @@ body {
 
 #proof-left-panel {
     max-width: 240px;
-    grid-template-columns: auto auto;
     --parent-bg: var(--panel-color);
-    padding-top: 4px;
 }
 
 #proof-right-panel {
     flex-grow: 1;
+}
+
+#proof-button-grid {
+    margin-top: 4px;
+    grid-template-columns: auto auto;
+    overflow-y: auto;
 }
 
 .long-proof-button-label {
@@ -271,14 +281,13 @@ body {
 
 #proof-tutorial-box {
     font-family: 'Roboto', sans-serif;
-    grid-column: 1 / span 2;
-    grid-row: span 7;
     width: auto;
     overflow-wrap: break-word;
     margin: 80px 3px 3px 3px;
     padding-left: 4px;
     border: var(--element-color) 2px solid;
-    min-height: 300px;
+    flex-grow: 1;
+    overflow-y: auto;
     background-color: var(--bg-color);
     color: var(--white-theme);
 }

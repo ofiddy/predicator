@@ -9,7 +9,8 @@
 
 <body>
     <div class="big-window h-flex-container" id="formula-entry">
-        <div id="proof-left-panel" class="panel grid-container">
+        <div id="proof-left-panel" class="panel v-flex-container">
+            <div id="proof-button-grid" class="grid-container">
             <button id="proof-or-int-button" class="inheriting-button proof-step-button cyan-elem physics-button" draggable="true">
                 ⋁<span class="math-font">I</span>
             </button>
@@ -90,6 +91,7 @@
             <button id="proof-all-imp-elim-button" class="inheriting-button proof-step-button orange-elem physics-button" draggable="true">
                 <span class="long-proof-button-label">∀→<span class="math-font">E</span></span>
             </button>
+            </div>
 
             <!-- Done up to Not Elimination -->
             <div id="proof-tutorial-box">
@@ -112,7 +114,7 @@
         </div>
         
         <div id="proof-right-panel" class="window-body v-flex-container">
-            <div id="given-holder" class="v-flex-container">
+            <div id="given-holder" class="v-flex-container expression-list">
                 <div id="first-given" class="expression entry-expression">
                     <p class="expression-number italic">1:</p>
                 <div class="expanding-expression-input"><input type="text" class="expression-input red-elem"></div> <!--Begins as empty formula-->
