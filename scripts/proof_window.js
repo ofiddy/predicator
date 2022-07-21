@@ -11,18 +11,7 @@ function setModelBoxContents(modelElement) {
 }
 
 // Assign the model windows for each step
-let orIntStepModel, orElimStepModel,
-    andIntStepModel, andElimStepModel,
-    notIntStepModel, notElimStepModel,
-    impIntStepModel, impElimStepModel,
-    iffIntStepModel, iffElimStepModel,
-    botIntStepModel, botElimStepModel,
-    topIntStepModel, notnotElimStepModel,
-    emStepModel, pcStepModel,
-    allIntStepModel, allElimStepModel,
-    existsIntStepModel, existsElimStepModel,
-    eqSymStepModel, eqSubStepModel,
-    eqReflexStepModel, allImpElimStepModel;
+let stepModels = [];
 
 fetch("../windows/model_steps.html").then(function (response) {
     return response.text();
@@ -30,22 +19,15 @@ fetch("../windows/model_steps.html").then(function (response) {
     let parser = new DOMParser();
     let models = parser.parseFromString(html, "text/html");
 
-    orIntStepModel = models.getElementById("proof-or-int-model");
-    orElimStepModel = models.getElementById("proof-or-elim-model");
-    andIntStepModel = models.getElementById("proof-and-int-model");
-    andElimStepModel = models.getElementById("proof-and-elim-model");
-    notIntStepModel = models.getElementById("proof-not-int-model");
-    notElimStepModel = models.getElementById("proof-not-elim-model");
+    for (let i = 0; i < models.body.children.length; i++) {
+        stepModels[i] = models.body.children[i];
+    }
 });
 
-// Assign each button for each step
-const orIntStepButton = document.getElementById("proof-or-int-button");
-const orElimStepButton = document.getElementById("proof-or-elim-button");
-
-// Setup for every button
-setupButton(orIntStepButton, {"onClick": () => {
-    setModelBoxContents(orIntStepModel);}
-});
-setupButton(orElimStepButton, {"onClick": () => {
-    setModelBoxContents(orElimStepModel);}
-});
+// Adds step models
+let buttons = document.getElementById("proof-button-grid").children;
+for (let i = 0; i < buttons.length; i++) {
+    setupButton(buttons[i], {"onClick": () => {
+        setModelBoxContents(stepModels[i]);}
+    });
+}
