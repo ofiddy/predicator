@@ -148,20 +148,22 @@ body {
 }
 
 .expression {
+    font-family: 'Roboto', sans-serif;
     display: flex;
     flex-direction: row;
     margin: 0px;
     padding: 0px;
     align-items: center;
+    color: var(--white-theme);
 }
 
 .expression-number {
-    font-family: 'Roboto', sans-serif;
     text-align: center;
-    font-size: 30px;
+    font-size: var(--parent-font-size);
     min-width: 80px;
+    width: auto;
     color: var(--white-theme);
-    margin: 8px 30px 8px 8px;
+    margin: 8px 20px 8px 8px;
 }
 
 .expression-input {
@@ -169,7 +171,7 @@ body {
     color: var(--parent-color);
     border: var(--parent-color) 1px solid;
     transition: border 0.1s linear;
-    font-size: 24px;
+    font-size: var(--parent-font-size);
     width: 6ch;
     text-align: center;
 }
@@ -187,6 +189,7 @@ body {
 }
 
 .expression-list {
+    width: fit-content;
     overflow-y: auto;
 }
 
@@ -249,6 +252,10 @@ body {
     height: fit-content;
 }
 
+.entry-expression {
+    --parent-font-size: 30px;
+}
+
 /* Main formula styling */
 .proof-step-button {
     width: 108px;
@@ -272,6 +279,7 @@ body {
     margin-top: 4px;
     grid-template-columns: auto auto;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .long-proof-button-label {
@@ -289,6 +297,7 @@ body {
     overflow-y: auto;
     background-color: var(--bg-color);
     color: var(--white-theme);
+    min-height: 70px;
 }
 
 .proof-tutorial-header {
@@ -308,4 +317,19 @@ body {
 .proof-model-step {
     margin: 0;
     font-size: 14px;
+}
+
+.proof-expression {
+    --parent-font-size: 20px;
+}
+
+.expression-body {
+    color: var(--white-theme);
+    font-size: var(--parent-font-size);
+}
+
+.expression-origin {
+    margin-left: auto;
+    padding-left: 40px;
+    text-align: right;
 }
