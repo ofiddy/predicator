@@ -251,11 +251,10 @@ body {
 
 /* Main formula styling */
 .proof-step-button {
-    width: auto;
+    width: 108px;
     margin: auto;
     align-content: center;
-    text-align: center;
-    margin: 2px 6px 2px 6px;
+    text-align: center;    margin: 2px 6px 2px 6px;
     font-size: 24px;
     height: 40px;
 }

@@ -4,7 +4,7 @@
 
     <div id="proof-or-int-model">
         <p id="proof-tutorial-title" class="proof-tutorial-header cyan-elem">⋁-Introduction</p>
-        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain ɸ⋁Ѱ once ɸ or Ѱ has been proved.</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain ɸ⋁Ѱ once ɸ or Ѱ has been proven.</p>
         <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
             <p id="or-int-model-source-1" class="proof-model-step">> Source Step ()</p>
             <p class="proof-model-step italic"> - Of form ɸ</p>
@@ -28,7 +28,7 @@
 
     <div id="proof-and-elim-model">
         <p id="proof-tutorial-title" class="proof-tutorial-header yellow-elem">⋀-Introduction</p>
-        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain either or both of ɸ, Ѱ once ɸ⋀Ѱ has been proved.</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain either or both of ɸ, Ѱ once ɸ⋀Ѱ has been proven.</p>
         <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
             <p id="and-elim-model-source" class="proof-model-step">> Source Step ()</p>
             <p class="proof-model-step italic"> - Of form ɸ⋀Ѱ</p>
@@ -40,7 +40,7 @@
 
     <div id="proof-and-int-model">
         <p id="proof-tutorial-title" class="proof-tutorial-header yellow-elem">⋀-Introduction</p>
-        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain ɸ⋀Ѱ once ɸ and Ѱ have been proved.</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain ɸ⋀Ѱ once ɸ and Ѱ have been proven.</p>
         <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
             <p id="and-int-model-source-1" class="proof-model-step">> Source Step ()</p>
             <p class="proof-model-step italic"> - Of form ɸ</p>
@@ -64,7 +64,7 @@
 
     <div id="proof-not-elim-model">
         <p id="proof-tutorial-title" class="proof-tutorial-header red-elem">¬-Elimination</p>
-        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain ⊥ once ɸ and ¬ɸ have been proved.</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain ⊥ once ɸ and ¬ɸ have been proven.</p>
         <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
             <p id="not-elim-model-source-1" class="proof-model-step">> Source Step ()</p>
             <p class="proof-model-step italic"> - Of form ɸ</p>
@@ -75,7 +75,223 @@
             <p id="not-elim-model-dest" class="proof-model-step">> Destination Step ()</p>
             <p class="proof-model-step italic"> - Goal or Empty Step</p>
         </div>
-    </div>  
+    </div>
+
+    <div id="proof-imp-int-model">
+        <p id="proof-tutorial-title" class="proof-tutorial-header orange-elem">→-Introduction</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Assume ɸ and prove Ѱ to obtain ɸ→Ѱ.</p>
+        <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
+            <p id="imp-int-model-dest" class="proof-model-step">> Destination Step ()</p>
+            <p class="proof-model-step italic"> - Goal or Empty Step</p>
+        </div>
+    </div>
+
+    <div id="proof-imp-elim-model">
+        <p id="proof-tutorial-title" class="proof-tutorial-header orange-elem">→-Elimination</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain Ѱ once ɸ and ɸ→Ѱ have been proven.</p>
+        <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
+            <p id="imp-elim-model-source-1" class="proof-model-step">> Source Step ()</p>
+            <p class="proof-model-step italic"> - Of form ɸ</p>
+            <br>
+            <p id="imp-elim-model-source-2" class="proof-model-step">> Source Step ()</p>
+            <p class="proof-model-step italic"> - Of form ɸ→Ѱ</p>
+            <br>
+            <p id="imp-elim-model-dest" class="proof-model-step">> Destination Step ()</p>
+            <p class="proof-model-step italic"> - Goal or Empty Step</p>
+        </div>
+    </div> 
+
+    <div id="proof-iff-int-model">
+        <p id="proof-tutorial-title" class="proof-tutorial-header purple-elem">↔-Introduction</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain ɸ↔Ѱ once ɸ→Ѱ and Ѱ→ɸ have been proven.</p>
+        <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
+            <p id="iff-int-model-source-1" class="proof-model-step">> Source Step ()</p>
+            <p class="proof-model-step italic"> - Of form ɸ→Ѱ</p>
+            <br>
+            <p id="iff-int-model-source-2" class="proof-model-step">> Source Step ()</p>
+            <p class="proof-model-step italic"> - Of form Ѱ→ɸ</p>
+            <br>
+            <p id="iff-int-model-dest" class="proof-model-step">> Destination Step ()</p>
+            <p class="proof-model-step italic"> - Goal or Empty Step</p>
+        </div>
+    </div>
+
+    <div id="proof-iff-elim-model">
+        <p id="proof-tutorial-title" class="proof-tutorial-header purple-elem">↔-Elimination</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain ɸ once ɸ↔Ѱ and Ѱ have been proven, or Ѱ from ɸ.</p>
+        <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
+            <p id="iff-elim-model-source-1" class="proof-model-step">> Source Step ()</p>
+            <p class="proof-model-step italic"> - Of form ɸ↔Ѱ</p>
+            <br>
+            <p id="iff-elim-model-source-2" class="proof-model-step">> Source Step ()</p>
+            <p class="proof-model-step italic"> - Of form ɸ or Ѱ</p>
+            <br>
+            <p id="iff-elim-model-dest" class="proof-model-step">> Destination Step ()</p>
+            <p class="proof-model-step italic"> - Goal or Empty Step</p>
+        </div>
+    </div> 
+
+    <div id="proof-bot-int-model">
+        <p id="proof-tutorial-title" class="proof-tutorial-header cyan-elem">⊥-Introduction</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain ⊥ once ɸ and ¬ɸ have been proven.</p>
+        <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
+            <p id="bot-int-model-source-1" class="proof-model-step">> Source Step ()</p>
+            <p class="proof-model-step italic"> - Of form ɸ</p>
+            <br>
+            <p id="bot-int-model-source-2" class="proof-model-step">> Source Step ()</p>
+            <p class="proof-model-step italic"> - Of form ¬ɸ</p>
+            <br>
+            <p id="bot-int-model-dest" class="proof-model-step">> Destination Step ()</p>
+            <p class="proof-model-step italic"> - Goal or Empty Step</p>
+        </div>
+    </div>
+
+    <div id="proof-bot-elim-model">
+        <p id="proof-tutorial-title" class="proof-tutorial-header cyan-elem">⊥-Elimination</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain ɸ once ⊥ has been proven.</p>
+        <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
+            <p id="bot-elim-model-source" class="proof-model-step">> Source Step ()</p>
+            <p class="proof-model-step italic"> - Of form ⊥</p>
+            <br>
+            <p id="bot-elim-model-dest" class="proof-model-step">> Destination Step ()</p>
+            <p class="proof-model-step italic"> - Goal or Empty Step</p>
+        </div>
+    </div>
+
+    <div id="proof-top-int-model">
+        <p id="proof-tutorial-title" class="proof-tutorial-header yellow-elem">⊤-Introduction</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain ⊤.</p>
+        <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
+            <p id="top-int-model-dest" class="proof-model-step">> Destination Step ()</p>
+            <p class="proof-model-step italic"> - Goal or Empty Step</p>
+        </div>
+    </div>
+
+    <div id="proof-notnot-elim-model">
+        <p id="proof-tutorial-title" class="proof-tutorial-header yellow-elem">¬¬-Elimination</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain ɸ once ¬¬ɸ has been proven.</p>
+        <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
+            <p id="notnot-elim-model-source" class="proof-model-step">> Source Step ()</p>
+            <p class="proof-model-step italic"> - Of form ¬¬ɸ</p>
+            <br>
+            <p id="notnot-elim-model-dest" class="proof-model-step">> Destination Step ()</p>
+            <p class="proof-model-step italic"> - Goal or Empty Step</p>
+        </div>
+    </div> 
+
+    <div id="proof-em-model">
+        <p id="proof-tutorial-title" class="proof-tutorial-header white-elem">Excluded Middle</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain ɸ⋁¬ɸ.</p>
+        <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
+            <p id="em-model-dest" class="proof-model-step">> Destination Step ()</p>
+            <p class="proof-model-step italic"> - Goal or Empty Step</p>
+        </div>
+    </div> 
+
+    <div id="proof-pc-model">
+        <p id="proof-tutorial-title" class="proof-tutorial-header white-elem">Proof by Contradiction</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Assume ¬ɸ and reach ⊥ to obtain ɸ.</p>
+        <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
+            <p id="pc-model-dest" class="proof-model-step">> Destination Step ()</p>
+            <p class="proof-model-step italic"> - Goal or Empty Step</p>
+        </div>
+    </div> 
+
+    <div id="proof-all-int-model">
+        <p id="proof-tutorial-title" class="proof-tutorial-header red-elem">∀-Introduction</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Reach P(sk) with an arbitrary sk to obtain ∀xP(x).</p>
+        <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
+            <p id="all-int-model-dest" class="proof-model-step">> Destination Step ()</p>
+            <p class="proof-model-step italic"> - Goal or Empty Step</p>
+        </div>
+    </div> 
+
+    <div id="proof-all-elim-model">
+        <p id="proof-tutorial-title" class="proof-tutorial-header red-elem">∀-Elimination</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain P(c) once ∀xP(x) has been proven.</p>
+        <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
+            <p id="all-elim-model-source" class="proof-model-step">> Source Step ()</p>
+            <p class="proof-model-step italic"> - Of form ∀xP(x)</p>
+            <br>
+            <p id="all-elim-model-dest" class="proof-model-step">> Destination Step ()</p>
+            <p class="proof-model-step italic"> - Goal or Empty Step</p>
+        </div>
+    </div>
+
+    <div id="proof-exists-int-model">
+        <p id="proof-tutorial-title" class="proof-tutorial-header green-elem">∃-Introduction</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain ∃xP(x) once P(c) has been proven.</p>
+        <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
+            <p id="exists-int-model-source" class="proof-model-step">> Source Step ()</p>
+            <p class="proof-model-step italic"> - Of form P(c)</p>
+            <br>
+            <p id="exists-int-model-dest" class="proof-model-step">> Destination Step ()</p>
+            <p class="proof-model-step italic"> - Goal or Empty Step</p>
+        </div>
+    </div>
+
+    <div id="proof-exists-elim-model">
+        <p id="proof-tutorial-title" class="proof-tutorial-header green-elem">∃-Elimination</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain ɸ with an arbitrary sk once ∃xP(x) has been proven.</p>
+        <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
+            <p id="exists-elim-model-source" class="proof-model-step">> Source Step ()</p>
+            <p class="proof-model-step italic"> - Of form ∃xP(x)</p>
+            <br>
+            <p id="exists-elim-model-dest" class="proof-model-step">> Destination Step ()</p>
+            <p class="proof-model-step italic"> - Goal or Empty Step</p>
+        </div>
+    </div>
+
+    <div id="proof-eq-sym-model">
+        <p id="proof-tutorial-title" class="proof-tutorial-header greyblue-elem">Symmetry</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain x=y once y=x has been proven.</p>
+        <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
+            <p id="eq-sym-model-source" class="proof-model-step">> Source Step ()</p>
+            <p class="proof-model-step italic"> - Of form x=y</p>
+            <br>
+            <p id="eq-sym-model-dest" class="proof-model-step">> Destination Step ()</p>
+            <p class="proof-model-step italic"> - Goal or Empty Step</p>
+        </div>
+    </div>
+
+    <div id="proof-eq-sub-model">
+        <p id="proof-tutorial-title" class="proof-tutorial-header greyblue-elem">Substitution</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain P(y) once x=y and P(x) have been proven.</p>
+        <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
+            <p id="eq-sub-model-source-1" class="proof-model-step">> Source Step ()</p>
+            <p class="proof-model-step italic"> - Of form x=y</p>
+            <br>
+            <p id="eq-sub-model-source-2" class="proof-model-step">> Source Step ()</p>
+            <p class="proof-model-step italic"> - Of form P(x)</p>
+            <br>
+            <p id="eq-sub-model-dest" class="proof-model-step">> Destination Step ()</p>
+            <p class="proof-model-step italic"> - Goal or Empty Step</p>
+        </div>
+    </div>
+
+    <div id="proof-reflex-model">
+        <p id="proof-tutorial-title" class="proof-tutorial-header greyblue-elem">Reflexivity</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain x=x.</p>
+        <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
+            <p id="reflex-model-dest" class="proof-model-step">> Destination Step ()</p>
+            <p class="proof-model-step italic"> - Goal or Empty Step</p>
+        </div>
+    </div>
+
+    <div id="proof-all-imp-elim-model">
+        <p id="proof-tutorial-title" class="proof-tutorial-header orange-elem">∀→-Elimination</p>
+        <p id="proof-tutorial-desc" class="proof-tutorial-expl">Obtain Q(c) once P(c) and ∀x[P(x)→Q(x)] have been proven.</p>
+        <div id="proof-tutorial-steps" class="proof-tutorial-step-holder">
+            <p id="all-imp-elim-model-source-1" class="proof-model-step">> Source Step ()</p>
+            <p class="proof-model-step italic"> - Of form P(c)</p>
+            <br>
+            <p id="all-imp-elim-model-source-2" class="proof-model-step">> Source Step ()</p>
+            <p class="proof-model-step italic"> - Of form ∀x[P(x)→Q(x)]</p>
+            <br>
+            <p id="all-imp-elim-model-dest" class="proof-model-step">> Destination Step ()</p>
+            <p class="proof-model-step italic"> - Goal or Empty Step</p>
+        </div>
+    </div>
 
 </body>
 </html>
