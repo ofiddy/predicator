@@ -97,10 +97,17 @@ body {
 /* General element styling */
 .panel {
     background-color: var(--panel-color);
+    --parent-bg: var(--panel-color);
+    font-family: 'Roboto', sans-serif;
+    color: var(--white-theme);
 }
 
 .window-body {
     background-color: var(--bg-color);
+    --parent-bg: var(--bg-color);
+    color: var(--white-theme);
+    font-family: 'Roboto', sans-serif;
+    flex-grow: 1;
 }
 
 .inheriting-button {
@@ -340,4 +347,71 @@ body {
     text-align: right;
     font-size: var(--parent-font-size);
     font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
+/* Modals styling */
+.modal {
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 10;
+    left: 0;
+    top: 0;
+    position: fixed;
+    min-height: 100%;
+    min-width: 100%;
+}
+
+.modal-formula-input {
+    max-width: 600px;
+    max-height: 260px;
+    border: var(--element-color) 2px solid;
+}
+
+.modal-body {
+    text-align: center;
+    padding: 5px;
+}
+
+.modal-button-panel {
+    grid-template-columns: auto auto auto auto;
+    border-left: var(--element-color) 2px solid;
+    padding: 3px;
+    grid-column-gap: 3px;
+}
+
+.modal-title {
+    color: var(--parent-color);
+    font-size: 35px;
+    text-decoration: underline;
+    font-style: italic;
+    margin: 5px;
+}
+
+.modal-body-text {
+    font-size: 20px;
+    margin: 20px 5px;
+}
+
+.modal-expression-entry {
+    --parent-font-size: 30px;
+    margin: auto auto 10px auto;
+}
+
+.modal-body-button {
+    width: 108px;
+    margin-top: auto;
+    align-content: center;
+    text-align: center;    margin: 2px 6px 2px 6px;
+    font-size: 24px;
+    height: 40px;
+}
+
+.modal-button-label {
+    margin: auto 2px;
+}
+
+.modal-panel-button {
+    margin: auto;
+    font-size: 20px;
+    height: 30px;
+    min-width: 70px;
 }
