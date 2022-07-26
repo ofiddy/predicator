@@ -353,11 +353,11 @@ body {
 .modal {
     background-color: rgba(0, 0, 0, 0.4);
     z-index: 10;
-    left: 0;
-    top: 0;
     position: fixed;
     min-height: 100%;
     min-width: 100%;
+    overflow: clip;
+    display: none;
 }
 
 .modal-formula-input {
@@ -391,9 +391,14 @@ body {
     margin: 20px 5px;
 }
 
-.modal-expression-entry {
+.modal-full-expression-entry {
     --parent-font-size: 30px;
     margin: auto auto 10px auto;
+}
+
+.modal-small-expression-entry {
+    --parent-font-size: 30px;
+    margin: 13px 0px 0px 8px;
 }
 
 .modal-body-button {
@@ -414,4 +419,21 @@ body {
     font-size: 20px;
     height: 30px;
     min-width: 70px;
+}
+
+.h-flex-container-modal {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    margin: 0px;
+    padding: 0px;
+}
+
+.modal-or-int-prior {
+    color: var(--parent-color);
+    font-style: italic;
+}
+
+#modal-or-int-prior-right {
+    display: none;
 }
