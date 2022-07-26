@@ -84,46 +84,21 @@
         
         <div id="entry-right-panel" class="window-body v-flex-container">
             <div id="given-holder" class="v-flex-container expression-list">
-                <div id="first-given" class="expression entry-expression">
+                <div class="expression entry-expression">
                     <p class="expression-number italic">1:</p>
-                    <div class="expanding-expression-input"><input type="text" class="expression-input red-elem"></div> <!--Begins as empty formula-->
-                </div>
-
-                <div id="first-given" class="expression entry-expression">
-                    <p class="expression-number italic">1:</p>
-                    <div class="expanding-expression-input"><input type="text" class="expression-input cyan-elem"></div> <!--Begins as empty formula-->
-                </div>
-
-                <div id="first-given" class="expression entry-expression">
-                    <p class="expression-number italic">1:</p>
-                    <div class="expanding-expression-input"><input type="text" class="expression-input green-elem"></div> <!--Begins as empty formula-->
-                </div>
-
-                <div id="first-given" class="expression entry-expression">
-                    <p class="expression-number italic">1:</p>
-                    <div class="expanding-expression-input"><input type="text" class="expression-input yellow-elem"></div> <!--Begins as empty formula-->
-                </div>
-
-                <div id="first-given" class="expression entry-expression">
-                    <p class="expression-number italic">1:</p>
-                    <div class="expanding-expression-input"><input type="text" class="expression-input orange-elem"></div> <!--Begins as empty formula-->
-                </div>
-
-                <div id="first-given" class="expression entry-expression">
-                    <p class="expression-number italic">1:</p>
-                    <div class="expanding-expression-input"><input type="text" class="expression-input purple-elem"></div> <!--Begins as empty formula-->
+                    <div class="expanding-expression-input"><input type="text" class="expression-input formula-elem red-elem"></div> <!--Begins as empty formula-->
                 </div>
                 
             </div>
 
-
             <hr>
             <div id="goal-holder" class="expression entry-expression">
                 <p class="expression-number italic">Goal:</p>
-                <div class="expanding-expression-input"><input type="text" class="expression-input green-elem"></div> <!--Begins as empty formula-->
+                <div class="expanding-expression-input"><input type="text" class="expression-input formula-elem green-elem"></div>
             </div>
         </div>
     </div>
+    <script src="../scripts/formula_entry_window.js" type="module"></script>
 </body>
 
 </html>

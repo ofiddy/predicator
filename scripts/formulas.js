@@ -28,7 +28,14 @@ export class BasicFormula {
     getVar() {
         return new Set();
     }
+}
 
+export class BasicVarFormula {
+    // A placeholder for non-predicate entry
+    constructor () {
+        super();
+        this._isPredicate = false;
+    }
 }
 
 export class VariableFormula extends BasicFormula {
@@ -428,6 +435,6 @@ export function addFormulaData(buttonList) {
     // and associates with each the proper Formula class
     console.assert(buttonList.length === 14);
     for (let i = 0; i < 14; i++) {
-        buttonList[i].dataset.associatedFormula = formulaList[i];
+        buttonList[i].dataset.formulaClass = formulaList[i];
     }
 }
