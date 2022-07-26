@@ -28,13 +28,27 @@ export class BasicFormula {
     getVar() {
         return new Set();
     }
+
+    static newElem () {
+        let elem = document.createElement("input");
+        elem.type = "text";
+        elem.classList.add("expression-input", "formula-elem", "cyan-elem");
+        return elem;
+    }
 }
 
-export class BasicVarFormula {
+export class BasicVarFormula extends BasicFormula {
     // A placeholder for non-predicate entry
     constructor () {
         super();
         this._isPredicate = false;
+    }
+
+    static newElem () {
+        let elem = document.createElement("input");
+        elem.type = "text";
+        elem.classList.add("expression-input", "formula-elem", "var-input", "purple-elem");
+        return elem;
     }
 }
 
@@ -70,6 +84,12 @@ export class VariableFormula extends BasicFormula {
 
     getVar() {
         return new Set([this]);
+    }
+
+    static newElem () {
+        let elem = document.createElement("span");
+        elem.classList.add("formula-elem", "yellow-elem");
+        return elem;
     }
 }
 
@@ -122,6 +142,13 @@ export class FunctionFormula extends BasicFormula {
         }
         return newVars;
     }
+
+    static newElem () {
+        let elem = document.createElement("span");
+        elem.classList.add("formula-elem", "purple-elem");
+        elem.innerText = "(";
+        return elem;
+    }
 }
 
 export class AtomFormula extends BasicFormula {
@@ -151,6 +178,13 @@ export class BottomFormula extends BasicFormula {
     equals(other) {
         return (other instanceof BottomFormula);
     }
+
+    static newElem () {
+        let elem = document.createElement("span");
+        elem.classList.add("formula-elem", "cyan-elem");
+        elem.innerText = "⊥";
+        return elem;
+    }
 }
 
 export class TopFormula extends BasicFormula {
@@ -162,6 +196,13 @@ export class TopFormula extends BasicFormula {
 
     equals(other) {
         return (other instanceof TopFormula);
+    }
+
+    static newElem () {
+        let elem = document.createElement("span");
+        elem.classList.add("formula-elem", "yellow-elem");
+        elem.innerText = "⊤";
+        return elem;
     }
 }
 
@@ -212,6 +253,13 @@ export class PredicateFormula extends BasicFormula {
         }
         return newVars;
     }
+
+    static newElem () {
+        let elem = document.createElement("span");
+        elem.classList.add("formula-elem", "orange-elem");
+        elem.innerText = "(";
+        return elem;
+    }
 }
 
 export class NotFormula extends BasicFormula {
@@ -237,6 +285,13 @@ export class NotFormula extends BasicFormula {
 
     getVar() {
         return this._contents.getVar();
+    }
+
+    static newElem () {
+        let elem = document.createElement("span");
+        elem.classList.add("formula-elem", "red-elem");
+        elem.innerText = "¬";
+        return elem;
     }
 }
 
@@ -289,6 +344,13 @@ export class AndFormula extends BinaryFormula {
     equals(other) {
         return (other instanceof AndFormula && this._childrenEqual(other));
     }
+
+    static newElem () {
+        let elem = document.createElement("span");
+        elem.classList.add("formula-elem", "yellow-elem");
+        elem.innerText = "⋀";
+        return elem;
+    }
 }
 
 export class OrFormula extends BinaryFormula {
@@ -303,6 +365,13 @@ export class OrFormula extends BinaryFormula {
 
     equals(other) {
         return (other instanceof OrFormula && this._childrenEqual(other));
+    }
+
+    static newElem () {
+        let elem = document.createElement("span");
+        elem.classList.add("formula-elem", "cyan-elem");
+        elem.innerText = "⋁";
+        return elem;
     }
 }
 
@@ -319,6 +388,13 @@ export class ImpliesFormula extends BinaryFormula {
     equals(other) {
         return (other instanceof ImpliesFormula && this._childrenEqual(other));
     }
+
+    static newElem () {
+        let elem = document.createElement("span");
+        elem.classList.add("formula-elem", "orange-elem");
+        elem.innerText = "→";
+        return elem;
+    }
 }
 
 export class IffFormula extends BinaryFormula {
@@ -333,6 +409,13 @@ export class IffFormula extends BinaryFormula {
 
     equals(other) {
         return (other instanceof IffFormula && this._childrenEqual(other));
+    }
+
+    static newElem () {
+        let elem = document.createElement("span");
+        elem.classList.add("formula-elem", "purple-elem");
+        elem.innerText = "↔";
+        return elem;
     }
 }
 
@@ -352,6 +435,13 @@ export class EqualsFormula extends PredicateFormula {
         }
         return new EqualsFormula(newVars[0], newVars[1]);
     }
+
+    static newElem () {
+        let elem = document.createElement("span");
+        elem.classList.add("formula-elem", "greyblue-elem");
+        elem.innerText = "=";
+        return elem;
+    }
 }
 
 export class NotEqualsFormula extends NotFormula {
@@ -364,9 +454,16 @@ export class NotEqualsFormula extends NotFormula {
     show() {
         return this._leftChild.show() + "≠" + this._rightChild.show();
     }
+
+    static newElem () {
+        let elem = document.createElement("span");
+        elem.classList.add("formula-elem", "white-elem");
+        elem.innerText = "≠";
+        return elem;
+    }
 }
 
-class QuantifierFormula extends BasicFormula {
+export class QuantifierFormula extends BasicFormula {
     constructor(bound, subformula) {
         super();
         this._bound = bound;
@@ -403,6 +500,13 @@ export class AllFormula extends QuantifierFormula {
     equals(other) {
         return (other instanceof AllFormula && this._bound.equals(other._bound) && this._subformula.equals(other._subformula));
     }
+
+    static newElem () {
+        let elem = document.createElement("span");
+        elem.classList.add("formula-elem", "red-elem");
+        elem.innerText = "∀";
+        return elem;
+    }
 }
 
 export class ExistsFormula extends QuantifierFormula {
@@ -423,6 +527,13 @@ export class ExistsFormula extends QuantifierFormula {
 
     equals(other) {
         return (other instanceof ExistsFormula && this._bound.equals(other._bound) && this._subformula.equals(other._subformula));
+    }
+
+    static newElem () {
+        let elem = document.createElement("span");
+        elem.classList.add("formula-elem", "green-elem");
+        elem.innerText = "∃";
+        return elem;
     }
 }
 

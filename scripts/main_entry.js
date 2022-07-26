@@ -1,8 +1,8 @@
 import { bindKeysToButtonlist, attemptInsertFormula } from "./formula_entry_window.js"
 import * as formulas from "./formulas.js"
 
-lastClickedButton = null;
-lastClickedFormula = null;
+let lastClickedButton = null;
+let lastClickedFormula = null;
 
 // Whenever a button or entry or formula is clicked, change lastClickedElement
 export function formulaElementFocus (event) {
@@ -31,11 +31,11 @@ function checkThenAttemptInsert (event) {
 
 // Puts the buttons in the main window into the needed list
 let buttonList = [];
-for (const e of document.getElementById("entry-left-panel")) {
+for (const e of document.getElementById("entry-left-panel").children) {
     buttonList.push(e.children[0]);
     e.children[0].addEventListener("click", checkThenAttemptInsert);
 }
-addFormulaData(buttonList);
+formulas.addFormulaData(buttonList);
 let bindDict = bindKeysToButtonlist(buttonList);
 
 // Does the initial application of event handlers to formula elements

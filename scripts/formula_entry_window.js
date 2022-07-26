@@ -18,126 +18,33 @@ export function attemptInsertFormula (event, targetFormula) {
     
     let oldElem = targetFormula;
     let oldFormula = targetFormula.dataset.formula;
+    let insertDest = oldElem.parentNode;
     let newElem;
     let newFormula;
 
-    if (formulaToInsert instanceof formulas.QuantifierFormula) {
-        oldElem.parentNode.removeChild(oldElem);
+    if (new formulaToInsert() instanceof formulas.QuantifierFormula) {
+        insertDest.removeChild(oldElem);
 
-        newElem = (formulaToInsert instanceof formulas.AllFormula ? newAllElement() : newExistsElement());
+        newElem = (new formulaToInsert() instanceof formulas.AllFormula ? newAllElement() : newExistsElement());
+        let symbol = newElem.innerText;
+        newElem.innerText = "";
         
         // Add an existing predicate as the right-hand-side
-        let rhs = (oldFormula.isPredicate ? oldFormula : new formulas.BasicFormula());
-        let lhs = (oldFormula instanceof formulas.VariableFormula ? oldFormula : new formulas.BasicVarFormula());
-        
+        if (oldFormula.isPredicate) {
+            // Create new elems, formula, then sync the two layers
+            let newLhs = newBlankVarElement();
+            let newLhsFormula = new formulas.BasicVarFormula();
+            newLhs.dataset.formula = newLhsFormula;
+
+            newFormula = new formulaToInsert(newLhsFormula, oldFormula);
+
+            newElem.appendChild(newLhs);
+            newElem.appendChild(symbol);
+            newElem.appendChild(oldFormula);
+        }
     }
-}
 
-// These functions generate elements corresponding to each formula
-// and do NO other work behind the scenes
-function newBlankElement () {
-    let elem = document.createElement("input");
-    elem.type = "text";
-    elem.classList.add("expression-input", "formula-elem", "cyan-elem");
-    return elem;
-}
-
-function newBlankVarElement() {
-    let elem = document.createElement("input");
-    elem.type = "text";
-    elem.classList.add("expression-input", "formula-elem", "var-input", "purple-elem");
-    return elem;
-}
-
-function newOrElement () {
-    let elem = document.createElement("span");
-    elem.classList.add("formula-elem", "cyan-elem");
-    elem.innerText = "⋁";
-    return elem;
-}
-
-function newAndElement () {
-    let elem = document.createElement("span");
-    elem.classList.add("formula-elem", "yellow-elem");
-    elem.innerText = "⋀";
-    return elem;
-}
-
-function newNotElement () {
-    let elem = document.createElement("span");
-    elem.classList.add("formula-elem", "red-elem");
-    elem.innerText = "¬";
-    return elem;
-}
-
-function newImpliesElement () {
-    let elem = document.createElement("span");
-    elem.classList.add("formula-elem", "orange-elem");
-    elem.innerText = "→";
-    return elem;
-}
-
-function newIffElement () {
-    let elem = document.createElement("span");
-    elem.classList.add("formula-elem", "purple-elem");
-    elem.innerText = "↔";
-    return elem;
-}
-
-function newEqualsElement () {
-    let elem = document.createElement("span");
-    elem.classList.add("formula-elem", "greyblue-elem");
-    elem.innerText = "=";
-    return elem;
-}
-
-function newNotEqualsElement () {
-    let elem = document.createElement("span");
-    elem.classList.add("formula-elem", "white-elem");
-    elem.innerText = "≠";
-    return elem;
-}
-
-function newBotElement () {
-    let elem = document.createElement("span");
-    elem.classList.add("formula-elem", "cyan-elem");
-    elem.innerText = "⊥";
-    return elem;
-}
-
-function newTopElement () {
-    let elem = document.createElement("span");
-    elem.classList.add("formula-elem", "yellow-elem");
-    elem.innerText = "⊤";
-    return elem;
-}
-
-function newAllElement () {
-    let elem = document.createElement("span");
-    elem.classList.add("formula-elem", "red-elem");
-    elem.innerText = "∀";
-    return elem;
-}
-
-function newExistsElement () {
-    let elem = document.createElement("span");
-    elem.classList.add("formula-elem", "green-elem");
-    elem.innerText = "∃";
-    return elem;
-}
-
-function newPredicateElement () {
-    let elem = document.createElement("span");
-    elem.classList.add("formula-elem", "orange-elem");
-    elem.innerText = "(";
-    return elem;
-}
-
-function newFunctionElement () {
-    let elem = document.createElement("span");
-    elem.classList.add("formula-elem", "purple-elem");
-    elem.innerText = "(";
-    return elem;
+    newElem.dataset.formula = newFormula
 }
 
 
