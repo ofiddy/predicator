@@ -1,3 +1,5 @@
+import {setUnion} from "./lib.js";
+
 class BasicFormula {
     // A blank formula, represents an empty for formula input
     // Main purpose is to be inherited
@@ -24,7 +26,7 @@ class BasicFormula {
     }
 
     getVar() {
-        return [];
+        return new Set();
     }
 
 }
@@ -56,7 +58,7 @@ class VariableFormula extends BasicFormula {
     }
 
     getVar() {
-        return [this];
+        return new Set([this]);
     }
 }
 
@@ -103,7 +105,11 @@ class FunctionFormula extends BasicFormula {
     }
 
     getVar() {
-        return this._variables;
+        let newVars = new Set();
+        for (const v of this._variables) {
+            newVars = setUnion(newVars, v.getVar());
+        }
+        return newVars;
     }
 }
 
@@ -152,7 +158,7 @@ class PredicateFormula extends BasicFormula {
     // Represents a first-order predicate
     
     constructor (name, variables) {
-        // variables is a lsit of VariableFormula-s
+        // variables is a list of VariableFormula-s
         super();
         this._variables = variables;
         this._name = name;
@@ -189,7 +195,11 @@ class PredicateFormula extends BasicFormula {
     }
 
     getVar() {
-        return this._variables;
+        let newVars = new Set();
+        for (const v of this._variables) {
+            newVars = setUnion(newVars, v.getVar());
+        }
+        return newVars;
     }
 }
 
@@ -232,7 +242,7 @@ class BinaryFormula extends BasicFormula {
     }
 
     getVar() {
-        return this._leftChild.getVar().concat(this._rightChild.getVar());
+        return setUnion(this._leftChild.getVar(), this._rightChild.getVar());
     }
 
     _show(symbol) {
@@ -285,9 +295,64 @@ class OrFormula extends BinaryFormula {
     }
 }
 
+class ImpliesFormula extends BinaryFormula {
+    constructor(leftChild, rightChild) {
+        super(leftChild, rightChild);
+        this._priority = 2;
+    }
+
+    show() {
+        return this._show("→");
+    }
+
+    equals(other) {
+        return (other instanceof ImpliesFormula && this._childrenEqual(other));
+    }
+}
+
+class IffFormula extends BinaryFormula {
+    constructor(leftChild, rightChild) {
+        super(leftChild, rightChild);
+        this._priority = 1;
+    }
+
+    show() {
+        return this._show("↔");
+    }
+
+    equals(other) {
+        return (other instanceof IffFormula && this._childrenEqual(other));
+    }
+}
+
+class EqualsFormula extends PredicateFormula {
+    constructor(leftChild, rightChild) {
+        super("=", [leftChild, rightChild]);
+    }
+
+    show() {
+        return this._variables[0].show() + "=" + this._variables[1].show();
+    }
+
+    replaceVar(oldVar, newVar) {
+        let newVars = [];
+        for (let i = 0; i < this._variables.length; i++) {
+            newVars[i] = this._variables[i].replaceVar(oldVar, newVar);
+        }
+        return new EqualsFormula(newVars[0], newVars[1]);
+    }
+}
+
 let P = new AtomFormula("P");
 let Q = new AtomFormula("Q");
 let PandQ = new AndFormula(P, Q);
 let PorQ = new OrFormula(P, Q);
 
-console.log(new AndFormula(P, PorQ).show());
+let a = new VariableFormula("a");
+let b = new VariableFormula("b");
+let f = new FunctionFormula("f", [a,b]);
+let x = new VariableFormula("x");
+let eq = new EqualsFormula(a, f);
+
+console.log(eq.replaceVar(b, x).show());
+console.log(eq.getVar());

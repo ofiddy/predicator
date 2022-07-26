@@ -7,3 +7,11 @@
         buttonElem.addEventListener("click", funcs['onClick']);
     }
 }
+
+export function setUnion(setA, setB) {
+    const _union = new Set(setA);
+  for (const elem of setB) {
+    _union.add(elem);
+  }
+  return _union;
+}
