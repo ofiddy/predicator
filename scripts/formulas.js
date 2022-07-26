@@ -1,6 +1,6 @@
 import {setUnion, boundSetHas} from "./lib.js";
 
-class BasicFormula {
+export class BasicFormula {
     // A blank formula, represents an empty for formula input
     // Main purpose is to be inherited
 
@@ -31,7 +31,7 @@ class BasicFormula {
 
 }
 
-class VariableFormula extends BasicFormula {
+export class VariableFormula extends BasicFormula {
     // Represents a single variable (e.g. in an exists formula)
 
     constructor (name) {
@@ -66,7 +66,7 @@ class VariableFormula extends BasicFormula {
     }
 }
 
-class FunctionFormula extends BasicFormula {
+export class FunctionFormula extends BasicFormula {
     // Represents a function with any number of variables
 
     constructor (name, variables) {
@@ -117,7 +117,7 @@ class FunctionFormula extends BasicFormula {
     }
 }
 
-class AtomFormula extends BasicFormula {
+export class AtomFormula extends BasicFormula {
     // Represents a single atom (e.g. P, Q, Gordon)
 
     constructor (name) {
@@ -134,7 +134,7 @@ class AtomFormula extends BasicFormula {
     }
 }
 
-class BottomFormula extends BasicFormula {
+export class BottomFormula extends BasicFormula {
     // Represents a contradiction
 
     show() {
@@ -146,7 +146,7 @@ class BottomFormula extends BasicFormula {
     }
 }
 
-class TopFormula extends BasicFormula {
+export class TopFormula extends BasicFormula {
     // Represents a tautology
 
     show() {
@@ -158,7 +158,7 @@ class TopFormula extends BasicFormula {
     }
 }
 
-class PredicateFormula extends BasicFormula {
+export class PredicateFormula extends BasicFormula {
     // Represents a first-order predicate
     
     constructor (name, variables) {
@@ -207,7 +207,7 @@ class PredicateFormula extends BasicFormula {
     }
 }
 
-class NotFormula extends BasicFormula {
+export class NotFormula extends BasicFormula {
     // The only unary formula
     constructor(subFormula) {
         super();
@@ -269,7 +269,7 @@ class BinaryFormula extends BasicFormula {
     }
 }
 
-class AndFormula extends BinaryFormula {
+export class AndFormula extends BinaryFormula {
     constructor(leftChild, rightChild) {
         super(leftChild, rightChild);
         this._priority = 4;
@@ -284,7 +284,7 @@ class AndFormula extends BinaryFormula {
     }
 }
 
-class OrFormula extends BinaryFormula {
+export class OrFormula extends BinaryFormula {
     constructor(leftChild, rightChild) {
         super(leftChild, rightChild);
         this._priority = 3;
@@ -299,7 +299,7 @@ class OrFormula extends BinaryFormula {
     }
 }
 
-class ImpliesFormula extends BinaryFormula {
+export class ImpliesFormula extends BinaryFormula {
     constructor(leftChild, rightChild) {
         super(leftChild, rightChild);
         this._priority = 2;
@@ -314,7 +314,7 @@ class ImpliesFormula extends BinaryFormula {
     }
 }
 
-class IffFormula extends BinaryFormula {
+export class IffFormula extends BinaryFormula {
     constructor(leftChild, rightChild) {
         super(leftChild, rightChild);
         this._priority = 1;
@@ -329,7 +329,7 @@ class IffFormula extends BinaryFormula {
     }
 }
 
-class EqualsFormula extends PredicateFormula {
+export class EqualsFormula extends PredicateFormula {
     constructor(leftChild, rightChild) {
         super("=", [leftChild, rightChild]);
     }
@@ -347,7 +347,7 @@ class EqualsFormula extends PredicateFormula {
     }
 }
 
-class NotEqualsFormula extends NotFormula {
+export class NotEqualsFormula extends NotFormula {
     constructor(leftChild, rightChild) {
         super(new EqualsFormula(leftChild, rightChild));
         this._leftChild = leftChild;
@@ -377,7 +377,7 @@ class QuantifierFormula extends BasicFormula {
     }
 }
 
-class AllFormula extends QuantifierFormula {
+export class AllFormula extends QuantifierFormula {
     constructor(bound, subformula) {
         super(bound, subformula);
     }
@@ -398,7 +398,7 @@ class AllFormula extends QuantifierFormula {
     }
 }
 
-class ExistsFormula extends QuantifierFormula {
+export class ExistsFormula extends QuantifierFormula {
     constructor(bound, subformula) {
         super(bound, subformula);
     }
@@ -419,15 +419,15 @@ class ExistsFormula extends QuantifierFormula {
     }
 }
 
-let P = new AtomFormula("P");
-let Q = new AtomFormula("Q");
-let PandQ = new AndFormula(P, Q);
-let PorQ = new OrFormula(P, Q);
+// List of formulas in same order as they are in the proof entry windows
+let formulaList = [OrFormula, AndFormula, NotFormula, AtomFormula, ImpliesFormula, IffFormula, EqualsFormula,
+                    NotEqualsFormula, BottomFormula, TopFormula, AllFormula, ExistsFormula, PredicateFormula, FunctionFormula];
 
-let a = new VariableFormula("a");
-let b = new VariableFormula("b");
-let f = new FunctionFormula("f", [a,b]);
-let x = new VariableFormula("x");
-let exi = new ExistsFormula(x, new FunctionFormula("f", [a,x]));
-
-console.log(exi.replaceVar(x, b, new Set()).show());
+export function addFormulaData(buttonList) {
+    // Takes a list of buttons in order
+    // and associates with each the proper Formula class
+    console.assert(buttonList.length === 14);
+    for (let i = 0; i < 14; i++) {
+        buttonList[i].dataset.associatedFormula = formulaList[i];
+    }
+}
