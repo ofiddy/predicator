@@ -1,4 +1,4 @@
-import {setUnion} from "./lib.js";
+import {setUnion, boundSetHas} from "./lib.js";
 
 class BasicFormula {
     // A blank formula, represents an empty for formula input
@@ -21,7 +21,7 @@ class BasicFormula {
         return false; // Two blank formulas are never equal
     }
 
-    replaceVar(oldVar, newVar) { // Replaces all instances of oldVar with newVar
+    replaceVar(oldVar, newVar, bound) { // Replaces all instances of oldVar with newVar
         return this;
     }
 
@@ -52,9 +52,13 @@ class VariableFormula extends BasicFormula {
         return (other instanceof VariableFormula && other._name === this._name);
     }
 
-    replaceVar(oldVar, newVar) {
-        let replacedVar = (this.equals(oldVar) ? newVar._name : this._name);
-        return new VariableFormula(replacedVar);
+    replaceVar(oldVar, newVar, bound) {
+        if (this.equals(oldVar) && !(boundSetHas(oldVar))) {
+            return newVar;
+        } else {
+            return this;
+        }
+        
     }
 
     getVar() {
@@ -96,10 +100,10 @@ class FunctionFormula extends BasicFormula {
         }
     }
 
-    replaceVar(oldVar, newVar) {
+    replaceVar(oldVar, newVar, bound) {
         let newVars = [];
         for (let i = 0; i < this._variables.length; i++) {
-            newVars[i] = this._variables[i].replaceVar(oldVar, newVar);
+            newVars[i] = this._variables[i].replaceVar(oldVar, newVar, bound);
         }
         return new FunctionFormula(this._name, newVars);
     }
@@ -186,10 +190,10 @@ class PredicateFormula extends BasicFormula {
         }
     }
 
-    replaceVar(oldVar, newVar) {
+    replaceVar(oldVar, newVar, bound) {
         let newVars = [];
         for (let i = 0; i < this._variables.length; i++) {
-            newVars[i] = this._variables[i].replaceVar(oldVar, newVar);
+            newVars[i] = this._variables[i].replaceVar(oldVar, newVar, bound);
         }
         return new PredicateFormula(this._name, newVars);
     }
@@ -220,8 +224,8 @@ class NotFormula extends BasicFormula {
         return (other instanceof NotFormula && this._contents.equals(other._contents));
     }
 
-    replaceVar(oldVar, newVar) {
-        return this._contents.replaceVar(oldVar, newVar);
+    replaceVar(oldVar, newVar, bound) {
+        return this._contents.replaceVar(oldVar, newVar, bound);
     }
 
     getVar() {
@@ -237,8 +241,8 @@ class BinaryFormula extends BasicFormula {
         this._rightChild = rightChild;
     }
 
-    replaceVar(oldVar, newVar) {
-        return this._leftChild.replaceVar(oldVar, newVar).concat(this._rightChild.replaceVar(oldVar, newVar));
+    replaceVar(oldVar, newVar, bound) {
+        return this._leftChild.replaceVar(oldVar, newVar, bound).concat(this._rightChild.replaceVar(oldVar, newVar, bound));
     }
 
     getVar() {
@@ -334,12 +338,80 @@ class EqualsFormula extends PredicateFormula {
         return this._variables[0].show() + "=" + this._variables[1].show();
     }
 
-    replaceVar(oldVar, newVar) {
+    replaceVar(oldVar, newVar, bound) {
         let newVars = [];
         for (let i = 0; i < this._variables.length; i++) {
-            newVars[i] = this._variables[i].replaceVar(oldVar, newVar);
+            newVars[i] = this._variables[i].replaceVar(oldVar, newVar, bound);
         }
         return new EqualsFormula(newVars[0], newVars[1]);
+    }
+}
+
+class NotEqualsFormula extends NotFormula {
+    constructor(leftChild, rightChild) {
+        super(new EqualsFormula(leftChild, rightChild));
+        this._leftChild = leftChild;
+        this._rightChild = rightChild;
+    }
+
+    show() {
+        return this._leftChild.show() + "≠" + this._rightChild.show();
+    }
+}
+
+class QuantifierFormula extends BasicFormula {
+    constructor(bound, subformula) {
+        super();
+        this._bound = bound;
+        this._subformula = subformula;
+    }
+
+    _show(symbol) {
+        return symbol + this._bound.show() + "[" + this._subformula.show + "]";
+    }
+
+    getVar() {
+        let varSet = this._subformula.getVar();
+        varSet.add(this._bound);
+        return varSet;
+    }
+}
+
+class AllFormula extends QuantifierFormula {
+    constructor(bound, subformula) {
+        super(bound, subformula);
+    }
+
+    show() {
+        return this._show("∀");
+    }
+
+    replaceVar(oldVar, newVar, bound) {
+        let newBound = setUnion(new Set(), bound);
+        return new AllFormula(this._bound, this._subformula.replaceVar(oldVar, newVar, newBound));
+    }
+
+    equals(other) {
+        return (other instanceof AllFormula && this._bound.equals(other._bound) && this._subformula.equals(other._subformula));
+    }
+}
+
+class ExistsFormula extends QuantifierFormula {
+    constructor(bound, subformula) {
+        super(bound, subformula);
+    }
+
+    show() {
+        return this._show("∃");
+    }
+
+    replaceVar(oldVar, newVar, bound) {
+        let newBound = setUnion(new Set(), bound);
+        return new ExistsFormula(this._bound, this._subformula.replaceVar(oldVar, newVar, newBound));
+    }
+
+    equals(other) {
+        return (other instanceof ExistsFormula && this._bound.equals(other._bound) && this._subformula.equals(other._subformula));
     }
 }
 
@@ -353,6 +425,6 @@ let b = new VariableFormula("b");
 let f = new FunctionFormula("f", [a,b]);
 let x = new VariableFormula("x");
 let eq = new EqualsFormula(a, f);
+let neq = new NotEqualsFormula(a, f)
 
-console.log(eq.replaceVar(b, x).show());
-console.log(eq.getVar());
+console.log(neq.show());

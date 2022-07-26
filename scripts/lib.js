@@ -15,3 +15,14 @@ export function setUnion(setA, setB) {
   }
   return _union;
 }
+
+export function boundSetHas(set, value) {
+    // Checks if value is in a set using value.equals()
+    console.assert(set instanceof Set);
+    for (const v of set.values()) {
+        if (v.equals(value)) {
+            return true;
+        }
+    }
+    return false;
+}
