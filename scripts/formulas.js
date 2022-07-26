@@ -313,7 +313,7 @@ class BinaryFormula extends BasicFormula {
 
     _show(symbol) {
         let leftShow = this._leftChild.show();
-        if (this._leftChild._priority < this._priority) {
+        if (this._leftChild._priority <= this._priority) {
             leftShow = "(" + leftShow + ")";
         }
 
@@ -538,7 +538,7 @@ export class ExistsFormula extends QuantifierFormula {
 }
 
 // List of formulas in same order as they are in the proof entry windows
-let formulaList = [OrFormula, AndFormula, NotFormula, AtomFormula, ImpliesFormula, IffFormula, EqualsFormula,
+export let formulaList = [OrFormula, AndFormula, NotFormula, AtomFormula, ImpliesFormula, IffFormula, EqualsFormula,
                     NotEqualsFormula, BottomFormula, TopFormula, AllFormula, ExistsFormula, PredicateFormula, FunctionFormula];
 
 export function addFormulaData(buttonList) {
@@ -546,6 +546,6 @@ export function addFormulaData(buttonList) {
     // and associates with each the proper Formula class
     console.assert(buttonList.length === 14);
     for (let i = 0; i < 14; i++) {
-        buttonList[i].dataset.formulaClass = formulaList[i];
+        buttonList[i].dataset.formulaClassIndex = i;
     }
 }

@@ -3,8 +3,9 @@ import * as formulas from "./formulas.js";
 // These are the generic functions for any formula entry window to use
 
 // When a button pressed, inserts the relevant formula to the specified location
-export function attemptInsertFormula (event, targetFormula) {
-    let formulaToInsert = event.target.dataset.formulaClass;
+export function attemptInsertFormula (event, targetFormula, formulaScope) {
+    // formulaScope is the list of formula objects for the html to refer to
+    let formulaToInsert = formulas.formulaList[event.target.dataset.formulaClassIndex];
     if (formulaToInsert === null) {
         return false; // "Adding" an atom basically does nothing
     }
@@ -17,34 +18,42 @@ export function attemptInsertFormula (event, targetFormula) {
     // Put the new content where the old content was
     
     let oldElem = targetFormula;
-    let oldFormula = targetFormula.dataset.formula;
+    let oldIndex = targetFormula.dataset.formulaIndex
+    let oldFormula = formulaScope[oldIndex];
     let insertDest = oldElem.parentNode;
     let newElem;
     let newFormula;
 
-    if (new formulaToInsert() instanceof formulas.QuantifierFormula) {
-        insertDest.removeChild(oldElem);
-
-        newElem = (new formulaToInsert() instanceof formulas.AllFormula ? newAllElement() : newExistsElement());
-        let symbol = newElem.innerText;
-        newElem.innerText = "";
-        
-        // Add an existing predicate as the right-hand-side
-        if (oldFormula.isPredicate) {
-            // Create new elems, formula, then sync the two layers
-            let newLhs = newBlankVarElement();
-            let newLhsFormula = new formulas.BasicVarFormula();
-            newLhs.dataset.formula = newLhsFormula;
-
-            newFormula = new formulaToInsert(newLhsFormula, oldFormula);
-
-            newElem.appendChild(newLhs);
-            newElem.appendChild(symbol);
-            newElem.appendChild(oldFormula);
-        }
+    function assignToScope (elem, formula, scope) {
+        elem.dataset.formulaIndex = scope.length;
+        scope.push(formula);
     }
 
-    newElem.dataset.formula = newFormula
+    // All- and Exists- formulas
+    if (formulaToInsert.prototype instanceof formulas.QuantifierFormula && oldFormula.isPredicate) {
+        let newLhs = formulas.BasicVarFormula.newElem();
+        let newLhsFormula = new formulas.BasicVarFormula();
+        assignToScope(newLhs, newLhsFormula, formulaScope);
+
+        let newRhs = oldElem;
+        let newRhsFormula = oldFormula;
+
+        newElem = formulaToInsert.newElem();
+        console.log(newElem);
+        let symbol = newElem.innerText;
+        newElem.innerText = "";
+        insertDest.replaceChild(newElem, oldElem);
+        newElem.append(symbol + " ");
+        newElem.append(newLhs);
+        newElem.append(" [");
+        newElem.append(newRhs);
+        newElem.append("]")
+
+        newFormula = new formulaToInsert(newLhsFormula, newRhsFormula);
+        formulaScope[oldIndex] = newFormula;
+        newElem.dataset.formulaIndex = oldIndex;
+        newElem.focus();
+    }
 }
 
 
@@ -65,4 +74,5 @@ export function bindKeysToButtonlist (buttonList) {
         "(": buttonList[12],
         ")": buttonList[13],
     }
+    return bindDict;
 }
