@@ -437,3 +437,7 @@ body {
 #modal-or-int-prior-right {
     display: none;
 }
+
+#modal-or-int {
+    display: none;
+}

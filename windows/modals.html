@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"> 
 </head>
 <body style="background-color: var(--bg-color);">
-    <div class="modal">
+    <div id="modal-toplevel" class="modal">
     <div id="modal-formula-input" class="modal-formula-input h-flex-container">
         <div id="modal-formula-input-left-panel" class="window-body modal-body">
             <div id="modal-formula-input-title" class="modal-title green-elem">Template Input</div>
@@ -53,60 +53,22 @@
     </div>
     </div>
 
-    <div class="modal" style="display: block;">
-    <div id="modal-or-int" class="modal-formula-input h-flex-container">
-        <div id="modal-formula-input-left-panel" class="window-body modal-body">
-            <div id="modal-formula-input-title" class="modal-title green-elem">⋁-Introduction</div>
-            <div id="modal-formula-input-desc" class="modal-body-text white-elem">This is where we descrbe what any of this does!</div>
+    <div id="modal-or-int">
+        <div id="modal-or-int-left-panel" class="window-body modal-body">
+            <div id="modal-or-int-title" class="modal-title green-elem">⋁-Introduction</div>
+            <div id="modal-or-int-desc" class="modal-body-text white-elem">This is where we descrbe what any of this does!</div>
 
             <div class="h-flex-container-modal">
                 <div id="modal-or-int-prior-left" class="modal-body-text modal-or-int-prior cyan-elem">ɸ ⋁ </div>
-                <div id="modal-formula-input-entry" class="modal-small-expression-entry expanding-expression-input"><input type="text" class="expression-input red-elem"></div>
+                <div id="modal-or-int-entry" class="modal-small-expression-entry expanding-expression-input"><input type="text" class="expression-input red-elem"></div>
                 <div id="modal-or-int-prior-right" class="modal-body-text modal-or-int-prior cyan-elem"> ⋁ ɸ</div>
             </div>
             
             <button id="modal-or-int-swap" class="inheriting-button cyan-elem modal-body-button">Swap</button>
-            <button id="modal-formula-input-confirmation" class="inheriting-button green-elem modal-body-button">Confirm</button>
-        </div>
-
-        <div id="modal-formula-input-right-panel" class="panel modal-button-panel grid-container">
-            <p id="modal-or-label" class="inheriting-label modal-button-label italic cyan-elem">+</p>
-            <button id="modal-or-button" class="inheriting-button modal-panel-button physics-button cyan-elem" draggable="true">⋁</button>
-            <button id="modal-and-button" class="inheriting-button modal-panel-button physics-button yellow-elem" draggable="true">⋀</button>
-            <p id="modal-and-label" class="inheriting-label modal-button-label italic yellow-elem">&</p>
-
-            <p id="modal-not-label" class="inheriting-label modal-button-label italic red-elem">~</p>
-            <button id="modal-not-button" class="inheriting-button modal-panel-button physics-button red-elem" draggable="true"><div id="entry-not-button-label">¬</div></button>
-            <button id="modal-atom-button" class="inheriting-button modal-panel-button physics-button green-elem" draggable="true"><div class="entry-text-button-label">Atom</div></button>
-            <p id="modal-atom-label" class="inheriting-label modal-button-label italic green-elem">C</p>
-
-            <p id="modal-imp-label" class="inheriting-label modal-button-label italic orange-elem">></p>
-            <button id="modal-imp-button" class="inheriting-button modal-panel-button physics-button orange-elem" draggable="true">→</button>
-            <button id="modal-iff-button" class="inheriting-button modal-panel-button physics-button purple-elem" draggable="true">↔</button>
-            <p id="modal-iff-label" class="inheriting-label modal-button-label italic purple-elem"><</p>
-
-            <p id="modal-eq-label" class="inheriting-label modal-button-label italic greyblue-elem">=</p>
-            <button id="modal-eq-button" class="inheriting-button modal-panel-button physics-button greyblue-elem" draggable="true">=</button>
-            <button id="modal-neq-button" class="inheriting-button modal-panel-button physics-button white-elem" draggable="true">#</button>
-            <p id="modal-neq-label" class="inheriting-label modal-button-label italic white-elem"><</p>
-
-            <p id="modal-top-label" class="inheriting-label modal-button-label italic cyan-elem">!</p>
-            <button id="modal-top-button" class="inheriting-button modal-panel-button physics-button cyan-elem" draggable="true">⊤</button>
-            <button id="modal-bot-button" class="inheriting-button modal-panel-button physics-button yellow-elem" draggable="true">⊥</button>
-            <p id="modal-bot-label" class="inheriting-label modal-button-label italic yellow-elem">?</p>
-
-            <p id="modal-all-label" class="inheriting-label modal-button-label italic red-elem">@</p>
-            <button id="modal-all-button" class="inheriting-button modal-panel-button physics-button red-elem" draggable="true">∀</button>
-            <button id="modal-exists-button" class="inheriting-button modal-panel-button physics-button green-elem" draggable="true">∃</button>
-            <p id="modal-exists-label" class="inheriting-label modal-button-label italic green-elem">$</p>
-
-            <p id="modal-pred-label" class="inheriting-label modal-button-label italic orange-elem">(</p>
-            <button id="modal-pred-button" class="inheriting-button modal-panel-button physics-button orange-elem" draggable="true"><div class="entry-text-button-label">Pred.</div></button>
-            <button id="modal-func-button" class="inheriting-button modal-panel-button physics-button purple-elem" draggable="true"><div class="entry-text-button-label">Func.</div></button>
-            <p id="modal-func-label" class="inheriting-label modal-button-label italic purple-elem">)</p>
+            <button id="modal-or-int-confirmation" class="inheriting-button green-elem modal-body-button">Confirm</button>
         </div>
     </div>
-    </div>
+
     <script src="../scripts/modals_test.js" type="module"></script>
 </body>
 
