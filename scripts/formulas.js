@@ -53,7 +53,7 @@ class VariableFormula extends BasicFormula {
     }
 
     replaceVar(oldVar, newVar, bound) {
-        if (this.equals(oldVar) && !(boundSetHas(oldVar))) {
+        if (this.equals(oldVar) && !(boundSetHas(bound, oldVar))) {
             return newVar;
         } else {
             return this;
@@ -367,7 +367,7 @@ class QuantifierFormula extends BasicFormula {
     }
 
     _show(symbol) {
-        return symbol + this._bound.show() + "[" + this._subformula.show + "]";
+        return symbol + this._bound.show() + "[" + this._subformula.show() + "]";
     }
 
     getVar() {
@@ -387,7 +387,9 @@ class AllFormula extends QuantifierFormula {
     }
 
     replaceVar(oldVar, newVar, bound) {
+        // Adds the variable quantified to the list of bound variables
         let newBound = setUnion(new Set(), bound);
+        newBound.add(this._bound);
         return new AllFormula(this._bound, this._subformula.replaceVar(oldVar, newVar, newBound));
     }
 
@@ -406,7 +408,9 @@ class ExistsFormula extends QuantifierFormula {
     }
 
     replaceVar(oldVar, newVar, bound) {
+        // Adds the variable quantified to the list of bound variables
         let newBound = setUnion(new Set(), bound);
+        newBound.add(this._bound);
         return new ExistsFormula(this._bound, this._subformula.replaceVar(oldVar, newVar, newBound));
     }
 
@@ -424,7 +428,6 @@ let a = new VariableFormula("a");
 let b = new VariableFormula("b");
 let f = new FunctionFormula("f", [a,b]);
 let x = new VariableFormula("x");
-let eq = new EqualsFormula(a, f);
-let neq = new NotEqualsFormula(a, f)
+let exi = new ExistsFormula(x, new FunctionFormula("f", [a,x]));
 
-console.log(neq.show());
+console.log(exi.replaceVar(x, b, new Set()).show());
