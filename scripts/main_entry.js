@@ -1,4 +1,5 @@
-import { bindKeysToButtonlist } from "./formula_entry_window.js"
+import { bindKeysToButtonlist, attemptInsertFormula } from "./formula_entry_window.js"
+import * as formulas from "./formulas.js"
 
 lastClickedButton = null;
 lastClickedFormula = null;
@@ -10,11 +11,32 @@ export function formulaElementFocus (event) {
 }
 
 // Defines behaviour when a key is pressed while a formula has focus
-function formulaButtonShortcut(event) {
-    if (bindDict[event.key]) {
-        bindDict[event.key].click();
+function formulaButtonShortcut(event, _bindDict) {
+    if (_bindDict[event.key]) {
+        _bindDict[event.key].click();
     }
 }
+
+function checkThenAttemptInsert (event) {
+    // Checks that everything is valid then attempts to insert a formula
+    event.stopPropagation();
+
+    lastClickedButton = event.target;
+    if (lastClickedFormula === null) {
+        return;
+    } else {
+        attemptInsertFormula(event, lastClickedFormula);
+    }
+}
+
+// Puts the buttons in the main window into the needed list
+let buttonList = [];
+for (const e of document.getElementById("entry-left-panel")) {
+    buttonList.push(e.children[0]);
+    e.children[0].addEventListener("click", checkThenAttemptInsert);
+}
+addFormulaData(buttonList);
+let bindDict = bindKeysToButtonlist(buttonList);
 
 // Does the initial application of event handlers to formula elements
 document.querySelectorAll(".formula-elem").forEach((e) => {

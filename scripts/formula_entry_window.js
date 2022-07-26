@@ -4,12 +4,6 @@ import * as formulas from "./formulas.js";
 
 // When a button pressed, inserts the relevant formula to the specified location
 export function attemptInsertFormula (event, targetFormula) {
-    event.stopPropagation();
-    
-    if (lastClickedFormula === null) {
-        return false; // Cannot apply effect to nothing
-    }
-
     let formulaToInsert = event.target.dataset.formulaClass;
     if (formulaToInsert === null) {
         return false; // "Adding" an atom basically does nothing
@@ -22,23 +16,130 @@ export function attemptInsertFormula (event, targetFormula) {
     // Put a new blank as a child where appropriate
     // Put the new content where the old content was
     
-    let oldElem = lastClickedFormula;
-    let oldFormula = lastClickedFormula.dataset.formula;
+    let oldElem = targetFormula;
+    let oldFormula = targetFormula.dataset.formula;
     let newElem;
     let newFormula;
 
     if (formulaToInsert instanceof formulas.QuantifierFormula) {
         oldElem.parentNode.removeChild(oldElem);
-        newElem = document.createElement("span");
-        let col = (formulaToInsert instanceof formulas.AllFormula ? "red-elem" : "green-elem");
-        newElem.classList.add("formula-elem", col);
+
+        newElem = (formulaToInsert instanceof formulas.AllFormula ? newAllElement() : newExistsElement());
         
-        // Add existing predicate as the right-hand-side
+        // Add an existing predicate as the right-hand-side
         let rhs = (oldFormula.isPredicate ? oldFormula : new formulas.BasicFormula());
         let lhs = (oldFormula instanceof formulas.VariableFormula ? oldFormula : new formulas.BasicVarFormula());
         
     }
 }
+
+// These functions generate elements corresponding to each formula
+// and do NO other work behind the scenes
+function newBlankElement () {
+    let elem = document.createElement("input");
+    elem.type = "text";
+    elem.classList.add("expression-input", "formula-elem", "cyan-elem");
+    return elem;
+}
+
+function newBlankVarElement() {
+    let elem = document.createElement("input");
+    elem.type = "text";
+    elem.classList.add("expression-input", "formula-elem", "var-input", "purple-elem");
+    return elem;
+}
+
+function newOrElement () {
+    let elem = document.createElement("span");
+    elem.classList.add("formula-elem", "cyan-elem");
+    elem.innerText = "⋁";
+    return elem;
+}
+
+function newAndElement () {
+    let elem = document.createElement("span");
+    elem.classList.add("formula-elem", "yellow-elem");
+    elem.innerText = "⋀";
+    return elem;
+}
+
+function newNotElement () {
+    let elem = document.createElement("span");
+    elem.classList.add("formula-elem", "red-elem");
+    elem.innerText = "¬";
+    return elem;
+}
+
+function newImpliesElement () {
+    let elem = document.createElement("span");
+    elem.classList.add("formula-elem", "orange-elem");
+    elem.innerText = "→";
+    return elem;
+}
+
+function newIffElement () {
+    let elem = document.createElement("span");
+    elem.classList.add("formula-elem", "purple-elem");
+    elem.innerText = "↔";
+    return elem;
+}
+
+function newEqualsElement () {
+    let elem = document.createElement("span");
+    elem.classList.add("formula-elem", "greyblue-elem");
+    elem.innerText = "=";
+    return elem;
+}
+
+function newNotEqualsElement () {
+    let elem = document.createElement("span");
+    elem.classList.add("formula-elem", "white-elem");
+    elem.innerText = "≠";
+    return elem;
+}
+
+function newBotElement () {
+    let elem = document.createElement("span");
+    elem.classList.add("formula-elem", "cyan-elem");
+    elem.innerText = "⊥";
+    return elem;
+}
+
+function newTopElement () {
+    let elem = document.createElement("span");
+    elem.classList.add("formula-elem", "yellow-elem");
+    elem.innerText = "⊤";
+    return elem;
+}
+
+function newAllElement () {
+    let elem = document.createElement("span");
+    elem.classList.add("formula-elem", "red-elem");
+    elem.innerText = "∀";
+    return elem;
+}
+
+function newExistsElement () {
+    let elem = document.createElement("span");
+    elem.classList.add("formula-elem", "green-elem");
+    elem.innerText = "∃";
+    return elem;
+}
+
+function newPredicateElement () {
+    let elem = document.createElement("span");
+    elem.classList.add("formula-elem", "orange-elem");
+    elem.innerText = "(";
+    return elem;
+}
+
+function newFunctionElement () {
+    let elem = document.createElement("span");
+    elem.classList.add("formula-elem", "purple-elem");
+    elem.innerText = "(";
+    return elem;
+}
+
 
 // Maps each key to the effects of a button
 export function bindKeysToButtonlist (buttonList) {

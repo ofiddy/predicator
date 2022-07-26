@@ -178,12 +178,15 @@ body {
     margin: 8px 8px 8px 8px;
 }
 
+.formula-elem {
+    font-size: var(--parent-font-size);
+    color: var(--parent-color);
+}
+
 .expression-input {
     background-color: var(--parent-color-bg);
-    color: var(--parent-color);
     border: var(--parent-color) 1px solid;
     transition: border 0.1s linear;
-    font-size: var(--parent-font-size);
     width: 6ch;
     text-align: center;
 }
