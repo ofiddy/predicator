@@ -362,7 +362,8 @@ body {
 
 .modal-formula-input {
     max-width: 600px;
-    max-height: 260px;
+    min-height: 260px;
+    max-height: 400px;
     border: var(--element-color) 2px solid;
 }
 
@@ -389,6 +390,7 @@ body {
 .modal-body-text {
     font-size: 20px;
     margin: 20px 5px;
+    color: var(--parent-color);
 }
 
 .modal-full-expression-entry {
@@ -425,7 +427,7 @@ body {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    margin: 0px;
+    margin: 4px;
     padding: 0px;
 }
 
@@ -440,4 +442,26 @@ body {
 
 #modal-or-int {
     display: none;
+}
+
+#modal-and-elim {
+    display: none;
+    max-width: 500px;
+    max-height: 260px;
+    border: var(--element-color) 2px solid;
+}
+
+#modal-imp-int {
+    display: none;
+}
+
+#modal-imp-int-mid {
+    margin: 0px auto 10px auto;
+}
+
+#modal-var-enter {
+    display: none;
+    max-width: 500px;
+    max-height: 260px;
+    border: var(--element-color) 2px solid;
 }
