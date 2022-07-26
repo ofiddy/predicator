@@ -4,7 +4,7 @@ class BasicFormula {
 
     constructor () {
         this._isPredicate = true;
-        this._priority = 0;
+        this._priority = 20;
     }
 
     get isPredicate() {
@@ -250,7 +250,7 @@ class BinaryFormula extends BasicFormula {
     }
 
     _childrenEqual(other) {
-        assert(other instanceof BinaryFormula);
+        console.assert(other instanceof BinaryFormula);
         return (this._leftChild.equals(other._leftChild) && this._rightChild.equals(other._rightChild));
     }
 }
@@ -258,6 +258,7 @@ class BinaryFormula extends BasicFormula {
 class AndFormula extends BinaryFormula {
     constructor(leftChild, rightChild) {
         super(leftChild, rightChild);
+        this._priority = 4;
     }
 
     show() {
@@ -269,8 +270,24 @@ class AndFormula extends BinaryFormula {
     }
 }
 
+class OrFormula extends BinaryFormula {
+    constructor(leftChild, rightChild) {
+        super(leftChild, rightChild);
+        this._priority = 3;
+    }
+
+    show() {
+        return this._show("⋁");
+    }
+
+    equals(other) {
+        return (other instanceof OrFormula && this._childrenEqual(other));
+    }
+}
+
 let P = new AtomFormula("P");
 let Q = new AtomFormula("Q");
 let PandQ = new AndFormula(P, Q);
+let PorQ = new OrFormula(P, Q);
 
-console.log(PandQ.show());
+console.log(new AndFormula(P, PorQ).show());
