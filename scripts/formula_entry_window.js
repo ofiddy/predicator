@@ -1,4 +1,5 @@
 import * as formulas from "./formulas.js";
+import { insertAfter } from "./lib.js";
 
 // These are the generic functions for any formula entry window to use
 
@@ -100,7 +101,7 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
         insertDest.replaceChild(newElem, oldElem);
         newElem.focus();
 
-    } else if (testForm instanceof formulas.NotFormula) {
+    } else if (testForm instanceof formulas.NotFormula && oldFormula.isPredicate) {
         // Adding a Negation Formula
         let newElem = formulaToInsert.newElem();
         let newElemFormula = new formulaToInsert(oldFormula);
@@ -110,6 +111,56 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
         newElem.append("(");
         newElem.append(oldElem);
         newElem.append(")");
+
+        newElem.focus();
+
+    } else if ((testForm instanceof formulas.PredicateFormula && oldFormula.isPredicate)
+     || (testForm instanceof formulas.FunctionFormula && !oldFormula.isPredicate)) {
+        // Predicates and functions
+        let nameElem = formulas.BasicVarFormula.newElem();
+        let nameElemFormula = new formulas.BasicVarFormula();
+        assignToScope(nameElem, nameElemFormula, formulaScope);
+
+        if (oldElem.classList.contains("expression-input")) {
+            nameElem.value = oldElem.value;
+        }
+        
+        let varsElem = formulas.ExpandingVarFormula.newElem();
+        let varsElemFormula = new formulas.ExpandingVarFormula();
+        varsElem.classList.add("first-var");
+        // Do not assign to scope: tracked via the parent
+
+        let vars = [varsElemFormula];
+        let newElem = formulaToInsert.newElem();
+        let newElemFormula = new formulaToInsert("", vars);
+        assignToScope(newElem, newElemFormula, formulaScope);
+        insertDest.replaceChild(newElem, oldElem);
+
+        newElem.append(nameElem);
+        newElem.append("(");
+        newElem.append(varsElem);
+        newElem.append(")");
+
+        function expandingVarSplit(event) {
+            if (event.target.classList.contains("expanding-var-input") &&
+            event.key === ",") {
+                event.preventDefault();
+                attemptAddVariable(event.target, formulaScope);
+            }
+        }
+
+        function expandingVarBackspace(event) {
+            console.log(event.target);
+            if (event.target.classList.contains("expanding-var-input") &&
+            event.key === "Backspace") {
+                if (event.target.value.length === 0 && !event.target.classList.contains("first-var")) {
+                    attemptDeleteVariable(event.target, formulaScope);
+                }
+            }
+        }
+
+        newElem.addEventListener("keypress", expandingVarSplit);
+        newElem.addEventListener("keydown", expandingVarBackspace);
 
         newElem.focus();
     }
@@ -122,9 +173,16 @@ export function attemptDeleteFormula (targetFormula, formulaScope) {
         return; // Do nothing if try to delete an entry
     }
 
-    let newElem = formulas.BasicFormula.newElem();
-    let newElemFormula = new formulas.BasicFormula();
+    let newElem, newElemFormula;
     let oldIndex = targetFormula.dataset.formulaIndex;
+    if (formulaScope[oldIndex].isPredicate) {
+        newElem = formulas.BasicFormula.newElem();
+        newElemFormula = new formulas.BasicFormula();
+    } else {
+        newElem = formulas.BasicVarFormula.newElem();
+        newElemFormula = new formulas.BasicVarFormula;
+    }
+    
     formulaScope[oldIndex] = newElemFormula;
     newElem.dataset.formulaIndex = oldIndex;
 
@@ -135,6 +193,48 @@ export function attemptDeleteFormula (targetFormula, formulaScope) {
     newElem.focus();
 }
 
+function attemptAddVariable (targetElem, formulaScope) {
+    // When "," pressed, split the focused ".expanding-var-input" into two
+    // PRE: targetElem is an ".expanding-var-input"
+    // For Predicates and Functions
+    let parentFormula = formulaScope[targetElem.parentNode.dataset.formulaIndex];
+    let parentElem = targetElem.parentNode;
+    let newElem = formulas.ExpandingVarFormula.newElem();
+    let newVar = new formulas.ExpandingVarFormula();
+
+    // Find the index of the selected targetFormula within the variables of the parent
+    let varIndex = Array.from(parentElem.children).indexOf(targetElem);
+
+    // Add a new expanding variable formula at that location
+    parentFormula.addVarAt(varIndex, newVar);
+    insertAfter(newElem, targetElem);
+    insertAfter(document.createTextNode(", "), targetElem);
+    newElem.focus();
+}
+
+function attemptDeleteVariable (targetElem, formulaScope) {
+    // When "<-" pressed, remove target Elem and the preceeding comma
+    // PRE: targetElem is an ".expanding-var-input" and not the first
+    // For Predicates and Functions
+    let parentFormula = formulaScope[targetElem.parentNode.dataset.formulaIndex];
+    let parentElem = targetElem.parentNode;
+
+    // Find the index of the selected targetFormula within the variables of the parent
+    let varIndex = Array.from(parentElem.children).indexOf(targetElem);
+    let nodeIndex = Array.from(parentElem.childNodes).indexOf(targetElem);
+
+    // Remove from the formula then the DOM
+    parentFormula.removeVarAt(varIndex);
+    parentElem.childNodes[nodeIndex - 1].remove();
+    parentElem.childNodes[nodeIndex - 1].remove();
+
+    // If there is a formula after, focus that, otherwise focus the previous
+    if (parentElem.children[varIndex]) {
+        parentElem.children[varIndex].focus();
+    } else {
+        parentElem.children[varIndex - 1].focus();
+    }
+}
 
 // Maps each key to the effects of a button
 export function bindKeysToButtonlist (buttonList) {

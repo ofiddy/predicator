@@ -54,6 +54,20 @@ export class BasicVarFormula extends BasicFormula {
     }
 }
 
+export class ExpandingVarFormula extends BasicVarFormula {
+    constructor() {
+        super();
+        this._isPredicate = false;
+    }
+    static newElem () {
+        let elem = document.createElement("input");
+        elem.type = "text";
+        elem.setAttribute("tabindex", "0");
+        elem.classList.add("expression-input", "formula-elem", "var-input", "cyan-elem", "expanding-var-input");
+        return elem;
+    }
+}
+
 export class VariableFormula extends BasicFormula {
     // Represents a single variable (e.g. in an exists formula)
 
@@ -108,6 +122,18 @@ export class FunctionFormula extends BasicFormula {
         this._variables = variables;
     }
 
+    addVarAt(index, variable) {
+        this._variables.splice(index, 0, variable);
+    }
+
+    removeVarAt(index) {
+        this._variables.splice(index, 1);
+    }
+
+    getVarAt(index) {
+        return this._variables[index];
+    }
+
     show() {
         let variableList = "";
         for (const v of this._variables) {
@@ -149,7 +175,7 @@ export class FunctionFormula extends BasicFormula {
     static newElem () {
         let elem = document.createElement("span");
         elem.classList.add("formula-elem", "purple-elem");
-        elem.innerText = "(";
+        elem.innerText = "";
         elem.setAttribute("tabindex", "0");
         return elem;
     }
@@ -222,6 +248,18 @@ export class PredicateFormula extends BasicFormula {
         this._name = name;
     }
 
+    addVarAt(index, variable) {
+        this._variables.splice(index, 0, variable);
+    }
+
+    removeVarAt(index) {
+        this._variables.splice(index, 1);
+    }
+
+    getVarAt(index) {
+        return this._variables[index];
+    }
+
     show() {
         let variableList = "";
         for (const v of this._variables) {
@@ -263,7 +301,7 @@ export class PredicateFormula extends BasicFormula {
     static newElem () {
         let elem = document.createElement("span");
         elem.classList.add("formula-elem", "orange-elem");
-        elem.innerText = "(";
+        elem.innerText = "";
         elem.setAttribute("tabindex", "0");
         return elem;
     }
@@ -564,7 +602,3 @@ export function addFormulaData(buttonList) {
         buttonList[i].dataset.formulaClassIndex = i;
     }
 }
-
-let P = new NotFormula(new EqualsFormula(new VariableFormula("A"), new VariableFormula("B")));
-let Q = new NotEqualsFormula(new VariableFormula("A"), new VariableFormula("B"));
-console.log(Q.equals(P));

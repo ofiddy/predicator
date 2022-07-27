@@ -16,3 +16,7 @@ export function boundSetHas(set, value) {
     }
     return false;
 }
+
+export function insertAfter(newNode, referenceNode) {
+    referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+}
