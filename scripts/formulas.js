@@ -33,7 +33,7 @@ export class BasicFormula {
         let elem = document.createElement("input");
         elem.type = "text";
         elem.setAttribute("tabindex", "0");
-        elem.classList.add("expression-input", "formula-elem", "cyan-elem");
+        elem.classList.add("expression-input", "formula-elem");
         return elem;
     }
 }
@@ -303,7 +303,7 @@ export class NotFormula extends BasicFormula {
     }
 }
 
-class BinaryFormula extends BasicFormula {
+export class BinaryFormula extends BasicFormula {
     // Parent of all binary operators, NOT quantifiers
     constructor(leftChild, rightChild) {
         super();

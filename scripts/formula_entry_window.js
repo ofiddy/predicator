@@ -28,9 +28,10 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
         elem.dataset.formulaIndex = scope.length;
         scope.push(formula);
     }
+    let testForm = new formulaToInsert();
 
-    // All- and Exists- formulas
-    if (formulaToInsert.prototype instanceof formulas.QuantifierFormula && oldFormula.isPredicate) {
+    if (testForm instanceof formulas.QuantifierFormula && oldFormula.isPredicate) {
+        // All- and Exists- formulas
         let newLhs = formulas.BasicVarFormula.newElem();
         let newLhsFormula = new formulas.BasicVarFormula();
         assignToScope(newLhs, newLhsFormula, formulaScope);
@@ -46,18 +47,69 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
         newElem.append(newLhs);
         newElem.append(" [");
         newElem.append(newRhs);
-        newElem.append("]")
+        newElem.append("]");
 
         newFormula = new formulaToInsert(newLhsFormula, newRhsFormula);
-        formulaScope[oldIndex] = newFormula;
-        newElem.dataset.formulaIndex = oldIndex;
+        assignToScope(newElem, newFormula, formulaScope);
+        newElem.focus();
+
+    } else if ((testForm instanceof formulas.BinaryFormula ||
+        testForm instanceof formulas.EqualsFormula ||
+        testForm instanceof formulas.NotEqualsFormula) &&
+        oldFormula.isPredicate) {
+        // Binary Formulas and Equals and NEquals
+        let newLhs, newLhsFormula, newRhs, newRhsFormula;
+        if (formulaToInsert.prototype instanceof formulas.BinaryFormula) {
+            newRhs = formulas.BasicFormula.newElem();
+            newRhsFormula = new formulas.BasicFormula();
+            assignToScope(newRhs, newRhsFormula, formulaScope);
+
+            newLhs = oldElem;
+            newLhsFormula = oldFormula;
+        } else {
+            // If adding Equals/NEquals, must create variable entries
+            newLhs = formulas.BasicVarFormula.newElem();
+            newLhsFormula = new formulas.BasicVarFormula();
+            assignToScope(newLhs, newLhsFormula, formulaScope);
+            newRhs = formulas.BasicVarFormula.newElem();
+            newRhsFormula = new formulas.BasicVarFormula();
+            assignToScope(newRhs, newRhsFormula, formulaScope);
+        }
+
+        newElem = formulaToInsert.newElem();
+        let symbol = newElem.innerText;
+        newElem.innerText = "";
+        insertDest.replaceChild(newElem, oldElem);
+        newElem.append(" (");
+        newElem.append(newLhs);
+        newElem.append(") " + symbol + " (");
+        newElem.append(newRhs);
+        newElem.append(") ");
+
+        newFormula = new formulaToInsert(newLhsFormula, newRhsFormula);
+        assignToScope(newElem, newFormula, formulaScope);
         newElem.focus();
     }
 }
 
-export function attemptDeleteFormula (event, targetFormula, formulaScope) {
+export function attemptDeleteFormula (targetFormula, formulaScope) {
     // Replaces the target formula with a blank formula
     // And removes the associated values from the formula index
+    if (targetFormula.classList.contains("expression-input")) {
+        return; // Do nothing if try to delete an entry
+    }
+
+    let newElem = formulas.BasicFormula.newElem();
+    let newElemFormula = new formulas.BasicFormula();
+    let oldIndex = targetFormula.dataset.formulaIndex;
+    formulaScope[oldIndex] = newElemFormula;
+    newElem.dataset.formulaIndex = oldIndex;
+
+    // Remove all indices of children
+
+    // Replace the old node with the new blank
+    targetFormula.parentNode.replaceChild(newElem, targetFormula);
+    newElem.focus();
 }
 
 

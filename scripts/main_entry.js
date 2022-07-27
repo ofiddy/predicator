@@ -1,4 +1,4 @@
-import { bindKeysToButtonlist, attemptInsertFormula } from "./formula_entry_window.js"
+import { bindKeysToButtonlist, attemptInsertFormula, attemptDeleteFormula } from "./formula_entry_window.js"
 import * as formulas from "./formulas.js"
 
 let lastClickedButton = null;
@@ -16,26 +16,47 @@ export function formulaElementFocus (event) {
 
 // Defines behaviour when a key is pressed while a formula has focus
 function formulaButtonShortcut(event, _bindDict) {
-    console.log(_bindDict);
-    console.log(event.key);
     if (_bindDict[event.key]) {
         _bindDict[event.key].click();
+        event.preventDefault();
     }
 }
 
-function checkThenAttemptInsert (event) {
-    // Checks that everything is valid then attempts to insert a formula
+function formulaBackspaceHandle(event) {
+    if (!event.target.classList.contains("expression-input")) {
+        if (event.key == "Backspace" || event.key == "Delete") {
+            checkThenAttemptDelete(event);
+        }
+    }
+}
+
+// Checks that everything is valid then attempts to insert a formula
+function checkThenAttemptInsert(event) {
     event.stopPropagation();
 
     lastClickedButton = event.target;
     if (lastClickedFormula === null) {
-        if (document.activeElement.classList.contains("expression-input")) {
+        if (document.activeElement.classList.contains("formula-elem")) {
             attemptInsertFormula(event, document.activeElement, scopes["goal"]);
         }
-        return;
     } else {
         attemptInsertFormula(event, lastClickedFormula, scopes["goal"]);
     }
+    lastClickedFormula = null;
+}
+
+// Checks that everything is valid then attempts to delete a formula
+function checkThenAttemptDelete(event) {
+    event.stopPropagation();
+    console.log(scopes["goal"]);
+    if (lastClickedFormula === null) {
+        if (document.activeElement.classList.contains("formula-elem")) {
+            attemptDeleteFormula(document.activeElement, scopes["goal"]);
+        }
+    } else {
+        attemptDeleteFormula(lastClickedFormula, scopes["goal"]);
+    }
+    lastClickedFormula = null;
 }
 
 // Puts the buttons in the main window into the needed list
@@ -52,6 +73,7 @@ document.getElementById("goal-holder").querySelector(".expression-input").datase
 // Does the initial application of event handlers to formula elements
 document.querySelectorAll(".expanding-expression-input").forEach((e) => {
     e.addEventListener("click", formulaElementFocus);
+    e.addEventListener("keydown", formulaBackspaceHandle);
     e.addEventListener("keypress", (event) => {formulaButtonShortcut(event, bindDict)});
 });
 
