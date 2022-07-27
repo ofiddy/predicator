@@ -243,11 +243,13 @@ body {
 #entry-not-button-label {
     margin: -20px;
     font-size: 50px;
+    pointer-events: none;
 }
 
 .entry-text-button-label {
     font-size: 20px;
     margin: -10px -30px -10px -30px;
+    pointer-events: none;
 }
 
 #entry-atom-label {
@@ -258,11 +260,13 @@ body {
 #entry-eq-button-label {
     margin: -20px;
     font-size: 50px;
+    pointer-events: none;
 }
 
 #entry-neq-button-label {
     margin: -20px;
     font-size: 40px;
+    pointer-events: none;
 }
 
 .v-flex-container>hr {

@@ -30,6 +30,10 @@ function formulaBackspaceHandle(event) {
     }
 }
 
+function formulaSizeChange(event) {
+    event.target.setAttribute("style", "width: "+ (Math.max(event.target.value.length + 1, 3)) + "ch");
+}
+
 // Checks that everything is valid then attempts to insert a formula
 function checkThenAttemptInsert(event) {
     event.stopPropagation();
@@ -48,7 +52,6 @@ function checkThenAttemptInsert(event) {
 // Checks that everything is valid then attempts to delete a formula
 function checkThenAttemptDelete(event) {
     event.stopPropagation();
-    console.log(scopes["goal"]);
     if (lastClickedFormula === null) {
         if (document.activeElement.classList.contains("formula-elem")) {
             attemptDeleteFormula(document.activeElement, scopes["goal"]);
@@ -74,6 +77,7 @@ document.getElementById("goal-holder").querySelector(".expression-input").datase
 document.querySelectorAll(".expanding-expression-input").forEach((e) => {
     e.addEventListener("click", formulaElementFocus);
     e.addEventListener("keydown", formulaBackspaceHandle);
+    e.addEventListener("input", formulaSizeChange);
     e.addEventListener("keypress", (event) => {formulaButtonShortcut(event, bindDict)});
 });
 

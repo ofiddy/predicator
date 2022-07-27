@@ -273,7 +273,6 @@ export class NotFormula extends BasicFormula {
     // The only unary formula
     constructor(subFormula) {
         super();
-        console.assert(subFormula.isPredicate);
         this._contents = subFormula;
         this._priority = 10;
     }
@@ -565,3 +564,7 @@ export function addFormulaData(buttonList) {
         buttonList[i].dataset.formulaClassIndex = i;
     }
 }
+
+let P = new NotFormula(new EqualsFormula(new VariableFormula("A"), new VariableFormula("B")));
+let Q = new NotEqualsFormula(new VariableFormula("A"), new VariableFormula("B"));
+console.log(Q.equals(P));

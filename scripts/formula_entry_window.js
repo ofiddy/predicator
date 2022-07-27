@@ -89,6 +89,29 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
         newFormula = new formulaToInsert(newLhsFormula, newRhsFormula);
         assignToScope(newElem, newFormula, formulaScope);
         newElem.focus();
+
+    } else if ((testForm instanceof formulas.TopFormula || 
+        testForm instanceof formulas.BottomFormula) &&
+        oldFormula.isPredicate) {
+        // Bottom and Top Formulas
+        let newElem = formulaToInsert.newElem();
+        let newElemFormula = new formulaToInsert();
+        assignToScope(newElem, newElemFormula, formulaScope);
+        insertDest.replaceChild(newElem, oldElem);
+        newElem.focus();
+
+    } else if (testForm instanceof formulas.NotFormula) {
+        // Adding a Negation Formula
+        let newElem = formulaToInsert.newElem();
+        let newElemFormula = new formulaToInsert(oldFormula);
+        assignToScope(newElem, newElemFormula, formulaScope);
+        insertDest.replaceChild(newElem, oldElem);
+        
+        newElem.append("(");
+        newElem.append(oldElem);
+        newElem.append(")");
+
+        newElem.focus();
     }
 }
 
