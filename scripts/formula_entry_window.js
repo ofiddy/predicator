@@ -39,7 +39,6 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
         let newRhsFormula = oldFormula;
 
         newElem = formulaToInsert.newElem();
-        console.log(newElem);
         let symbol = newElem.innerText;
         newElem.innerText = "";
         insertDest.replaceChild(newElem, oldElem);
@@ -54,6 +53,11 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
         newElem.dataset.formulaIndex = oldIndex;
         newElem.focus();
     }
+}
+
+export function attemptDeleteFormula (event, targetFormula, formulaScope) {
+    // Replaces the target formula with a blank formula
+    // And removes the associated values from the formula index
 }
 
 

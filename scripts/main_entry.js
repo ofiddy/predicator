@@ -29,6 +29,9 @@ function checkThenAttemptInsert (event) {
 
     lastClickedButton = event.target;
     if (lastClickedFormula === null) {
+        if (document.activeElement.classList.contains("expression-input")) {
+            attemptInsertFormula(event, document.activeElement, scopes["goal"]);
+        }
         return;
     } else {
         attemptInsertFormula(event, lastClickedFormula, scopes["goal"]);

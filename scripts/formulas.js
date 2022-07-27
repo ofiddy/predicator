@@ -32,6 +32,7 @@ export class BasicFormula {
     static newElem () {
         let elem = document.createElement("input");
         elem.type = "text";
+        elem.setAttribute("tabindex", "0");
         elem.classList.add("expression-input", "formula-elem", "cyan-elem");
         return elem;
     }
@@ -47,6 +48,7 @@ export class BasicVarFormula extends BasicFormula {
     static newElem () {
         let elem = document.createElement("input");
         elem.type = "text";
+        elem.setAttribute("tabindex", "0");
         elem.classList.add("expression-input", "formula-elem", "var-input", "purple-elem");
         return elem;
     }
@@ -89,6 +91,7 @@ export class VariableFormula extends BasicFormula {
     static newElem () {
         let elem = document.createElement("span");
         elem.classList.add("formula-elem", "yellow-elem");
+        elem.setAttribute("tabindex", "0");
         return elem;
     }
 }
@@ -147,6 +150,7 @@ export class FunctionFormula extends BasicFormula {
         let elem = document.createElement("span");
         elem.classList.add("formula-elem", "purple-elem");
         elem.innerText = "(";
+        elem.setAttribute("tabindex", "0");
         return elem;
     }
 }
@@ -183,6 +187,7 @@ export class BottomFormula extends BasicFormula {
         let elem = document.createElement("span");
         elem.classList.add("formula-elem", "cyan-elem");
         elem.innerText = "⊥";
+        elem.setAttribute("tabindex", "0");
         return elem;
     }
 }
@@ -202,6 +207,7 @@ export class TopFormula extends BasicFormula {
         let elem = document.createElement("span");
         elem.classList.add("formula-elem", "yellow-elem");
         elem.innerText = "⊤";
+        elem.setAttribute("tabindex", "0");
         return elem;
     }
 }
@@ -258,6 +264,7 @@ export class PredicateFormula extends BasicFormula {
         let elem = document.createElement("span");
         elem.classList.add("formula-elem", "orange-elem");
         elem.innerText = "(";
+        elem.setAttribute("tabindex", "0");
         return elem;
     }
 }
@@ -291,6 +298,7 @@ export class NotFormula extends BasicFormula {
         let elem = document.createElement("span");
         elem.classList.add("formula-elem", "red-elem");
         elem.innerText = "¬";
+        elem.setAttribute("tabindex", "0");
         return elem;
     }
 }
@@ -349,6 +357,7 @@ export class AndFormula extends BinaryFormula {
         let elem = document.createElement("span");
         elem.classList.add("formula-elem", "yellow-elem");
         elem.innerText = "⋀";
+        elem.setAttribute("tabindex", "0");
         return elem;
     }
 }
@@ -371,6 +380,7 @@ export class OrFormula extends BinaryFormula {
         let elem = document.createElement("span");
         elem.classList.add("formula-elem", "cyan-elem");
         elem.innerText = "⋁";
+        elem.setAttribute("tabindex", "0");
         return elem;
     }
 }
@@ -393,6 +403,7 @@ export class ImpliesFormula extends BinaryFormula {
         let elem = document.createElement("span");
         elem.classList.add("formula-elem", "orange-elem");
         elem.innerText = "→";
+        elem.setAttribute("tabindex", "0");
         return elem;
     }
 }
@@ -415,6 +426,7 @@ export class IffFormula extends BinaryFormula {
         let elem = document.createElement("span");
         elem.classList.add("formula-elem", "purple-elem");
         elem.innerText = "↔";
+        elem.setAttribute("tabindex", "0");
         return elem;
     }
 }
@@ -440,6 +452,7 @@ export class EqualsFormula extends PredicateFormula {
         let elem = document.createElement("span");
         elem.classList.add("formula-elem", "greyblue-elem");
         elem.innerText = "=";
+        elem.setAttribute("tabindex", "0");
         return elem;
     }
 }
@@ -459,6 +472,7 @@ export class NotEqualsFormula extends NotFormula {
         let elem = document.createElement("span");
         elem.classList.add("formula-elem", "white-elem");
         elem.innerText = "≠";
+        elem.setAttribute("tabindex", "0");
         return elem;
     }
 }
@@ -505,6 +519,7 @@ export class AllFormula extends QuantifierFormula {
         let elem = document.createElement("span");
         elem.classList.add("formula-elem", "red-elem");
         elem.innerText = "∀";
+        elem.setAttribute("tabindex", "0");
         return elem;
     }
 }
@@ -533,6 +548,7 @@ export class ExistsFormula extends QuantifierFormula {
         let elem = document.createElement("span");
         elem.classList.add("formula-elem", "green-elem");
         elem.innerText = "∃";
+        elem.setAttribute("tabindex", "0");
         return elem;
     }
 }

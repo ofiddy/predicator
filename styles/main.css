@@ -183,12 +183,19 @@ body {
     color: var(--parent-color);
 }
 
+.formula-elem:focus {
+    outline: none !important;
+    background-color: var(--parent-color-bg);
+    font-size: 40px;
+}
+
 .expression-input {
     background-color: var(--parent-color-bg);
     border: var(--parent-color) 1px solid;
     transition: border 0.1s linear;
     width: 6ch;
     text-align: center;
+    font-style: normal;
 }
 
 .expression-input:focus {
@@ -196,6 +203,7 @@ body {
     border: var(--parent-color) 1px transparent;
     border-bottom: var(--parent-color) 6px solid;
     font-style: italic;
+    font-size: var(--parent-font-size);
 }
 
 .expression-input:hover {
