@@ -133,8 +133,8 @@ function checkThenAttemptInsert(event) {
         }
     } else {
         attemptInsertFormula(event, lastClickedFormula, getScope(lastClickedFormula));
-        if (getExpressionFromFormula(lastClickedFormula) !== "goal") {
-            checkThenMutateGivens(getExpressionFromFormula(lastClickedFormula), false);
+        if (getExpressionFromFormula(document.activeElement) !== "goal") {
+            checkThenMutateGivens(getExpressionFromFormula(document.activeElement), false);
         }
     }
     lastClickedFormula = null;

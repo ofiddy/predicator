@@ -166,6 +166,9 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
         newElem.addEventListener("keydown", expandingVarBackspace);
 
         newElem.focus();
+
+    } else { // Do nothing - either atom button or some kinda error
+        oldElem.focus();
     }
 }
 
