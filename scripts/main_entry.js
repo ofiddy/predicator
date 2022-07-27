@@ -22,18 +22,21 @@ function formulaKeyPress(event, _bindDict) {
     if (_bindDict[event.key]) {
         _bindDict[event.key].click();
         event.preventDefault();
-    } else if (getExpressionFromFormula(event.target) !== "goal") {
+    }
+    if (getExpressionFromFormula(event.target) !== "goal") {
         checkThenMutateGivens(getExpressionFromFormula(event.target), false);
     }
 }
 
 // Defines behaviour when attempting to remove an element
 function formulaBackspaceHandle(event) {
+    let id = getExpressionFromFormula(event.target);
     if (event.key == "Backspace" || event.key == "Delete") {
         if (!event.target.classList.contains("expression-input")) {
             checkThenAttemptDelete(event);
-        } else if (getExpressionFromFormula(event.target) !== "goal") {
-            checkThenMutateGivens(getExpressionFromFormula(event.target), true);
+        }
+        if (id !== "goal") {
+            checkThenMutateGivens(id, true);
         }
     }
 }
