@@ -72,6 +72,9 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
             newLhs = formulas.BasicVarFormula.newElem();
             newLhsFormula = new formulas.BasicVarFormula();
             assignToScope(newLhs, newLhsFormula, formulaScope);
+            if (oldElem.classList.contains("expression-input")) {
+                newLhs.value = oldElem.value;
+            }
             newRhs = formulas.BasicVarFormula.newElem();
             newRhsFormula = new formulas.BasicVarFormula();
             assignToScope(newRhs, newRhsFormula, formulaScope);

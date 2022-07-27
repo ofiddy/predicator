@@ -22,8 +22,7 @@ function formulaKeyPress(event, _bindDict) {
     if (_bindDict[event.key]) {
         _bindDict[event.key].click();
         event.preventDefault();
-    }
-    if (getExpressionFromFormula(event.target) !== "goal") {
+    } else if (getExpressionFromFormula(event.target) !== "goal") {
         checkThenMutateGivens(getExpressionFromFormula(event.target), false);
     }
 }
@@ -128,9 +127,15 @@ function checkThenAttemptInsert(event) {
     if (lastClickedFormula === null) {
         if (document.activeElement.classList.contains("formula-elem")) {
             attemptInsertFormula(event, document.activeElement, getScope(document.activeElement));
+            if (getExpressionFromFormula(document.activeElement) !== "goal") {
+                checkThenMutateGivens(getExpressionFromFormula(document.activeElement), false);
+            }
         }
     } else {
         attemptInsertFormula(event, lastClickedFormula, getScope(lastClickedFormula));
+        if (getExpressionFromFormula(lastClickedFormula) !== "goal") {
+            checkThenMutateGivens(getExpressionFromFormula(lastClickedFormula), false);
+        }
     }
     lastClickedFormula = null;
 }

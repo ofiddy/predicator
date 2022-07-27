@@ -193,7 +193,7 @@ body {
     background-color: var(--parent-color-bg);
     border: var(--parent-color) 1px solid;
     transition: border 0.1s linear;
-    width: 3ch;
+    width: 2ch;
     text-align: center;
     font-style: normal;
 }
