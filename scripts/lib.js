@@ -20,3 +20,8 @@ export function boundSetHas(set, value) {
 export function insertAfter(newNode, referenceNode) {
     referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
 }
+
+export function isModifier(event) {
+    // Returns true if the event key is a modifier key
+    return event.ctrlKey || event.altKey || event.metaKey || event.shiftKey || (event.key === "AltGraph");
+}
