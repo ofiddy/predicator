@@ -1,4 +1,4 @@
-import {setupButton} from "./lib.js"
+import {bindPhysicsButton} from "./lib.js"
 
 const tutorialWindow = document.getElementById("proof-tutorial-box");
 
@@ -24,10 +24,8 @@ fetch("../windows/model_steps.html").then(function (response) {
     }
 });
 
-// Adds step models
+// Adds step models to buttons
 let buttons = document.getElementById("proof-button-grid").children;
 for (let i = 0; i < buttons.length; i++) {
-    setupButton(buttons[i], {"onClick": () => {
-        setModelBoxContents(stepModels[i]);}
-    });
+    bindPhysicsButton(buttons[i], () => {setModelBoxContents(stepModels[i])});
 }

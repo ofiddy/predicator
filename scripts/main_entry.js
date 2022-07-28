@@ -1,4 +1,4 @@
-import { bindKeysToButtonlist, attemptInsertFormula, attemptDeleteFormula } from "./formula_entry_window.js"
+import { bindKeysToButtonlist, attemptInsertFormula, attemptDeleteFormula, readFormulaFromElements } from "./formula_entry_window.js"
 import * as formulas from "./formulas.js"
 import { bindPhysicsButton } from "./lib.js"
 
@@ -29,14 +29,17 @@ function formulaKeyPress(event, _bindDict) {
 
 // Defines behaviour when attempting to remove an element
 function formulaBackspaceHandle(event) {
-    let id = getExpressionFromFormula(event.target);
-    if (event.key == "Backspace" || event.key == "Delete") {
+    if ((event.key == "Backspace" || event.key == "Delete") && !event.target.classList.contains("expanding-var-input")) {
+        let id = getExpressionFromFormula(event.target);
         if (!event.target.classList.contains("expression-input")) {
             checkThenAttemptDelete(event);
         }
         if (id !== "goal") {
             checkThenMutateGivens(id, true);
         }
+    } else if (event.key === " ") {
+        event.preventDefault();
+        return false;
     }
 }
 
@@ -184,3 +187,38 @@ document.addEventListener("click", () => {
     lastClickedButton = null;
     lastClickedFormula = null;
 });
+
+document.getElementById("entry-confirm-button").onclick = function (event) {
+    // Runs through every given and the goal
+    // Translates each into their formula objects
+    // Then if valid goes to the next screen
+    let givenElems = document.getElementById("given-holder").children;
+    let givenFormulas = [];
+
+    for (let i = 0; i < givenElems.length; i++) {
+        let elem = givenElems[i].children[1].children[0];
+        let formula = readFormulaFromElements(elem, givenScopes[i]);
+        if (!formula) {
+            // Ignore any empty blank formulas
+            if (givenScopes[i][elem.dataset.formulaIndex].constructor.name === formulas.BasicFormula.name) {
+                continue;
+            }
+            alert("Error detected in Formula " + (i + 1));
+            return;
+        } else {
+            givenFormulas.push(formula);
+        }
+    }
+
+    let goalElem = document.getElementById("goal-holder").children[1].children[0];
+    let goalFormula = readFormulaFromElements(goalElem, goalScope);
+    if (!goalFormula) {
+        alert("Error detected in goal");
+        return;
+    }
+    
+    for (const f of givenFormulas) {
+        console.log(f.show());
+    }
+    console.log(goalFormula.show());
+}

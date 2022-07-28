@@ -6,7 +6,7 @@ export class BasicFormula {
 
     constructor () {
         this._isPredicate = true;
-        this._priority = 20;
+        this._priority = 0;
     }
 
     get isPredicate() {
@@ -36,10 +36,21 @@ export class BasicFormula {
         elem.classList.add("expression-input", "formula-elem");
         return elem;
     }
+
+    // Returns the formula with all entries replaced by the proper values
+    // In the case this is used as an entry, returns the contents of the input
+    // As an atom
+    readFromElements(element, formulaScope) {
+        if (element.value === "") {
+            return false;
+        } else {
+            return new AtomFormula(element.value);
+        }
+    }
 }
 
 export class BasicVarFormula extends BasicFormula {
-    // A placeholder for non-predicate entry
+    // A placeholder for variable or function entry
     constructor () {
         super();
         this._isPredicate = false;
@@ -52,6 +63,14 @@ export class BasicVarFormula extends BasicFormula {
         elem.classList.add("expression-input", "formula-elem", "var-input", "purple-elem");
         return elem;
     }
+
+    readFromElements(element, formulaScope) {
+        if (element.value === "") {
+            return false;
+        } else {
+            return new VariableFormula(element.value);
+        }
+    }
 }
 
 export class ExpandingVarFormula extends BasicVarFormula {
@@ -59,12 +78,21 @@ export class ExpandingVarFormula extends BasicVarFormula {
         super();
         this._isPredicate = false;
     }
+
     static newElem () {
         let elem = document.createElement("input");
         elem.type = "text";
         elem.setAttribute("tabindex", "0");
-        elem.classList.add("expression-input", "formula-elem", "var-input", "cyan-elem", "expanding-var-input");
+        elem.classList.add("expression-input", "formula-elem", "var-input", "cyan-elem", "expanding-var-input", "only-text");
         return elem;
+    }
+
+    readFromElements(element, formulaScope) {
+        if (element.value === "") {
+            return false;
+        } else {
+            return new VariableFormula(element.value);
+        }
     }
 }
 
@@ -107,6 +135,11 @@ export class VariableFormula extends BasicFormula {
         elem.classList.add("formula-elem", "yellow-elem");
         elem.setAttribute("tabindex", "0");
         return elem;
+    }
+
+    // This should never happen
+    readFromElements(element, formulaScope) {
+        return false;
     }
 }
 
@@ -179,6 +212,27 @@ export class FunctionFormula extends BasicFormula {
         elem.setAttribute("tabindex", "0");
         return elem;
     }
+
+    readFromElements(element, formulaScope) {
+        // Get the label, extract the name
+        // Then get the list of variables
+        // Then return a few function
+        let label = element.children[0].value;
+        if (!label) {
+            return false;
+        }
+
+        let varList = [];
+        for (let i = 0; i < this._variables.length; i++) {
+            let newVar = this._variables[i].readFromElements(element.children[i + 1], formulaScope);
+            if (!newVar) {
+                return false;
+            }
+            varList.push(newVar);
+        }
+
+        return new PredicateFormula(label, varList);
+    }
 }
 
 export class AtomFormula extends BasicFormula {
@@ -195,6 +249,11 @@ export class AtomFormula extends BasicFormula {
 
     equals(other) {
         return (other instanceof AtomFormula && other._name === this._name);
+    }
+
+    // This should never happen
+    readFromElements(element, formulaScope) {
+        return false;
     }
 }
 
@@ -216,6 +275,10 @@ export class BottomFormula extends BasicFormula {
         elem.setAttribute("tabindex", "0");
         return elem;
     }
+
+    readFromElements(element, formulaScope) {
+        return this;
+    }
 }
 
 export class TopFormula extends BasicFormula {
@@ -235,6 +298,10 @@ export class TopFormula extends BasicFormula {
         elem.innerText = "⊤";
         elem.setAttribute("tabindex", "0");
         return elem;
+    }
+
+    readFromElements(element, formulaScope) {
+        return this;
     }
 }
 
@@ -305,6 +372,27 @@ export class PredicateFormula extends BasicFormula {
         elem.setAttribute("tabindex", "0");
         return elem;
     }
+
+    readFromElements(element, formulaScope) {
+        // Get the label, extract the name
+        // Then get the list of variables
+        // Then return a few function
+        let label = element.children[0].value;
+        if (!label) {
+            return false;
+        }
+
+        let varList = [];
+        for (let i = 0; i < this._variables.length; i++) {
+            let newVar = this._variables[i].readFromElements(element.children[i + 1], formulaScope);
+            if (!newVar) {
+                return false;
+            }
+            varList.push(newVar);
+        }
+
+        return new PredicateFormula(label, varList);
+    }
 }
 
 export class NotFormula extends BasicFormula {
@@ -312,11 +400,17 @@ export class NotFormula extends BasicFormula {
     constructor(subFormula) {
         super();
         this._contents = subFormula;
-        this._priority = 10;
+        this._priority = 1;
     }
 
     show() {
-        return "¬" + subFormula.show();
+        let type = this._contents.constructor.name;
+        if (type === AtomFormula.name || type === QuantifierFormula.name ||
+            type === NotFormula.name) {
+            return "¬" + this._contents.show();
+        } else {
+            return "¬(" + this._contents.show() + ")";
+        }
     }
 
     equals(other) {
@@ -338,6 +432,15 @@ export class NotFormula extends BasicFormula {
         elem.setAttribute("tabindex", "0");
         return elem;
     }
+
+    readFromElements(element, formulaScope) {
+        let child = element.children[0];
+        let subFormula = formulaScope[child.dataset.formulaIndex].readFromElements(child, formulaScope);
+        if (!subFormula) {
+            return false;
+        }
+        return new NotFormula(subFormula);
+    }
 }
 
 export class BinaryFormula extends BasicFormula {
@@ -358,12 +461,12 @@ export class BinaryFormula extends BasicFormula {
 
     _show(symbol) {
         let leftShow = this._leftChild.show();
-        if (this._leftChild._priority <= this._priority) {
+        if (this._leftChild._priority >= this._priority) {
             leftShow = "(" + leftShow + ")";
         }
 
         let rightShow = this._rightChild.show();
-        if (this._rightChild._priority < this._priority) {
+        if (this._rightChild._priority > this._priority) {
             rightShow = "(" + rightShow + ")";
         }
 
@@ -374,12 +477,28 @@ export class BinaryFormula extends BasicFormula {
         console.assert(other instanceof BinaryFormula);
         return (this._leftChild.equals(other._leftChild) && this._rightChild.equals(other._rightChild));
     }
+
+    readFromElements(element, formulaScope) {
+        let leftChild = element.children[0];
+        let leftFormula = formulaScope[leftChild.dataset.formulaIndex].readFromElements(leftChild, formulaScope);
+        if (!leftFormula) {
+            return false;
+        }
+
+        let rightChild = element.children[1];
+        let rightFormula = formulaScope[rightChild.dataset.formulaIndex].readFromElements(rightChild, formulaScope);
+        if (!rightFormula) {
+            return false;
+        }
+
+        return new this.constructor(leftFormula, rightFormula);
+    }
 }
 
 export class AndFormula extends BinaryFormula {
     constructor(leftChild, rightChild) {
         super(leftChild, rightChild);
-        this._priority = 4;
+        this._priority = 2;
     }
 
     show() {
@@ -425,7 +544,7 @@ export class OrFormula extends BinaryFormula {
 export class ImpliesFormula extends BinaryFormula {
     constructor(leftChild, rightChild) {
         super(leftChild, rightChild);
-        this._priority = 2;
+        this._priority = 4;
     }
 
     show() {
@@ -448,7 +567,7 @@ export class ImpliesFormula extends BinaryFormula {
 export class IffFormula extends BinaryFormula {
     constructor(leftChild, rightChild) {
         super(leftChild, rightChild);
-        this._priority = 1;
+        this._priority = 5;
     }
 
     show() {
@@ -471,6 +590,7 @@ export class IffFormula extends BinaryFormula {
 export class EqualsFormula extends PredicateFormula {
     constructor(leftChild, rightChild) {
         super("=", [leftChild, rightChild]);
+        this._priority = 9;
     }
 
     show() {
@@ -492,6 +612,22 @@ export class EqualsFormula extends PredicateFormula {
         elem.setAttribute("tabindex", "0");
         return elem;
     }
+
+    readFromElements(element, formulaScope) {
+        let leftChild = element.children[0];
+        let leftFormula = formulaScope[leftChild.dataset.formulaIndex].readFromElements(leftChild, formulaScope);
+        if (!leftFormula) {
+            return false;
+        }
+
+        let rightChild = element.children[1];
+        let rightFormula = formulaScope[rightChild.dataset.formulaIndex].readFromElements(rightChild, formulaScope);
+        if (!rightFormula) {
+            return false;
+        }
+
+        return new EqualsFormula(leftFormula, rightFormula);
+    }
 }
 
 export class NotEqualsFormula extends NotFormula {
@@ -512,6 +648,22 @@ export class NotEqualsFormula extends NotFormula {
         elem.setAttribute("tabindex", "0");
         return elem;
     }
+
+    readFromElements(element, formulaScope) {
+        let leftChild = element.children[0];
+        let leftFormula = formulaScope[leftChild.dataset.formulaIndex].readFromElements(leftChild, formulaScope);
+        if (!leftFormula) {
+            return false;
+        }
+
+        let rightChild = element.children[1];
+        let rightFormula = formulaScope[rightChild.dataset.formulaIndex].readFromElements(rightChild, formulaScope);
+        if (!rightFormula) {
+            return false;
+        }
+
+        return new NotFormula(new EqualsFormula(leftFormula, rightFormula));
+    }
 }
 
 export class QuantifierFormula extends BasicFormula {
@@ -519,6 +671,7 @@ export class QuantifierFormula extends BasicFormula {
         super();
         this._bound = bound;
         this._subformula = subformula;
+        this._priority = 11;
     }
 
     _show(symbol) {
@@ -529,6 +682,24 @@ export class QuantifierFormula extends BasicFormula {
         let varSet = this._subformula.getVar();
         varSet.add(this._bound);
         return varSet;
+    }
+
+    readFromElements(element, formulaScope) {
+        // Get the label, extract the name
+        // Then get the list of variables
+        // Then return a few function
+        let label = element.children[0].value;
+        if (!label) {
+            return false;
+        }
+
+        let rightChild = element.children[1];
+        let rightFormula = formulaScope[rightChild.dataset.formulaIndex].readFromElements(rightChild, formulaScope);
+        if (!rightFormula) {
+            return false;
+        }
+
+        return new this.constructor(new VariableFormula(label), rightFormula);
     }
 }
 

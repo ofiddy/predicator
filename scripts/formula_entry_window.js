@@ -7,7 +7,7 @@ import { insertAfter } from "./lib.js";
 export function attemptInsertFormula (event, targetFormula, formulaScope) {
     // formulaScope is the list of formula objects for the html to refer to
     let formulaToInsert = formulas.formulaList[event.target.dataset.formulaClassIndex];
-    if (formulaToInsert === null) {
+    if (formulaToInsert === null || targetFormula.classList.contains("only-text")) {
         return false; // "Adding" an atom basically does nothing
     }
 
@@ -34,6 +34,7 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
     if (testForm instanceof formulas.QuantifierFormula && oldFormula.isPredicate) {
         // All- and Exists- formulas
         let newLhs = formulas.BasicVarFormula.newElem();
+        newLhs.classList.add("only-text");
         let newLhsFormula = new formulas.BasicVarFormula();
         assignToScope(newLhs, newLhsFormula, formulaScope);
 
@@ -121,6 +122,7 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
      || (testForm instanceof formulas.FunctionFormula && !oldFormula.isPredicate)) {
         // Predicates and functions
         let nameElem = formulas.BasicVarFormula.newElem();
+        nameElem.classList.add("only-text");
         let nameElemFormula = new formulas.BasicVarFormula();
         assignToScope(nameElem, nameElemFormula, formulaScope);
 
@@ -153,7 +155,6 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
         }
 
         function expandingVarBackspace(event) {
-            console.log(event.target);
             if (event.target.classList.contains("expanding-var-input") &&
             event.key === "Backspace") {
                 if (event.target.value.length === 0 && !event.target.classList.contains("first-var")) {
@@ -260,4 +261,9 @@ export function bindKeysToButtonlist (buttonList) {
         ")": buttonList[13],
     }
     return bindDict;
+}
+
+export function readFormulaFromElements (topLevelElement, formulaScope) {
+    let topLevelFormula = formulaScope[topLevelElement.dataset.formulaIndex];
+    return topLevelFormula.readFromElements(topLevelElement, formulaScope);
 }
