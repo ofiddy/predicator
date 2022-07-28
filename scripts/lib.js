@@ -81,7 +81,6 @@ export function bindPhysicsButton(button, onClickEvent, onDragEvent, dragQuery) 
             } else {
                 let elemBelow = document.elementFromPoint(event.clientX, event.clientY);
                 let droppableBelow = elemBelow.closest(dragQuery);
-                console.log(elemBelow);
 
                 if (droppableBelow) {
                     onDragEvent(event, droppableBelow);
@@ -89,4 +88,6 @@ export function bindPhysicsButton(button, onClickEvent, onDragEvent, dragQuery) 
             }
         }
     }
+    
+    button.addEventListener("click", onClickEvent);
 }

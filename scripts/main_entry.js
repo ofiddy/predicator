@@ -162,7 +162,6 @@ for (const e of document.getElementById("entry-left-panel").children) {
             lastClickedFormula = below;
             checkThenAttemptInsert(event);
     }, (".formula-elem"));
-    //e.children[0].addEventListener("click", checkThenAttemptInsert);
 }
 formulas.addFormulaData(buttonList);
 let bindDict = bindKeysToButtonlist(buttonList);
