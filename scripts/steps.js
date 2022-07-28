@@ -5,7 +5,7 @@ class Box {
     // Can be opened by various steps, and the entire proof is in a single superbox
     constructor (introducedBy) {
         this._introducedBy = introducedBy;
-        this._steps = [new EmptyStep(this)];
+        this._steps = [];
     }
 
     get steps () {
@@ -26,27 +26,71 @@ class Box {
         let oldIndex = this._steps.indexOf(oldStep);
 
         if (oldStep instanceof EmptyStep) {
+            // Empty step
             let ahead = this._steps[oldIndex + 1];
             if (ahead instanceof GoalStep && ahead.formula.equals(newStep.formula)) {
                 // Look ahead to see if we can autofill to a goal step
-                oldStep.elem.remove();
+                //oldStep.elem.remove();
                 this._steps.splice(oldIndex, 1);
                 this.insertTo(ahead, newStep);
             } else {
                 let newEmpty = new EmptyStep(this);
-                this._steps.splice(oldIndex + 1, 0, item);
+                this._steps.splice(oldIndex, 0, newEmpty);
                 this._steps[oldIndex] = newStep;
             }
         } else {
             // Goal step
+            if (oldStep.formula.equals(newStep.formula)) {
+                // If equal, replace the goal step and remove any empties
+                this._steps[oldIndex] = newStep;
+                this._purgeEmpty();
+            } else {
+                // Move goal step down and insert this step
+                this.steps.splice(oldIndex, 0, newStep);
+            }
         }
+        this._resetOnMoveAll();
+    }
+
+    removeStep (oldStep) {
+        // removes a NGE step
+        // PRE: the step is valid to be removed (not empty, given, is at the edge, etc)
+        let oldIndex = this._steps.indexOf(oldStep);
+
+        // If no empty step after, add an empty step before this one
+        if (!(this._steps[oldIndex + 1] && this._steps[oldIndex + 1] instanceof EmptyStep)) {
+            let newEmpty = new EmptyStep(this);
+            this._steps.splice(oldIndex, 0, newEmpty);
+        }
+        
+        // If the last step in the box, re-add a goal step
+        if (this._steps[this._steps.length - 1] === oldStep) {
+            let newGoal = new GoalStep(oldStep.formula, this);
+            this._steps.push(newGoal);
+        }
+
+        // Remove this step, wherever it is
+        this._steps.splice(this._steps.indexOf(oldStep), 1);
+
+        this._resetOnMoveAll();
     }
 
     _resetOnMoveAll () {
-        for (const s in this._steps) {
-            s.resestOnMove();
+        for (let i = 0; i < this._steps.length; i++) {
+            this._steps[i].resetOnMove();
         }
-        introducedBy.resestOnMove();
+        if (this._introducedBy) {
+            this._introducedBy.resetOnMove();
+        }
+    }
+
+    _purgeEmpty () {
+        for (let i = 0; i < this._steps.length; i++) {
+            if (this._steps[i] instanceof EmptyStep) {
+                this._steps.splice(i, 1);
+                i--;
+            }
+        }
     }
     
 }
@@ -56,10 +100,8 @@ class Step {
         this._formula = formula;
         this._containedIn = containedIn;
         this._line = containedIn.steps.length;
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._label = "N/A";
         this._isGE = false;
-        this._dependentOn = [];
     }
 
     get formula () {
@@ -93,12 +135,12 @@ class Step {
 
     // Recalculates the line number of this step and its label
     // Called when this object moves (e.g. a step added above) 
-    resestOnMove() {
+    resetOnMove () {
         this._line = this.calcLine();
         this._label = this.label;
     }
 
-    toElement() {
+    toElement () {
         let exprElem = document.createElement("div");
         exprElem.classList.add("expression", "proof-expression");
         exprElem.stepObject = this;
@@ -130,8 +172,11 @@ class AdminStep extends Step { // Mostly used to identify others
 
 class GivenStep extends AdminStep {
     // Line number needs to be immutable: externally set when window created
-    constructor (formula, containedIn) {
+    constructor (formula, containedIn, line) {
         super(formula, containedIn);
+        this._line = line;
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
     }
 
     calcLine () {
@@ -147,6 +192,7 @@ class AssStep extends AdminStep {
     constructor (formula, containedIn) {
         super(formula, containedIn);
         this._label = this.label;
+        this._correspondingElem = this.toElement();
     }
 
     calcLine () {
@@ -161,13 +207,16 @@ class AssStep extends AdminStep {
 class EConstStep extends AssStep {
     constructor (formula, containedIn) {
         super(formula, containedIn);
+        this._correspondingElem = this.toElement();
     }
 }
 
 class AConstStep extends AssStep {
     constructor (formula, containedIn) {
         super(formula, containedIn);
+        this._label = this.label;
         console.assert(formula instanceof formulas.VariableFormula);
+        this._correspondingElem = this.toElement();
     }
 
     get label () {
@@ -179,6 +228,8 @@ class GoalStep extends AdminStep {
     constructor (formula, containedIn) {
         super(formula, containedIn);
         this._isGE = true;
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
     }
 
     get label () {
@@ -189,6 +240,9 @@ class GoalStep extends AdminStep {
 class EmptyStep extends AdminStep {
     constructor (containedIn) {
         super(null, containedIn);
+        this._label = this.label;
+        this._isGE = true;
+        this._correspondingElem = this.toElement();
     }
 
     get formulaText () {
@@ -205,9 +259,11 @@ class ImmediateStepObject extends Step {
 
 class AndIStep extends ImmediateStepObject {
     constructor (source1, source2, containedIn) {
-        super(new formula.AndFormula(source1.formula, source2.formula),containedIn);
+        super(new formulas.AndFormula(source1.formula, source2.formula),containedIn);
         this._source1 = source1;
         this._source2 = source2;
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
     }
 
     get label () {
@@ -215,8 +271,34 @@ class AndIStep extends ImmediateStepObject {
     }
 }
 
+class OrIStep extends ImmediateStepObject {
+    constructor(source, other, sourceOnLeft, containedIn) {
+        super ((sourceOnLeft ? new formulas.OrFormula(source.formula, other) : new formulas.OrFormula(other, source.formula)), containedIn);
+        this._source = source;
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+    }
+
+    get label () {
+        return "⋁I(" + this._source.calcLine() + ")";
+    }
+}
+
 let box = new Box(null);
-let testGiven1 = new GivenStep(new formulas.AtomFormula("P"), box);
+let p = new formulas.AtomFormula("P");
+let q = new formulas.AtomFormula("Q");
+let given1 = new GivenStep(p, box, 1);
+let given2 = new GivenStep(q, box, 2);
+let empty = new EmptyStep(box);
+let goal = new GoalStep(new formulas.OrFormula(p, q), box);
+box._steps = [given1, given2, empty, goal];
+box._resetOnMoveAll();
 
+let andI = new AndIStep(given1, given2, box);
+box.insertTo(empty, andI);
+let orI = new OrIStep(given1, q, true, box);
+box.insertTo(empty, orI);
 
-console.log(testEmpty.toElement());
+box.removeStep(orI);
+
+console.log(box._steps);
