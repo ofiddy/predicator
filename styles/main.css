@@ -217,8 +217,8 @@ body {
 
 .expression-list {
     width: fit-content;
-    overflow-y: auto;
     margin-left: 20px;
+    overflow-y: hidden;
 }
 
 /* Formula entry element styling */
@@ -235,13 +235,22 @@ body {
     grid-template-columns: auto auto;
     align-content: start;
     --parent-bg: var(--panel-color);
-    padding-top: 4px;
     overflow-y: auto;
     overflow-x: hidden;
 }
 
+#entry-left-grid {
+    grid-template-columns: auto auto;
+    align-content: start;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-top: 4px;
+    margin-bottom: auto;
+}
+
 #entry-right-panel {
     flex-grow: 1;
+    overflow-y: auto;
 }
 
 #entry-not-button-label {
@@ -279,13 +288,23 @@ body {
     margin: 0;
 }
 
-.given-holder {
+#given-holder {
     margin: 0px;
-    height: fit-content;
+    width: 100%;
+    flex-grow: 1;
+    overflow-y: auto;
 }
 
 .entry-expression {
     --parent-font-size: 30px;
+}
+
+#entry-confirm-button {
+    height: 100px;
+    width: auto;
+    
+    margin: 10px;
+    font-size: 40px;
 }
 
 /* Main formula styling */

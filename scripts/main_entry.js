@@ -155,7 +155,7 @@ function checkThenAttemptDelete(event) {
 
 // Puts the buttons in the main window into the needed list
 let buttonList = [];
-for (const e of document.getElementById("entry-left-panel").children) {
+for (const e of document.getElementById("entry-left-grid").children) {
     buttonList.push(e.children[0]);
     bindPhysicsButton(e.children[0], checkThenAttemptInsert, 
         (event, below) => {
