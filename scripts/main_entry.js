@@ -221,4 +221,28 @@ document.getElementById("entry-confirm-button").onclick = function (event) {
         console.log(f.show());
     }
     console.log(goalFormula.show());
+
+    loadMainWindow(givenFormulas, goalFormula);
+}
+
+function loadMainWindow(givenFormulas, goalFormula) {
+    // Loads the main proof window, activates its script, gives it the given formulas
+    function loadMainWindowHTML(givenFormulas, goalFormula, cover) {
+        document.body.innerHTML = "";
+        document.body.appendChild(cover);
+        // TODO: get all the HTML from main window, plug it in here, set up
+        // The boxes and the goal using givenFormulas and goalFormula
+    }
+
+    function animationEndListener (event) {
+        loadMainWindowHTML(givenFormulas, goalFormula, event.target);
+        event.target.removeEventListener("animationend", animationEndListener);
+        event.target.style.animationName = "opaqueToClear";
+        event.target.addEventListener("animationend", (event) => {event.target.remove()});
+    }
+
+    let cover = document.createElement("div");
+    cover.classList.add("doc-cover");
+    cover.addEventListener("animationend", animationEndListener);
+    document.body.append(cover);
 }

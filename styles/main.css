@@ -95,6 +95,32 @@ body {
     display: grid;
 }
 
+.doc-cover {
+    background-color: var(--element-color);
+    z-index: 10;
+    position: fixed;
+    min-height: 100%;
+    min-width: 100%;
+    overflow: clip;
+    top: 0px;
+    left: 0px;
+    opacity: 0;
+    animation-name: clearToOpaque;
+    animation-duration: 0.8s;
+    animation-fill-mode: forwards;
+}
+
+/* Animation definitions */
+@keyframes clearToOpaque {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+
+@keyframes opaqueToClear {
+    from {opacity: 1;}
+    to {opacity: 0;}
+}
+
 /* General element styling */
 .panel {
     background-color: var(--panel-color);
