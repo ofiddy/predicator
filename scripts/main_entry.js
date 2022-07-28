@@ -1,6 +1,6 @@
 import { bindKeysToButtonlist, attemptInsertFormula, attemptDeleteFormula } from "./formula_entry_window.js"
 import * as formulas from "./formulas.js"
-import { isModifier } from "./lib.js"
+import { bindPhysicsButton } from "./lib.js"
 
 let lastClickedButton = null;
 let lastClickedFormula = null;
@@ -157,7 +157,12 @@ function checkThenAttemptDelete(event) {
 let buttonList = [];
 for (const e of document.getElementById("entry-left-panel").children) {
     buttonList.push(e.children[0]);
-    e.children[0].addEventListener("click", checkThenAttemptInsert);
+    bindPhysicsButton(e.children[0], checkThenAttemptInsert, 
+        (event, below) => {
+            lastClickedFormula = below;
+            checkThenAttemptInsert(event);
+    }, (".formula-elem"));
+    //e.children[0].addEventListener("click", checkThenAttemptInsert);
 }
 formulas.addFormulaData(buttonList);
 let bindDict = bindKeysToButtonlist(buttonList);
