@@ -1,4 +1,4 @@
-import {bindPhysicsButton} from "./lib.js"
+import {bindPhysicsButton, setDiff} from "./lib.js"
 import * as steps from "./steps.js"
 import * as formulas from "./formulas.js"
 
@@ -48,15 +48,15 @@ for (let i = 0; i < buttons.length; i++) {
 }
 
 // TEMP FOR TESTIN
-let p = new formulas.AtomFormula("P");
-let notP = new formulas.NotFormula(p);
-let notnotP = new formulas.NotFormula(notP);
-let q = new formulas.AtomFormula("Q");
-let porq = new formulas.OrFormula(p, q);
-let pandq = new formulas.AndFormula(p, q);
-let pimpq = new formulas.ImpliesFormula(p, q);
+let c = new formulas.VariableFormula("c");
+let x = new formulas.VariableFormula("x");
+let pc = new formulas.PredicateFormula("P", [c]);
+let qc = new formulas.PredicateFormula("Q", [c]);
+let px = new formulas.PredicateFormula("P", [x]);
+let qx = new formulas.PredicateFormula("Q", [x]);
+let impc = new formulas.ImpliesFormula(pc, qc);
+let impx = new formulas.ImpliesFormula(px, qx);
+let all = new formulas.AllFormula(x, impx);
 
-let box = setUpProof([notP, p], porq);
-box.insertTo(box.steps[2], new steps.BottomIStep(box.steps[0], box.steps[1], box));
-box.insertTo(box.steps[3], new steps.TopIStep(box));
-console.log(box.steps);
+let box = setUpProof([all, pc], qc);
+box.insertTo(box.steps[2], new steps.AllImpEStep(box.steps[0], box.steps[1], box));

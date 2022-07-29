@@ -1,4 +1,5 @@
 import * as formulas from "./formulas.js"
+import { setDiff } from "./lib.js";
 
 export class Box {
     // A box that can contain multiple steps
@@ -405,5 +406,103 @@ export class TopIStep extends ImmediateStep {
 
     get label () {
         return "⊤I";
+    }
+}
+
+export class IffIStep extends ImmediateStep {
+    constructor (source1, source2, source2Order, containedIn) {
+        super ((source2Order ?
+            new formulas.IffFormula(source2.formula.leftChild, source2.formula.rightChild) :
+            new formulas.IffFormula(source1.formula.leftChild, source1.formula.rightChild)),
+            containedIn);
+        this._source1 = source1;
+        this._source2 = source2;
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+    }
+
+    get label () {
+        return "↔I(" + this._source1.calcLine() + ", " + this._source2.calcLine() + ")"; 
+    }
+}
+
+export class IffEStep extends ImmediateStep {
+    constructor (sourceImp, sourceMatch, containedIn) {
+        super ((sourceImp.formula.leftChild.equals(sourceMatch.formula) ? 
+            sourceImp.formula.rightChild : sourceImp.formula.leftChild),
+            containedIn);
+        this._sourceImp = sourceImp;
+        this._sourceMatch = sourceMatch;
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+    }
+
+    get label () {
+        return "↔E(" + this._sourceImp.calcLine() + ", " + this._sourceMatch.calcLine() + ")"; 
+    }
+}
+
+export class ExcludedMiddleStep extends ImmediateStep {
+    constructor (formula, containedIn, negateLeft) {
+        super((negateLeft ? new formulas.OrFormula(new formulas.NotFormula(formula), formula)
+            : new formulas.OrFormula(formula, new formulas.NotFormula(formula))),
+            containedIn);
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+    }
+
+    get label () {
+        return "L.E.M."
+    }
+}
+
+export class ExistsIStep extends ImmediateStep {
+    constructor (oldVar, newVar, source, containedIn) {
+        super(new formulas.ExistsFormula(newVar, source.formula.replaceVar(oldVar, newVar, new Set())), containedIn);
+        this._source = source;
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+    }
+
+    get label () {
+        return "∃I(" + this._source.calcLine() + ")";
+    }
+}
+
+export class AllEStep extends ImmediateStep {
+    constructor (boundVar, newVar, source, containedIn) {
+        super(source.formula.subformula.replaceVar(boundVar, newVar, new Set()), containedIn);
+        this._source = source;
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+    }
+
+    get label () {
+        return "∀E(" + this._source.calcLine() + ")";
+    }
+}
+
+export class AllImpEStep extends ImmediateStep {
+    constructor (sourceQuantImp, sourceLeft, containedIn) {
+        super(findSourceRight(sourceQuantImp, sourceLeft), containedIn);
+        this._sourceQuantImp = sourceQuantImp;
+        this._sourceLeft = sourceLeft;
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+
+        function findSourceRight (sourceQuantImp, sourceLeft) {
+            let allForm = sourceQuantImp.formula;
+            let impForm = allForm.subformula;
+            let leftForm = sourceLeft.formula;
+    
+            let newVar = Array.from(setDiff(leftForm.getVar(new Set()), allForm.getVar(new Set())).values())[0];
+            let oldVar = allForm.bound;
+    
+            return impForm.rightChild.replaceVar(oldVar, newVar, new Set());
+        }
+    }
+
+    get label () {
+        return "∀→E(" + this._sourceLeft.calcLine() + ", " + this._sourceQuantImp.calcLine() + ")";
     }
 }

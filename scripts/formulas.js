@@ -25,7 +25,7 @@ export class BasicFormula {
         return this;
     }
 
-    getVar() {
+    getVar(bound) {
         return new Set();
     }
 
@@ -126,8 +126,8 @@ export class VariableFormula extends BasicFormula {
         
     }
 
-    getVar() {
-        return new Set([this]);
+    getVar(bound) {
+        return boundSetHas(bound, this) ? new Set() : new Set([this]);
     }
 
     static newElem () {
@@ -197,10 +197,10 @@ export class FunctionFormula extends BasicFormula {
         return new FunctionFormula(this._name, newVars);
     }
 
-    getVar() {
+    getVar(bound) {
         let newVars = new Set();
         for (const v of this._variables) {
-            newVars = setUnion(newVars, v.getVar());
+            newVars = setUnion(newVars, v.getVar(bound));
         }
         return newVars;
     }
@@ -357,10 +357,10 @@ export class PredicateFormula extends BasicFormula {
         return new PredicateFormula(this._name, newVars);
     }
 
-    getVar() {
+    getVar(bound) {
         let newVars = new Set();
         for (const v of this._variables) {
-            newVars = setUnion(newVars, v.getVar());
+            newVars = setUnion(newVars, v.getVar(bound));
         }
         return newVars;
     }
@@ -425,8 +425,8 @@ export class NotFormula extends BasicFormula {
         return this._contents.replaceVar(oldVar, newVar, bound);
     }
 
-    getVar() {
-        return this._contents.getVar();
+    getVar(bound) {
+        return this._contents.getVar(bound);
     }
 
     static newElem () {
@@ -464,11 +464,11 @@ export class BinaryFormula extends BasicFormula {
     }
 
     replaceVar(oldVar, newVar, bound) {
-        return this._leftChild.replaceVar(oldVar, newVar, bound).concat(this._rightChild.replaceVar(oldVar, newVar, bound));
+        return new this.constructor(this._leftChild.replaceVar(oldVar, newVar, bound), this._rightChild.replaceVar(oldVar, newVar, bound));
     }
 
-    getVar() {
-        return setUnion(this._leftChild.getVar(), this._rightChild.getVar());
+    getVar(bound) {
+        return setUnion(this._leftChild.getVar(bound), this._rightChild.getVar(bound));
     }
 
     _show(symbol) {
@@ -686,13 +686,22 @@ export class QuantifierFormula extends BasicFormula {
         this._priority = 11;
     }
 
+    get subformula () {
+        return this._subformula;
+    }
+
+    get bound () {
+        return this._bound;
+    }
+
     _show(symbol) {
         return symbol + this._bound.show() + "[" + this._subformula.show() + "]";
     }
 
-    getVar() {
-        let varSet = this._subformula.getVar();
-        varSet.add(this._bound);
+    getVar(bound) {
+        let _newBound = new Set(bound);
+        _newBound.add(this._bound);
+        let varSet = this._subformula.getVar(_newBound);
         return varSet;
     }
 

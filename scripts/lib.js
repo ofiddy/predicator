@@ -1,9 +1,22 @@
 export function setUnion(setA, setB) {
     const _union = new Set(setA);
-  for (const elem of setB) {
-    _union.add(elem);
-  }
-  return _union;
+    for (const elem of setB) {
+        _union.add(elem);
+    }
+    return _union;
+}
+
+export function setDiff(setA, setB) {
+    // setA - setB
+    const _newSet = new Set(setA);
+    for (const elemA of _newSet) {
+        for (const elemB of setB) {
+            if (elemA.equals(elemB)) {
+                _newSet.delete(elemA);
+            }
+        }
+    }
+    return _newSet;
 }
 
 export function boundSetHas(set, value) {
