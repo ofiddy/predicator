@@ -333,6 +333,10 @@ body {
     font-size: 40px;
 }
 
+#given-holder>.expression {
+    margin-left: 20px;
+}
+
 /* Main formula styling */
 .proof-step-button {
     width: 108px;
