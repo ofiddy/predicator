@@ -423,6 +423,16 @@ body {
     min-width: 300px;
 }
 
+.dual-proof-box {
+    display: flex;
+    flex-direction: row;
+    margin-left: 8px;
+}
+
+.dual-proof-box>.proof-box {
+    margin-left: 0px;
+}
+
 /* Modals styling */
 .modal {
     background-color: rgba(0, 0, 0, 0.4);

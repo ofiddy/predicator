@@ -30,6 +30,10 @@ export class Box {
         return this._steps[this._steps.length - 1];
     }
 
+    get depth () {
+        return (this._introducedBy ? this._introducedBy.containedIn.depth + 1 : 0);
+    }
+
     insertTo (oldStep, newStep) {
         // oldStep must be GE, newStep must be NGE
         // Adds newStep in oldStep's position, and moves oldStep if needed
@@ -92,9 +96,7 @@ export class Box {
         this._steps.splice(this._steps.indexOf(oldStep), 1);
         oldStep.elem.remove();
         // And if its a box step, remove the boxes
-        if (oldStep instanceof BoxStep) {
-            oldStep.box.elem.remove();
-        }
+        oldStep.boxRemove();
 
         this.resetOnMoveAll();
     }
@@ -222,6 +224,15 @@ export class Step {
     boxSetUp () { // Placeholder for steps requiring a box
         return;
     }
+
+    boxRemove () { // And removing the above
+        return;
+    }
+
+    _finalSetUp () {
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+    }
 }
 
 export class AdminStep extends Step { // Mostly used to identify others
@@ -235,8 +246,7 @@ export class GivenStep extends AdminStep {
     constructor (formula, containedIn, line) {
         super(formula, containedIn);
         this._line = line;
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
     calcLine () {
@@ -251,8 +261,7 @@ export class GivenStep extends AdminStep {
 export class AssStep extends AdminStep {
     constructor (formula, containedIn) {
         super(formula, containedIn);
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
     calcLine () {
@@ -264,19 +273,10 @@ export class AssStep extends AdminStep {
     }
 }
 
-export class EConstStep extends AssStep {
-    constructor (formula, containedIn) {
-        super(formula, containedIn);
-        this._correspondingElem = this.toElement();
-    }
-}
-
 export class AConstStep extends AssStep {
     constructor (formula, containedIn) {
         super(formula, containedIn);
-        this._label = this.label;
-        console.assert(formula instanceof formulas.VariableFormula);
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
     get label () {
@@ -288,8 +288,7 @@ export class GoalStep extends AdminStep {
     constructor (formula, containedIn) {
         super(formula, containedIn);
         this._isGE = true;
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
     get label () {
@@ -300,9 +299,8 @@ export class GoalStep extends AdminStep {
 export class EmptyStep extends AdminStep {
     constructor (containedIn) {
         super(null, containedIn);
-        this._label = this.label;
         this._isGE = true;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
         this._correspondingElem.classList.add("italic");
     }
 
@@ -323,8 +321,7 @@ export class AndIStep extends ImmediateStep {
         super(new formulas.AndFormula(source1.formula, source2.formula), containedIn);
         this._source1 = source1;
         this._source2 = source2;
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
     get label () {
@@ -336,8 +333,7 @@ export class AndEStep extends ImmediateStep {
     constructor (source, extractingLeft, containedIn) {
         super ((extractingLeft ? source.formula.leftChild : source.formula.rightChild), containedIn);
         this._source = source;
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
     get label () {
@@ -350,8 +346,7 @@ export class ImpEStep extends ImmediateStep {
         super(sourceImp.formula.rightChild, containedIn);
         this._sourceImp = sourceImp;
         this._sourceLeft = sourceLeft;
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
     
     get label () {
@@ -363,8 +358,7 @@ export class OrIStep extends ImmediateStep {
     constructor (source, other, sourceOnLeft, containedIn) {
         super ((sourceOnLeft ? new formulas.OrFormula(source.formula, other) : new formulas.OrFormula(other, source.formula)), containedIn);
         this._source = source;
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
     get label () {
@@ -377,8 +371,7 @@ export class NotEStep extends ImmediateStep {
         super (new formulas.BottomFormula(), containedIn);
         this._source1 = source1;
         this._source2 = source2;
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
     get label () {
@@ -390,8 +383,7 @@ export class NotNotEStep extends ImmediateStep {
     constructor (source, containedIn) {
         super (source.formula.contents.contents, containedIn);
         this._source = source;
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
     get label () {
@@ -405,8 +397,7 @@ export class BottomIStep extends ImmediateStep {
         super (new formulas.BottomFormula(), containedIn);
         this._source1 = source1;
         this._source2 = source2;
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
     
     get label () {
@@ -418,8 +409,7 @@ export class BottomEStep extends ImmediateStep {
     constructor (source, newFormula, containedIn) {
         super (newFormula, containedIn);
         this._source = source;
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
     get label () {
@@ -430,8 +420,7 @@ export class BottomEStep extends ImmediateStep {
 export class TopIStep extends ImmediateStep {
     constructor (containedIn) {
         super (new formulas.TopFormula(), containedIn);
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
     get label () {
@@ -447,8 +436,7 @@ export class IffIStep extends ImmediateStep {
             containedIn);
         this._source1 = source1;
         this._source2 = source2;
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
     get label () {
@@ -463,8 +451,7 @@ export class IffEStep extends ImmediateStep {
             containedIn);
         this._sourceImp = sourceImp;
         this._sourceMatch = sourceMatch;
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
     get label () {
@@ -477,8 +464,7 @@ export class ExcludedMiddleStep extends ImmediateStep {
         super((negateLeft ? new formulas.OrFormula(new formulas.NotFormula(formula), formula)
             : new formulas.OrFormula(formula, new formulas.NotFormula(formula))),
             containedIn);
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+            this._finalSetUp();
     }
 
     get label () {
@@ -490,8 +476,7 @@ export class ExistsIStep extends ImmediateStep {
     constructor (oldVar, newVar, source, containedIn) {
         super(new formulas.ExistsFormula(newVar, source.formula.replaceVar(oldVar, newVar, new Set())), containedIn);
         this._source = source;
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
     get label () {
@@ -503,8 +488,7 @@ export class AllEStep extends ImmediateStep {
     constructor (boundVar, newVar, source, containedIn) {
         super(source.formula.subformula.replaceVar(boundVar, newVar, new Set()), containedIn);
         this._source = source;
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
     get label () {
@@ -517,8 +501,7 @@ export class AllImpEStep extends ImmediateStep {
         super(findSourceRight(sourceQuantImp, sourceLeft), containedIn);
         this._sourceQuantImp = sourceQuantImp;
         this._sourceLeft = sourceLeft;
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
 
         function findSourceRight (sourceQuantImp, sourceLeft) {
             let allForm = sourceQuantImp.formula;
@@ -543,8 +526,7 @@ export class EqualsSubStep extends ImmediateStep {
         sourceFree.formula.replaceVar(sourceEquals.formula.leftVar, sourceEquals.formula.rightVar, new Set()), containedIn);
         this._sourceEquals = sourceEquals;
         this._sourceFree = sourceFree;
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
     get label () {
@@ -555,8 +537,7 @@ export class EqualsSubStep extends ImmediateStep {
 export class EqualsReflexStep extends ImmediateStep {
     constructor (varFormula, containedIn) {
         super(new formulas.EqualsFormula(varFormula, varFormula), containedIn);
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
     get label () {
@@ -568,8 +549,7 @@ export class EqualsSymStep extends ImmediateStep {
     constructor (source, containedIn) {
         super(new formulas.EqualsFormula(source.formula.rightVar, source.formula.leftVar), containedIn);
         this._source = source;
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
     get label () {
@@ -595,8 +575,6 @@ export class BoxStep extends Step {
         } else {
             return 0; // Placeholder
         }
-
-        return this._box.steps.lastStep.calcLine() + 1;
     }
 
     boxStartNumber () {
@@ -614,13 +592,16 @@ export class BoxStep extends Step {
         this._containedIn.elem.insertBefore(this._box.elem, this._correspondingElem);
         this._box.resetOnMoveAll();
     }
+
+    boxRemove () {
+        this._box.elem.remove();
+    }
 }
 
 export class ImpIStep extends BoxStep {
     constructor (formula, containedIn) {
         super (formula, containedIn);
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
     get label () {
@@ -635,22 +616,108 @@ export class ImpIStep extends BoxStep {
         super.boxSetUp([
             new AssStep(this._formula.leftChild, this._box),
             new EmptyStep(this._box),
-            new GoalStep(this._formula.rightChild, this._box)]);
+            new GoalStep(this._formula.rightChild, this._box)
+        ]);
     }
 }
 
 export class NotIStep extends BoxStep {
     constructor (formula, containedIn) {
+        // formula is a NotFormula already
         super (formula, containedIn);
-        this._label = this.label;
-        this._correspondingElem = this.toElement();
+        this._finalSetUp();
     }
 
-    get label() {
+    get label () {
         if (this._box.steps.length > 0) {
             return "¬I(" + this._box.firstStep.calcLine() + ", " + this._box.lastStep.calcLine() + ")";
         } else {
             return 0; // Placeholder
         }
+    }
+
+    boxSetUp () {
+        super.boxSetUp([
+            new AssStep(this._formula.contents, this._box),
+            new EmptyStep(this._box),
+            new GoalStep(new formulas.BottomFormula(), this._box)
+        ]);
+    }
+}
+
+export class PCStep extends BoxStep {
+    constructor (formula, containedIn) {
+        super (formula, containedIn);
+        this._finalSetUp();
+    }
+
+    get label () {
+        if (this._box.steps.length > 0) {
+            return "PC(" + this._box.firstStep.calcLine() + ", " + this._box.lastStep.calcLine() + ")";
+        } else {
+            return 0; // Placeholder
+        }
+    }
+
+    boxSetUp () {
+        super.boxSetUp([
+            new AssStep(new formulas.NotFormula(this._formula), this._box),
+            new EmptyStep(this._box),
+            new GoalStep(new formulas.BottomFormula(), this._box),
+        ]);
+    }
+}
+
+export class ExistsEStep extends BoxStep {
+    constructor (source, targetFormula, containedIn) {
+        super (targetFormula, containedIn);
+        this._source = source;
+        this._finalSetUp();
+    }
+
+    get label () {
+        if (this._box.steps.length > 0) {
+            return "∃E(" + this._source.calcLine() + ", " + this._box.firstStep.calcLine() + ", " + this._box.lastStep.calcLine() + ")";
+        } else {
+            return 0; // Placeholder
+        }
+    }
+
+    boxSetUp () {
+        let newVar = new formulas.VariableFormula("sk" + this._box.depth);
+        let oldVar = this._source.formula.bound;
+        let newFormula = this._source.formula.subformula.replaceVar(oldVar, newVar, new Set());
+        super.boxSetUp([
+            new AssStep(newFormula, this._box),
+            new EmptyStep(this._box),
+            new GoalStep(this._formula, this._box)
+        ]);
+    }
+}
+
+export class AllIStep extends BoxStep {
+    constructor (formula, containedIn) {
+        super (formula, containedIn);
+        this._finalSetUp();
+    }
+
+    get label () {
+        if (this._box.steps.length > 0) {
+            return "∀I(" + this._box.firstStep.calcLine() + ", " + this._box.lastStep.calcLine() + ")";
+        } else {
+            return 0; // Placeholder
+        }
+    }
+
+    boxSetUp () {
+        let newVar = new formulas.VariableFormula("sk" + this._box.depth);
+        let boundVar = this._formula.bound;
+        let newFormula = this._formula.subformula.replaceVar(boundVar, newVar, new Set());
+        console.log(newFormula);
+        super.boxSetUp([
+            new AConstStep(newVar, this._box),
+            new EmptyStep(this._box),
+            new GoalStep(newFormula, this._box)
+        ]);
     }
 }
