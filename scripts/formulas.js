@@ -451,6 +451,14 @@ export class BinaryFormula extends BasicFormula {
         this._rightChild = rightChild;
     }
 
+    get leftChild () {
+        return this._leftChild;
+    }
+
+    get rightChild () {
+        return this._rightChild;
+    }
+
     replaceVar(oldVar, newVar, bound) {
         return this._leftChild.replaceVar(oldVar, newVar, bound).concat(this._rightChild.replaceVar(oldVar, newVar, bound));
     }

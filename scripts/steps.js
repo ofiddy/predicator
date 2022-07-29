@@ -1,11 +1,12 @@
 import * as formulas from "./formulas.js"
 
-class Box {
+export class Box {
     // A box that can contain multiple steps
     // Can be opened by various steps, and the entire proof is in a single superbox
-    constructor (introducedBy) {
+    constructor (introducedBy, optionalElem) {
         this._introducedBy = introducedBy;
         this._steps = [];
+        this._correspondingElem = (introducedBy ? _toElement() : optionalElem);
     }
 
     get steps () {
@@ -14,6 +15,10 @@ class Box {
 
     get startNumber () {
         return (this._introducedBy ? this._introducedBy.boxStartNumber() + 1 : 1);
+    }
+
+    get elem () {
+        return this._correspondingElem;
     }
 
     insertTo (oldStep, newStep) {
@@ -28,22 +33,25 @@ class Box {
         if (oldStep instanceof EmptyStep) {
             // Empty step
             let ahead = this._steps[oldIndex + 1];
-            if (ahead instanceof GoalStep && ahead.formula.equals(newStep.formula)) {
-                // Look ahead to see if we can autofill to a goal step
-                //oldStep.elem.remove();
+            if (ahead.formula.equals(newStep.formula)) {
+                // Look ahead to see if we can autofill to an existing step
+                oldStep.elem.remove();
                 this._steps.splice(oldIndex, 1);
-                this.insertTo(ahead, newStep);
+                if (ahead instanceof GoalStep) {
+                    this.insertTo(ahead, newStep);
+                }
             } else {
-                let newEmpty = new EmptyStep(this);
-                this._steps.splice(oldIndex, 0, newEmpty);
-                this._steps[oldIndex] = newStep;
+                // If we can't, insert new step and shove along the old
+                this._correspondingElem.insertBefore(newStep.elem, oldStep.elem);
+                this._steps.splice(oldIndex, 0, newStep);
             }
         } else {
             // Goal step
+            this._correspondingElem.insertBefore(newStep.elem, oldStep.elem);
             if (oldStep.formula.equals(newStep.formula)) {
-                // If equal, replace the goal step and remove any empties
+                // If equal, replace the goal step
                 this._steps[oldIndex] = newStep;
-                this._purgeEmpty();
+                oldStep.elem.remove();
             } else {
                 // Move goal step down and insert this step
                 this.steps.splice(oldIndex, 0, newStep);
@@ -75,12 +83,23 @@ class Box {
         this._resetOnMoveAll();
     }
 
+    secretPush (step) {
+        // A "secret" method to be used when setting up a box initially
+        // Pushes a step to the box and adds the elem as a child
+        this._steps.push(step);
+        this._correspondingElem.append(step.elem);
+    }
+
     _resetOnMoveAll () {
-        for (let i = 0; i < this._steps.length; i++) {
-            this._steps[i].resetOnMove();
-        }
-        if (this._introducedBy) {
-            this._introducedBy.resetOnMove();
+        if (this._introducedBy === null) {
+            for (let i = 0; i < this._steps.length; i++) {
+                this._steps[i].resetOnMove();
+            }
+            if (this._introducedBy) {
+                this._introducedBy.resetOnMove();
+            }
+        } else {
+            this._introducedBy.containedIn._resetOnMoveAll();
         }
     }
 
@@ -92,10 +111,18 @@ class Box {
             }
         }
     }
+
+    _toElement () {
+        // Returns and binds the element this box corresponds to
+        // Does not occur for the opening box
+        let boxElem = document.createElement("div");
+        boxElem.classList.add("proof-box");
+        boxElem.boxObject = this;
+    }
     
 }
 
-class Step {
+export class Step {
     constructor (formula, containedIn) {
         this._formula = formula;
         this._containedIn = containedIn;
@@ -137,7 +164,9 @@ class Step {
     // Called when this object moves (e.g. a step added above) 
     resetOnMove () {
         this._line = this.calcLine();
+        this._correspondingElem.querySelector(".expression-number").innerText = this._line;
         this._label = this.label;
+        this._correspondingElem.querySelector(".expression-origin").innerText = this._label;
     }
 
     toElement () {
@@ -164,13 +193,13 @@ class Step {
     }
 }
 
-class AdminStep extends Step { // Mostly used to identify others
+export class AdminStep extends Step { // Mostly used to identify others
     constructor (...params) {
         super(...params);
     }
 }
 
-class GivenStep extends AdminStep {
+export class GivenStep extends AdminStep {
     // Line number needs to be immutable: externally set when window created
     constructor (formula, containedIn, line) {
         super(formula, containedIn);
@@ -188,7 +217,7 @@ class GivenStep extends AdminStep {
     }
 }
 
-class AssStep extends AdminStep {
+export class AssStep extends AdminStep {
     constructor (formula, containedIn) {
         super(formula, containedIn);
         this._label = this.label;
@@ -204,14 +233,14 @@ class AssStep extends AdminStep {
     }
 }
 
-class EConstStep extends AssStep {
+export class EConstStep extends AssStep {
     constructor (formula, containedIn) {
         super(formula, containedIn);
         this._correspondingElem = this.toElement();
     }
 }
 
-class AConstStep extends AssStep {
+export class AConstStep extends AssStep {
     constructor (formula, containedIn) {
         super(formula, containedIn);
         this._label = this.label;
@@ -224,7 +253,7 @@ class AConstStep extends AssStep {
     }
 }
 
-class GoalStep extends AdminStep {
+export class GoalStep extends AdminStep {
     constructor (formula, containedIn) {
         super(formula, containedIn);
         this._isGE = true;
@@ -237,12 +266,13 @@ class GoalStep extends AdminStep {
     }
 }
 
-class EmptyStep extends AdminStep {
+export class EmptyStep extends AdminStep {
     constructor (containedIn) {
         super(null, containedIn);
         this._label = this.label;
         this._isGE = true;
         this._correspondingElem = this.toElement();
+        this._correspondingElem.classList.add("italic");
     }
 
     get formulaText () {
@@ -254,12 +284,12 @@ class EmptyStep extends AdminStep {
     }
 }
 
-class ImmediateStepObject extends Step {
+export class ImmediateStepObject extends Step {
 } // Just for organisation
 
-class AndIStep extends ImmediateStepObject {
+export class AndIStep extends ImmediateStepObject {
     constructor (source1, source2, containedIn) {
-        super(new formulas.AndFormula(source1.formula, source2.formula),containedIn);
+        super(new formulas.AndFormula(source1.formula, source2.formula), containedIn);
         this._source1 = source1;
         this._source2 = source2;
         this._label = this.label;
@@ -271,7 +301,20 @@ class AndIStep extends ImmediateStepObject {
     }
 }
 
-class OrIStep extends ImmediateStepObject {
+export class AndEStep extends ImmediateStepObject {
+    constructor (source, extractingLeft, containedIn) {
+        super ((extractingLeft ? source.formula.leftChild : source.formula.rightChild), containedIn);
+        this._source = source;
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+    }
+
+    get label () {
+        return "⋀E(" + this._source.calcLine() + ")";
+    }
+}
+
+export class OrIStep extends ImmediateStepObject {
     constructor(source, other, sourceOnLeft, containedIn) {
         super ((sourceOnLeft ? new formulas.OrFormula(source.formula, other) : new formulas.OrFormula(other, source.formula)), containedIn);
         this._source = source;
@@ -283,22 +326,3 @@ class OrIStep extends ImmediateStepObject {
         return "⋁I(" + this._source.calcLine() + ")";
     }
 }
-
-let box = new Box(null);
-let p = new formulas.AtomFormula("P");
-let q = new formulas.AtomFormula("Q");
-let given1 = new GivenStep(p, box, 1);
-let given2 = new GivenStep(q, box, 2);
-let empty = new EmptyStep(box);
-let goal = new GoalStep(new formulas.OrFormula(p, q), box);
-box._steps = [given1, given2, empty, goal];
-box._resetOnMoveAll();
-
-let andI = new AndIStep(given1, given2, box);
-box.insertTo(empty, andI);
-let orI = new OrIStep(given1, q, true, box);
-box.insertTo(empty, orI);
-
-box.removeStep(orI);
-
-console.log(box._steps);
