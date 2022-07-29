@@ -403,6 +403,10 @@ export class NotFormula extends BasicFormula {
         this._priority = 1;
     }
 
+    get contents () {
+        return this._contents;
+    }
+
     show() {
         let type = this._contents.constructor.name;
         if (type === AtomFormula.name || type === QuantifierFormula.name ||

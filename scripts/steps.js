@@ -284,10 +284,10 @@ export class EmptyStep extends AdminStep {
     }
 }
 
-export class ImmediateStepObject extends Step {
+export class ImmediateStep extends Step {
 } // Just for organisation
 
-export class AndIStep extends ImmediateStepObject {
+export class AndIStep extends ImmediateStep {
     constructor (source1, source2, containedIn) {
         super(new formulas.AndFormula(source1.formula, source2.formula), containedIn);
         this._source1 = source1;
@@ -301,7 +301,7 @@ export class AndIStep extends ImmediateStepObject {
     }
 }
 
-export class AndEStep extends ImmediateStepObject {
+export class AndEStep extends ImmediateStep {
     constructor (source, extractingLeft, containedIn) {
         super ((extractingLeft ? source.formula.leftChild : source.formula.rightChild), containedIn);
         this._source = source;
@@ -314,7 +314,7 @@ export class AndEStep extends ImmediateStepObject {
     }
 }
 
-export class ImpEStep extends ImmediateStepObject {
+export class ImpEStep extends ImmediateStep {
     constructor (sourceImp, sourceLeft, containedIn) {
         super(sourceImp.formula.rightChild, containedIn);
         this._sourceImp = sourceImp;
@@ -328,8 +328,8 @@ export class ImpEStep extends ImmediateStepObject {
     }
 }
 
-export class OrIStep extends ImmediateStepObject {
-    constructor(source, other, sourceOnLeft, containedIn) {
+export class OrIStep extends ImmediateStep {
+    constructor (source, other, sourceOnLeft, containedIn) {
         super ((sourceOnLeft ? new formulas.OrFormula(source.formula, other) : new formulas.OrFormula(other, source.formula)), containedIn);
         this._source = source;
         this._label = this.label;
@@ -338,5 +338,72 @@ export class OrIStep extends ImmediateStepObject {
 
     get label () {
         return "⋁I(" + this._source.calcLine() + ")";
+    }
+}
+
+export class NotEStep extends ImmediateStep {
+    constructor (source1, source2, containedIn) {
+        super (new formulas.BottomFormula(), containedIn);
+        this._source1 = source1;
+        this._source2 = source2;
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+    }
+
+    get label () {
+        return "¬E(" + this._source1.calcLine() + ", " + this._source2.calcLine() + ")";
+    }
+}
+
+export class NotNotEStep extends ImmediateStep {
+    constructor (source, containedIn) {
+        super (source.formula.contents.contents, containedIn);
+        this._source = source;
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+    }
+
+    get label () {
+        return "¬¬E(" + this._source.calcLine() + ")";
+    }
+}
+
+export class BottomIStep extends ImmediateStep {
+    // Same as NotEStep, but kept separate because of the need for separate tutorial box
+    constructor (source1, source2, containedIn) {
+        super (new formulas.BottomFormula(), containedIn);
+        this._source1 = source1;
+        this._source2 = source2;
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+    }
+    
+    get label () {
+        return "⊥I(" + this._source1.calcLine() + ", " + this._source2.calcLine() + ")";
+    }
+}
+
+export class BottomEStep extends ImmediateStep {
+    constructor (source, newFormula, containedIn) {
+        super (newFormula, containedIn);
+        this._source = source;
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+    }
+
+    get label () {
+        return "⊥E(" + this._source.calcLine() + ")";
+    }
+}
+
+export class TopIStep extends ImmediateStep {
+    constructor (containedIn) {
+        super (new formulas.TopFormula(), containedIn);
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+    }
+
+    get label () {
+        return "⊤I";
     }
 }

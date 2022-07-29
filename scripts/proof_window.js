@@ -49,11 +49,14 @@ for (let i = 0; i < buttons.length; i++) {
 
 // TEMP FOR TESTIN
 let p = new formulas.AtomFormula("P");
+let notP = new formulas.NotFormula(p);
+let notnotP = new formulas.NotFormula(notP);
 let q = new formulas.AtomFormula("Q");
 let porq = new formulas.OrFormula(p, q);
 let pandq = new formulas.AndFormula(p, q);
 let pimpq = new formulas.ImpliesFormula(p, q);
 
-let box = setUpProof([pimpq, p], porq);
-box.insertTo(box.steps[2], new steps.ImpEStep(box.steps[0], box.steps[1], box));
+let box = setUpProof([notP, p], porq);
+box.insertTo(box.steps[2], new steps.BottomIStep(box.steps[0], box.steps[1], box));
+box.insertTo(box.steps[3], new steps.TopIStep(box));
 console.log(box.steps);
