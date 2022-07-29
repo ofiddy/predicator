@@ -478,7 +478,7 @@ export class BinaryFormula extends BasicFormula {
         }
 
         let rightShow = this._rightChild.show();
-        if (this._rightChild._priority > this._priority) {
+        if (this._rightChild._priority >= this._priority) {
             rightShow = "(" + rightShow + ")";
         }
 

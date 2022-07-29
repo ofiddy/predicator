@@ -7,7 +7,7 @@ export class Box {
     constructor (introducedBy, optionalElem) {
         this._introducedBy = introducedBy;
         this._steps = [];
-        this._correspondingElem = (introducedBy ? _toElement() : optionalElem);
+        this._correspondingElem = (introducedBy ? this._toElement() : optionalElem);
     }
 
     get steps () {
@@ -20,6 +20,14 @@ export class Box {
 
     get elem () {
         return this._correspondingElem;
+    }
+
+    get firstStep () {
+        return this._steps[0];
+    }
+
+    get lastStep () {
+        return this._steps[this._steps.length - 1];
     }
 
     insertTo (oldStep, newStep) {
@@ -39,26 +47,26 @@ export class Box {
                 oldStep.elem.remove();
                 this._steps.splice(oldIndex, 1);
                 if (ahead instanceof GoalStep) {
+                    oldStep.elem.remove();
                     this.insertTo(ahead, newStep);
                 }
             } else {
                 // If we can't, insert new step and shove along the old
                 this._correspondingElem.insertBefore(newStep.elem, oldStep.elem);
                 this._steps.splice(oldIndex, 0, newStep);
+                newStep.boxSetUp()
             }
         } else {
             // Goal step
             this._correspondingElem.insertBefore(newStep.elem, oldStep.elem);
-            if (oldStep.formula.equals(newStep.formula)) {
-                // If equal, replace the goal step
-                this._steps[oldIndex] = newStep;
-                oldStep.elem.remove();
-            } else {
-                // Move goal step down and insert this step
-                this.steps.splice(oldIndex, 0, newStep);
-            }
+            // If equal, replace the goal step and purge all empties
+            // And if its a goal step, it should be equal
+            this._steps[oldIndex] = newStep;
+            oldStep.elem.remove();
+            this._purgeEmpty();
+            newStep.boxSetUp()
         }
-        this._resetOnMoveAll();
+        this.resetOnMoveAll();
     }
 
     removeStep (oldStep) {
@@ -70,18 +78,25 @@ export class Box {
         if (!(this._steps[oldIndex + 1] && this._steps[oldIndex + 1] instanceof EmptyStep)) {
             let newEmpty = new EmptyStep(this);
             this._steps.splice(oldIndex, 0, newEmpty);
+            this._correspondingElem.insertBefore(newEmpty.elem, oldStep.elem);
         }
         
         // If the last step in the box, re-add a goal step
         if (this._steps[this._steps.length - 1] === oldStep) {
             let newGoal = new GoalStep(oldStep.formula, this);
+            this._correspondingElem.insertBefore(newGoal.elem, oldStep.elem);
             this._steps.push(newGoal);
         }
 
         // Remove this step, wherever it is
         this._steps.splice(this._steps.indexOf(oldStep), 1);
+        oldStep.elem.remove();
+        // And if its a box step, remove the boxes
+        if (oldStep instanceof BoxStep) {
+            oldStep.box.elem.remove();
+        }
 
-        this._resetOnMoveAll();
+        this.resetOnMoveAll();
     }
 
     secretPush (step) {
@@ -91,22 +106,31 @@ export class Box {
         this._correspondingElem.append(step.elem);
     }
 
-    _resetOnMoveAll () {
-        if (this._introducedBy === null) {
-            for (let i = 0; i < this._steps.length; i++) {
-                this._steps[i].resetOnMove();
-            }
-            if (this._introducedBy) {
-                this._introducedBy.resetOnMove();
-            }
+    secretPrepend (step) {
+        // As above, but adds to the start of the box instead
+        this._steps.splice(0, 0, step);
+        this._correspondingElem.prepend(step.elem);
+    }
+
+    resetOnMoveAll () {
+        if (this._introducedBy) {
+            this._introducedBy.containedIn.resetOnMoveAll();
         } else {
-            this._introducedBy.containedIn._resetOnMoveAll();
+            this.resetContents(); // Only the top box should do this
         }
     }
+
+    resetContents () {
+        for (let i = 0; i < this._steps.length; i++) {
+            this._steps[i].resetOnMove();
+        }
+    }
+    
 
     _purgeEmpty () {
         for (let i = 0; i < this._steps.length; i++) {
             if (this._steps[i] instanceof EmptyStep) {
+                this._steps[i].elem.remove();
                 this._steps.splice(i, 1);
                 i--;
             }
@@ -119,6 +143,7 @@ export class Box {
         let boxElem = document.createElement("div");
         boxElem.classList.add("proof-box");
         boxElem.boxObject = this;
+        return boxElem;
     }
     
 }
@@ -144,8 +169,8 @@ export class Step {
         return this._isGE;
     }
 
-    get dependentOn () {
-        return this._dependentOn;
+    get containedIn () {
+        return this._containedIn;
     }
 
     get elem () {
@@ -158,7 +183,8 @@ export class Step {
 
     // Calculates the line number of this step
     calcLine () {
-        return (this._containedIn.steps.indexOf(this) + this._containedIn.startNumber);
+        let prevElem = this._containedIn.steps[this._containedIn.steps.indexOf(this) - 1]; 
+        return (prevElem.calcLine() + 1);
     }
 
     // Recalculates the line number of this step and its label
@@ -177,7 +203,7 @@ export class Step {
 
         let numLabel = document.createElement("p");
         numLabel.classList.add("expression-number", "italic");
-        numLabel.innerText = this.calcLine();
+        numLabel.innerText = "";
         exprElem.append(numLabel);
 
         let formLabel = document.createElement("span");
@@ -191,6 +217,10 @@ export class Step {
         exprElem.append(originLabel);
 
         return exprElem;
+    }
+
+    boxSetUp () { // Placeholder for steps requiring a box
+        return;
     }
 }
 
@@ -226,7 +256,7 @@ export class AssStep extends AdminStep {
     }
 
     calcLine () {
-        return this._containedIn.boxStartNumber();
+        return this._containedIn.startNumber;
     }
 
     get label () {
@@ -544,5 +574,83 @@ export class EqualsSymStep extends ImmediateStep {
 
     get label () {
         return "=sym(" + this._source.calcLine() + ")";
+    }
+}
+
+export class BoxStep extends Step {
+    // Steps that introduce a single box before themselves
+    constructor (formula, containedIn) {
+        super (formula, containedIn);
+        this._box = new Box(this);
+    }
+
+    get box () {
+        return this._box;
+    }
+
+    calcLine () {
+        if (this._box.lastStep) {
+            this._box.resetContents();
+            return this._box.lastStep.calcLine() + 1;
+        } else {
+            return 0; // Placeholder
+        }
+
+        return this._box.steps.lastStep.calcLine() + 1;
+    }
+
+    boxStartNumber () {
+        let prevElem = this._containedIn.steps[this._containedIn.steps.indexOf(this) - 1];
+        return (prevElem ? prevElem.calcLine() : 0);
+    }
+
+    boxSetUp (steps) {
+        // Has to be done manually because of the weird dependeces of getting
+        // the corresponding element. Should be done ONCE after this elem added
+        for (const s of steps) {
+            this._box.secretPush(s);
+        }
+
+        this._containedIn.elem.insertBefore(this._box.elem, this._correspondingElem);
+        this._box.resetOnMoveAll();
+    }
+}
+
+export class ImpIStep extends BoxStep {
+    constructor (formula, containedIn) {
+        super (formula, containedIn);
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+    }
+
+    get label () {
+        if (this._box.steps.length > 0) {
+            return "→I(" + this._box.firstStep.calcLine() + ", " + this._box.lastStep.calcLine() + ")";
+        } else {
+            return 0; // Placeholder
+        }
+    }
+
+    boxSetUp () {
+        super.boxSetUp([
+            new AssStep(this._formula.leftChild, this._box),
+            new EmptyStep(this._box),
+            new GoalStep(this._formula.rightChild, this._box)]);
+    }
+}
+
+export class NotIStep extends BoxStep {
+    constructor (formula, containedIn) {
+        super (formula, containedIn);
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+    }
+
+    get label() {
+        if (this._box.steps.length > 0) {
+            return "¬I(" + this._box.firstStep.calcLine() + ", " + this._box.lastStep.calcLine() + ")";
+        } else {
+            return 0; // Placeholder
+        }
     }
 }

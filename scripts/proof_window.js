@@ -23,7 +23,7 @@ export function setUpProof(givensList, goalFormula) {
     }
     box.secretPush(new steps.EmptyStep(box));
     box.secretPush(new steps.GoalStep(goalFormula, box));
-    box._resetOnMoveAll();
+    box.resetOnMoveAll();
     return box;
 }
 
@@ -48,16 +48,25 @@ for (let i = 0; i < buttons.length; i++) {
 }
 
 // TEMP FOR TESTIN
-let c = new formulas.VariableFormula("c");
-let x = new formulas.VariableFormula("x");
-let pc = new formulas.PredicateFormula("P", [c]);
-let qc = new formulas.PredicateFormula("Q", [c]);
-let px = new formulas.PredicateFormula("P", [x]);
-let qx = new formulas.PredicateFormula("Q", [x]);
-let impc = new formulas.ImpliesFormula(pc, qc);
-let impx = new formulas.ImpliesFormula(px, qx);
-let all = new formulas.AllFormula(x, impx);
-let xeqc = new formulas.EqualsFormula(x, c);
+let p = new formulas.AtomFormula("P");
+let q = new formulas.AtomFormula("Q");
+let r = new formulas.AtomFormula("R");
 
-let box = setUpProof([pc, xeqc], qc);
-box.insertTo(box.steps[2], new steps.EqualsSymStep(box.steps[1], box));
+let pimpq = new formulas.ImpliesFormula(p, q);
+let qimpr = new formulas.ImpliesFormula(q, r);
+let pimpr = new formulas.ImpliesFormula(p, r);
+let rimpp = new formulas.ImpliesFormula(r, p);
+let pimp_qimpr_ = new formulas.ImpliesFormula(p, qimpr);
+let rimp_pimp_qimpr__ = new formulas.ImpliesFormula(r, pimp_qimpr_);
+
+let pandq = new formulas.AndFormula(p, q);
+let pandr = new formulas.AndFormula(p, r);
+let qandr = new formulas.AndFormula(q, r);
+
+let box = setUpProof([pandq, pandr], pandr);
+box.insertTo(box.steps[2], new steps.AndEStep(box.firstStep, false, box));
+box.insertTo(box.steps[3], new steps.AndEStep(box.steps[1], false, box));
+box.insertTo(box.steps[4], new steps.AndIStep(box.steps[2], box.steps[3], box));
+
+let imp = new steps.ImpIStep(pimpr, box);
+box.insertTo(box.steps[5], imp);

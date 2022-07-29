@@ -420,6 +420,7 @@ body {
     padding: 0px 4px;
     border: var(--white-theme) 2px solid;
     width: fit-content;
+    min-width: 300px;
 }
 
 /* Modals styling */
