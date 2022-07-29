@@ -202,6 +202,7 @@ export class Step {
         let exprElem = document.createElement("div");
         exprElem.classList.add("expression", "proof-expression");
         exprElem.stepObject = this;
+        exprElem.tabIndex = 0;
 
         let numLabel = document.createElement("p");
         numLabel.classList.add("expression-number", "italic");

@@ -96,6 +96,6 @@ elim.boxL.insertTo(elim.boxL.lastStep, new steps.ImpEStep(box.firstStep, elim.bo
 
 document.body.addEventListener("click", (event) => {
     if (event.target.stepObject) {
-        console.log(event.target.stepObject.formulaText)
+        console.log(event.target.stepObject.formulaText);
     };
 });
