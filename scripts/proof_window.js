@@ -51,6 +51,9 @@ for (let i = 0; i < buttons.length; i++) {
 let p = new formulas.AtomFormula("P");
 let q = new formulas.AtomFormula("Q");
 let porq = new formulas.OrFormula(p, q);
-let box = setUpProof([p, q], porq);
-box.insertTo(box.steps[2], new steps.OrIStep(box.steps[0], q, true, box));
+let pandq = new formulas.AndFormula(p, q);
+let pimpq = new formulas.ImpliesFormula(p, q);
+
+let box = setUpProof([pimpq, p], porq);
+box.insertTo(box.steps[2], new steps.ImpEStep(box.steps[0], box.steps[1], box));
 console.log(box.steps);

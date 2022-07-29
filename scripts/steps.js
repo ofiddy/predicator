@@ -314,6 +314,20 @@ export class AndEStep extends ImmediateStepObject {
     }
 }
 
+export class ImpEStep extends ImmediateStepObject {
+    constructor (sourceImp, sourceLeft, containedIn) {
+        super(sourceImp.formula.rightChild, containedIn);
+        this._sourceImp = sourceImp;
+        this._sourceLeft = sourceLeft;
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+    }
+    
+    get label () {
+        return "→E(" + this._sourceImp.calcLine() + ", " + this._sourceLeft.calcLine() + ")";
+    }
+}
+
 export class OrIStep extends ImmediateStepObject {
     constructor(source, other, sourceOnLeft, containedIn) {
         super ((sourceOnLeft ? new formulas.OrFormula(source.formula, other) : new formulas.OrFormula(other, source.formula)), containedIn);
