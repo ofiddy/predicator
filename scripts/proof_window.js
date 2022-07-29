@@ -57,6 +57,7 @@ let qx = new formulas.PredicateFormula("Q", [x]);
 let impc = new formulas.ImpliesFormula(pc, qc);
 let impx = new formulas.ImpliesFormula(px, qx);
 let all = new formulas.AllFormula(x, impx);
+let xeqc = new formulas.EqualsFormula(x, c);
 
-let box = setUpProof([all, pc], qc);
-box.insertTo(box.steps[2], new steps.AllImpEStep(box.steps[0], box.steps[1], box));
+let box = setUpProof([pc, xeqc], qc);
+box.insertTo(box.steps[2], new steps.EqualsSymStep(box.steps[1], box));

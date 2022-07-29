@@ -605,6 +605,14 @@ export class EqualsFormula extends PredicateFormula {
         this._priority = 9;
     }
 
+    get leftVar () {
+        return this._variables[0];
+    }
+
+    get rightVar() {
+        return this._variables[1];
+    }
+
     show() {
         return this._variables[0].show() + "=" + this._variables[1].show();
     }

@@ -506,3 +506,43 @@ export class AllImpEStep extends ImmediateStep {
         return "∀→E(" + this._sourceLeft.calcLine() + ", " + this._sourceQuantImp.calcLine() + ")";
     }
 }
+
+export class EqualsSubStep extends ImmediateStep {
+    constructor (sourceEquals, sourceFree, containedIn, replaceRightWithLeft) {
+        super(replaceRightWithLeft ? sourceFree.formula.replaceVar(sourceEquals.formula.rightVar, sourceEquals.formula.leftVar, new Set()) : 
+        sourceFree.formula.replaceVar(sourceEquals.formula.leftVar, sourceEquals.formula.rightVar, new Set()), containedIn);
+        this._sourceEquals = sourceEquals;
+        this._sourceFree = sourceFree;
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+    }
+
+    get label () {
+        return "=sub(" + this._sourceFree.calcLine() + ", " + this._sourceEquals.calcLine() + ")";
+    }
+}
+
+export class EqualsReflexStep extends ImmediateStep {
+    constructor (varFormula, containedIn) {
+        super(new formulas.EqualsFormula(varFormula, varFormula), containedIn);
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+    }
+
+    get label () {
+        return "reflexivity"
+    }
+}
+
+export class EqualsSymStep extends ImmediateStep {
+    constructor (source, containedIn) {
+        super(new formulas.EqualsFormula(source.formula.rightVar, source.formula.leftVar), containedIn);
+        this._source = source;
+        this._label = this.label;
+        this._correspondingElem = this.toElement();
+    }
+
+    get label () {
+        return "=sym(" + this._source.calcLine() + ")";
+    }
+}
