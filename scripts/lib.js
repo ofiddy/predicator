@@ -49,6 +49,7 @@ export function bindPhysicsButton(button, onClickEvent, onDragEvent, dragQuery) 
         let deltaX = 0;
         let deltaY = 0;
         let prevRotate = 0;
+        let scale = "1.3";
 
         // Create the button image and prepare for moving
         let buttonImg = button.cloneNode(true);
@@ -56,6 +57,7 @@ export function bindPhysicsButton(button, onClickEvent, onDragEvent, dragQuery) 
         buttonImg.style.position = "absolute";
         buttonImg.style.zIndex = 1000;
         buttonImg.style.width = getComputedStyle(button).getPropertyValue("width");
+        buttonImg.style.transform = "scale(" + scale + ")";
         document.body.append(buttonImg);
         buttonImg.ondragstart = function() {
             return false;
@@ -64,7 +66,7 @@ export function bindPhysicsButton(button, onClickEvent, onDragEvent, dragQuery) 
         // Move the image under the pointer
         buttonImg.style.left = (event.pageX - (startX - button.getBoundingClientRect().left + 5)) + "px";
         buttonImg.style.top = (event.pageY - (startY - button.getBoundingClientRect().top + 5)) + "px";
-        buttonImg.style.transformOrigin = (startX - button.getBoundingClientRect().left) + "px " + (startY - button.getBoundingClientRect().top) + "px";
+        buttonImg.style.transformOrigin = "center";
 
         // Moves te image when mouse drags, and adds physics simulation
         function moveAt(pageX, pageY) {
@@ -72,7 +74,8 @@ export function bindPhysicsButton(button, onClickEvent, onDragEvent, dragQuery) 
             deltaY = pageY - startY;
             let newRotate = deltaX / 3;
 
-            buttonImg.style.transform = "translate(" + deltaX + "px, " + deltaY + "px) rotate(" + (newRotate - prevRotate) + "deg)";
+            buttonImg.style.transform = ("translate(" + deltaX + "px, " + deltaY + "px) rotate(" + 
+                (newRotate - prevRotate) + "deg) scale(" + 1.3 + ")");
             prevRotate = newRotate;
         }
         function onMouseMove(event) {

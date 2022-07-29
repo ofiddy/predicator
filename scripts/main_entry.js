@@ -127,17 +127,17 @@ function checkThenAttemptInsert(event) {
     event.stopPropagation();
 
     lastClickedButton = event.target;
-    if (lastClickedFormula === null) {
-        if (document.activeElement.classList.contains("formula-elem")) {
-            attemptInsertFormula(event, document.activeElement, getScope(document.activeElement));
+    if (document.activeElement.classList.contains("formula-elem")) {
+        attemptInsertFormula(event, document.activeElement, getScope(document.activeElement));
+        if (getExpressionFromFormula(document.activeElement) !== "goal") {
+            checkThenMutateGivens(getExpressionFromFormula(document.activeElement), false);
+        }
+    } else {
+        if (lastClickedFormula !== null) {
+            attemptInsertFormula(event, lastClickedFormula, getScope(lastClickedFormula));
             if (getExpressionFromFormula(document.activeElement) !== "goal") {
                 checkThenMutateGivens(getExpressionFromFormula(document.activeElement), false);
             }
-        }
-    } else {
-        attemptInsertFormula(event, lastClickedFormula, getScope(lastClickedFormula));
-        if (getExpressionFromFormula(document.activeElement) !== "goal") {
-            checkThenMutateGivens(getExpressionFromFormula(document.activeElement), false);
         }
     }
     lastClickedFormula = null;
