@@ -21,6 +21,11 @@ export function setUpProof(givensList, goalFormula) {
     for (let i = 0; i < givensList.length; i++) {
         box.secretPush(new steps.GivenStep(givensList[i], box, i + 1));
     }
+
+    if (givensList.length === 0) {
+        box._steps = [new steps.GivenStep(new formulas.BasicFormula(), box, 0)];
+    }
+
     box.secretPush(new steps.EmptyStep(box));
     box.secretPush(new steps.GoalStep(goalFormula, box));
     box.resetOnMoveAll();
@@ -48,7 +53,7 @@ for (let i = 0; i < buttons.length; i++) {
 }
 
 // TEMP FOR TESTIN
-/*
+
 let p = new formulas.AtomFormula("P");
 let q = new formulas.AtomFormula("Q");
 let r = new formulas.AtomFormula("R");
@@ -62,10 +67,13 @@ let rimpp = new formulas.ImpliesFormula(r, p);
 let pimp_qimpr_ = new formulas.ImpliesFormula(p, qimpr);
 let rimp_pimp_qimpr__ = new formulas.ImpliesFormula(r, pimp_qimpr_);
 let qimp_notp = new formulas.ImpliesFormula(q, notp);
+let pimpp = new formulas.ImpliesFormula(p, p);
 
 let pandq = new formulas.AndFormula(p, q);
 let pandr = new formulas.AndFormula(p, r);
 let qandr = new formulas.AndFormula(q, r);
+
+let porq = new formulas.OrFormula(p, q);
 
 let x = new formulas.VariableFormula("x");
 let sk1 = new formulas.VariableFormula("sk1");
@@ -81,10 +89,13 @@ let all_p_imp_qx = new formulas.AllFormula(x, p_imp_qx);
 let all_qx = new formulas.AllFormula(x, qx);
 let p_imp_all_qx = new formulas.ImpliesFormula(p, all_qx);
 
-let box = setUpProof([p_imp_all_qx], all_p_imp_qx);
-let int = new steps.AllIStep(all_p_imp_qx, box);
-box.insertTo(box.lastStep, int);
-let imp = new steps.ImpIStep(p_imp_qsk1, int.box);
-int.box.insertTo(int.box.lastStep, imp);
-imp.box.insertTo(imp.box.steps[1], new steps.ImpEStep(box.firstStep, imp.box.firstStep, imp.box));
-imp.box.insertTo(imp.box.lastStep, new steps.AllEStep(x, sk1, imp.box.steps[1], imp.box));*/
+let box = setUpProof([pimpq, porq], q);
+let elim = new steps.OrEStep(q, box.steps[1], box);
+box.insertTo(box.steps[2], elim);
+elim.boxL.insertTo(elim.boxL.lastStep, new steps.ImpEStep(box.firstStep, elim.boxL.firstStep, elim.boxL));
+
+document.body.addEventListener("click", (event) => {
+    if (event.target.stepObject) {
+        console.log(event.target.stepObject.formulaText)
+    };
+});

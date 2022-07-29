@@ -203,6 +203,7 @@ body {
     width: auto;
     color: var(--white-theme);
     margin: 8px 24px 4px 4px;
+    pointer-events: none;
 }
 
 .formula-elem {
@@ -407,6 +408,7 @@ body {
 .expression-body {
     color: var(--white-theme);
     font-size: var(--parent-font-size);
+    pointer-events: none;
 }
 
 .expression-origin {
@@ -415,6 +417,7 @@ body {
     text-align: right;
     font-size: var(--parent-font-size);
     font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    pointer-events: none;
 }
 
 .proof-box {

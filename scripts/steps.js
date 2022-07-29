@@ -15,7 +15,7 @@ export class Box {
     }
 
     get startNumber () {
-        return (this._introducedBy ? this._introducedBy.boxStartNumber() + 1 : 1);
+        return (this._introducedBy ? this._introducedBy.boxStartNumber(this) + 1 : 1);
     }
 
     get elem () {
@@ -585,8 +585,12 @@ export class BoxStep extends Step {
     boxSetUp (steps) {
         // Has to be done manually because of the weird dependeces of getting
         // the corresponding element. Should be done ONCE after this elem added
-        for (const s of steps) {
-            this._box.secretPush(s);
+        if (steps[0]._formula.equals(steps[steps.length - 1]._formula)) {
+            this._box.secretPush(steps[0]); // For very quick boxes
+        } else {
+            for (const s of steps) {
+                this._box.secretPush(s);
+            }
         }
 
         this._containedIn.elem.insertBefore(this._box.elem, this._correspondingElem);
@@ -713,11 +717,82 @@ export class AllIStep extends BoxStep {
         let newVar = new formulas.VariableFormula("sk" + this._box.depth);
         let boundVar = this._formula.bound;
         let newFormula = this._formula.subformula.replaceVar(boundVar, newVar, new Set());
-        console.log(newFormula);
         super.boxSetUp([
             new AConstStep(newVar, this._box),
             new EmptyStep(this._box),
             new GoalStep(newFormula, this._box)
         ]);
+    }
+}
+
+export class OrEStep extends Step {
+    // Only step that introduces two boxes
+    constructor (formula, source, containedIn) {
+        super(formula, containedIn);
+        this._source = source;
+        this._boxL = new Box(this);
+        this._boxR = new Box(this);
+        
+        this._parentElem = document.createElement("div");
+        this._parentElem.classList.add("dual-proof-box");
+        this._parentElem.appendChild(this._boxL.elem);
+        this._parentElem.appendChild(this._boxR.elem);
+        this._finalSetUp();
+    }
+
+    get boxL () {
+        return this._boxL;
+    }
+
+    get boxR () {
+        return this._boxR;
+    }
+
+    get label () {
+        if (this._boxR.steps.length <= 0) {
+            return 0; // Placeholder
+        }
+
+        return (
+            "⋁E(" + this._source.calcLine() + ", " + 
+            this._boxL.firstStep.calcLine() + " - " + this._boxL.lastStep.calcLine() + ", " + 
+            this._boxR.firstStep.calcLine() + " - " + this._boxR.lastStep.calcLine() + ")");
+    }
+
+    boxStartNumber (box) {
+        if (box === this._boxL) {
+            let prevElem = this._containedIn.steps[this._containedIn.steps.indexOf(this) - 1];
+            return (prevElem ? prevElem.calcLine() : 0);
+        } else {
+            return (this._boxL.lastStep ? this._boxL.lastStep.calcLine() : 0);
+        }
+    }
+
+    calcLine () {
+        if (this._boxR.lastStep) {
+            this._boxL.resetContents();
+            this._boxR.resetContents();
+            return this._boxR.lastStep.calcLine() + 1;
+        }
+        return 0; // Placeholder
+    }
+
+    boxSetUp () {
+        // The insertTo is a shortcut to very short boxes where needed
+        this._boxL.secretPush(new EmptyStep(this._boxL));
+        this._boxL.secretPush(new GoalStep(this._formula, this._boxL));
+        this._boxL.insertTo(this._boxL.firstStep, new AssStep(this._source.formula.leftChild, this._boxL));
+
+        this._boxR.secretPush(new EmptyStep(this._boxR));
+        this._boxR.secretPush(new GoalStep(this._formula, this._boxR));
+        this._boxR.insertTo(this._boxR.firstStep, new AssStep(this._source.formula.rightChild, this._boxR));
+
+        this._containedIn.elem.insertBefore(this._parentElem, this._correspondingElem);
+        this._boxL.resetOnMoveAll();
+        this._boxR.resetOnMoveAll();
+    }
+
+    boxRemove () {
+        this._parentElem.remove();
     }
 }
