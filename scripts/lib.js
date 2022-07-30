@@ -50,6 +50,7 @@ export function bindPhysicsButton(button, onClickEvent, onDragEvent, dragQuery) 
         let deltaY = 0;
         let prevRotate = 0;
         let scale = "1.3";
+        let pxToAppear = 30;
 
         // Create the button image and prepare for moving
         let buttonImg = button.cloneNode(true);
@@ -58,6 +59,7 @@ export function bindPhysicsButton(button, onClickEvent, onDragEvent, dragQuery) 
         buttonImg.style.zIndex = 1000;
         buttonImg.style.width = getComputedStyle(button).getPropertyValue("width");
         buttonImg.style.transform = "scale(" + scale + ")";
+        buttonImg.style.opacity = "0";
         document.body.append(buttonImg);
         buttonImg.ondragstart = function() {
             return false;
@@ -77,6 +79,12 @@ export function bindPhysicsButton(button, onClickEvent, onDragEvent, dragQuery) 
             buttonImg.style.transform = ("translate(" + deltaX + "px, " + deltaY + "px) rotate(" + 
                 (newRotate - prevRotate) + "deg) scale(" + 1.3 + ")");
             prevRotate = newRotate;
+
+            if (deltaX > pxToAppear || deltaY > pxToAppear) {
+                buttonImg.style.opacity = "1";
+            } else {
+                buttonImg.style.opacity = "0";
+            }
         }
         function onMouseMove(event) {
             moveAt(event.pageX, event.pageY);
