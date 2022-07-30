@@ -2,7 +2,12 @@ import {bindPhysicsButton, setDiff} from "./lib.js"
 import * as steps from "./steps.js"
 import * as formulas from "./formulas.js"
 
-const tutorialWindow = document.getElementById("proof-tutorial-box");
+let tutorialWindow;
+let stepModels;
+let stepsList = steps.stepsList;
+let buttons;
+let lastClickedElement;
+
 
 function setModelBoxContents(modelElement) {
     // Sets the content of the model window to the given model element
@@ -12,7 +17,93 @@ function setModelBoxContents(modelElement) {
     tutorialWindow.appendChild(modelElement);
 }
 
+function attemptDeleteStep (step) {
+    if (!(step instanceof steps.GoalStep || step instanceof steps.AssStep ||
+        step instanceof steps.GivenStep || step instanceof steps.EmptyStep)) {
+            step.containedIn.removeStep(step);
+    }
+}
+
+function beginPatternEvent(stepId) {
+    // Begins the event of selecting sources for a step pattern
+    let tutElems = tutorialWindow.querySelector("#proof-tutorial-steps").children;
+    let sourceElems = [];
+    let destElem;
+
+    // Get the list of source Elems from all tutorial elements
+    for (let i = 0; i < tutElems.length - 2; i += 3) {
+        sourceElems.push(tutElems[i]);
+    }
+    destElem = tutElems[tutElems.length - 2];
+
+    let pattern = stepsList[stepId].getPattern(sourceElems, destElem);
+
+    function advancePatternEvent (event) {
+        // Progresses the event if a step clicked on
+        // Cancels the event if click off a step or pattern add fails
+        if (event.target.stepObject) {
+            let added = pattern.addStep(event.target.stepObject);
+            if (!added) {
+                cancelPatternEvent();
+                return;
+            }
+            if (pattern.fullyMatched) {
+                let newStep = pattern.attemptFinalise();
+                let dest = pattern.dest;
+                dest.containedIn.insertTo(dest, newStep);
+                console.log(dest.containedIn);
+                cancelPatternEvent();
+            }
+        } else {
+            cancelPatternEvent();
+        }
+    }
+
+    function cancelPatternEvent() {
+        document.removeEventListener("click", advancePatternEvent);
+        tutorialWindow.textContent = "";
+    }
+
+    document.addEventListener("click", advancePatternEvent);
+}
+
 export function setUpProof(givensList, goalFormula) {
+    // First does all the behind the scenes setup
+    tutorialWindow = document.getElementById("proof-tutorial-box");
+
+    // Assign the model windows for each step
+    stepModels = [];
+
+    fetch("../windows/model_steps.html").then(function (response) {
+        return response.text();
+    }).then(function (html) {
+        let parser = new DOMParser();
+        let models = parser.parseFromString(html, "text/html");
+
+        for (let i = 0; i < models.body.children.length; i++) {
+            stepModels[i] = models.body.children[i];
+        }
+    });
+
+    // Adds step models to buttons and binds buttons
+    buttons = document.getElementById("proof-button-grid").children;
+
+    for (let i = 0; i < buttons.length; i++) {
+        let buttonEvent = {
+            "onDragStart": () => {setModelBoxContents(stepModels[i])},
+            "onClick": () => {beginPatternEvent(i)},
+        }
+        bindPhysicsButton(buttons[i], buttonEvent);
+    }
+
+    // Binds removing to the document
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Delete" && document.activeElement.stepObject) {
+            attemptDeleteStep(document.activeElement.stepObject);
+        }
+    });
+
+    // Then adds the actual proof objects
     // Uses various usually-private attributes of the box for first-time setup
     // Forgive me, javascript gods
     let box = new steps.Box(null, document.getElementById("step-holder"));
@@ -32,29 +123,9 @@ export function setUpProof(givensList, goalFormula) {
     return box;
 }
 
-// Assign the model windows for each step
-let stepModels = [];
-
-fetch("../windows/model_steps.html").then(function (response) {
-    return response.text();
-}).then(function (html) {
-    let parser = new DOMParser();
-    let models = parser.parseFromString(html, "text/html");
-
-    for (let i = 0; i < models.body.children.length; i++) {
-        stepModels[i] = models.body.children[i];
-    }
-});
-
-// Adds step models to buttons
-let buttons = document.getElementById("proof-button-grid").children;
-for (let i = 0; i < buttons.length; i++) {
-    bindPhysicsButton(buttons[i], () => {setModelBoxContents(stepModels[i])});
-}
-
 // TEMP FOR TESTIN
 
-let p = new formulas.AtomFormula("P");
+/*let p = new formulas.AtomFormula("P");
 let q = new formulas.AtomFormula("Q");
 let r = new formulas.AtomFormula("R");
 let notq = new formulas.NotFormula(q);
@@ -92,10 +163,11 @@ let p_imp_all_qx = new formulas.ImpliesFormula(p, all_qx);
 let box = setUpProof([pimpq, porq], q);
 let elim = new steps.OrEStep(q, box.steps[1], box);
 box.insertTo(box.steps[2], elim);
-elim.boxL.insertTo(elim.boxL.lastStep, new steps.ImpEStep(box.firstStep, elim.boxL.firstStep, elim.boxL));
+elim.boxL.insertTo(elim.boxL.lastStep, new steps.ImpEStep(box.firstStep, elim.boxL.firstStep, elim.boxL));*/
 
 document.body.addEventListener("click", (event) => {
     if (event.target.stepObject) {
+        lastClickedElement = event.target;
         console.log(event.target.stepObject.formulaText);
     };
 });

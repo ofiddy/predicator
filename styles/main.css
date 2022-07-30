@@ -400,6 +400,7 @@ body {
 .proof-model-step {
     margin: 0;
     font-size: 14px;
+    color: var(--parent-color);
 }
 
 .proof-expression {

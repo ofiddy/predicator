@@ -39,10 +39,12 @@ export function isModifier(event) {
     return event.ctrlKey || event.altKey || event.metaKey || event.shiftKey || (event.key === "AltGraph");
 }
 
-export function bindPhysicsButton(button, onClickEvent, onDragEvent, dragQuery) {
+//export function bindPhysicsButton(button, onClickEvent, onDragEvent, dragQuery) {
+export function bindPhysicsButton(button, bindEvents) {
     // Binds functionality to a physics button
     // onClickEvent is what happens when it is clicked
     // onDragEvent is what happens when it is dragged to an element with the dragTarget class
+    // bindEvents has "onClick", "onDragEnd", "dragEndQuery", "onDragStart" 
     button.onmousedown = function (event) {
         let startX = event.clientX;
         let startY = event.clientY;
@@ -51,6 +53,10 @@ export function bindPhysicsButton(button, onClickEvent, onDragEvent, dragQuery) 
         let prevRotate = 0;
         let scale = "1.3";
         let pxToAppear = 30;
+
+        if (bindEvents["onDragStart"]) {
+            bindEvents["onDragStart"](event);
+        }
 
         // Create the button image and prepare for moving
         let buttonImg = button.cloneNode(true);
@@ -80,10 +86,8 @@ export function bindPhysicsButton(button, onClickEvent, onDragEvent, dragQuery) 
                 (newRotate - prevRotate) + "deg) scale(" + 1.3 + ")");
             prevRotate = newRotate;
 
-            if (deltaX > pxToAppear || deltaY > pxToAppear) {
-                buttonImg.style.opacity = "1";
-            } else {
-                buttonImg.style.opacity = "0";
+            if (Math.abs(deltaX) > pxToAppear || Math.abs(deltaY) > pxToAppear) {
+                buttonImg.style.opacity = "0.6";
             }
         }
         function onMouseMove(event) {
@@ -100,18 +104,19 @@ export function bindPhysicsButton(button, onClickEvent, onDragEvent, dragQuery) 
             buttonImg.onmouseup = null;
             buttonImg.remove();
 
-            if (deltaX < 20 && deltaY < 20) {
-                onClickEvent(event);
-            } else {
+            if (deltaX < 20 && deltaY < 20 && bindEvents["onClick"]) {
+                bindEvents["onClick"](event);
+            } else if (bindEvents["onDragEnd"]) {
                 let elemBelow = document.elementFromPoint(event.clientX, event.clientY);
-                let droppableBelow = elemBelow.closest(dragQuery);
+                let droppableBelow = elemBelow.closest(bindEvents["dragEndQuery"]);
 
                 if (droppableBelow) {
-                    onDragEvent(event, droppableBelow);
+                    bindEvents["onDragEnd"](event, droppableBelow);
                 }
             }
         }
     }
-    
-    button.addEventListener("click", onClickEvent);
+    if (bindEvents["onClick"]) {
+        button.addEventListener("click", bindEvents["onClick"]);
+    }
 }

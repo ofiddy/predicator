@@ -1,6 +1,7 @@
 import { bindKeysToButtonlist, attemptInsertFormula, attemptDeleteFormula, readFormulaFromElements } from "./formula_entry_window.js"
 import * as formulas from "./formulas.js"
 import { bindPhysicsButton } from "./lib.js"
+import { setUpProof } from "./proof_window.js";
 
 let lastClickedButton = null;
 let lastClickedFormula = null;
@@ -160,11 +161,15 @@ function checkThenAttemptDelete(event) {
 let buttonList = [];
 for (const e of document.getElementById("entry-left-grid").children) {
     buttonList.push(e.children[0]);
-    bindPhysicsButton(e.children[0], checkThenAttemptInsert, 
-        (event, below) => {
+    let buttonEvent = {
+        "onClick": checkThenAttemptInsert,
+        "onDragEnd": (event, below) => {
             lastClickedFormula = below;
             checkThenAttemptInsert(event);
-    }, (".formula-elem"));
+        },
+        "dragEndQuery" : ".formula-elem",
+    }
+    bindPhysicsButton(e.children[0], buttonEvent);
 }
 formulas.addFormulaData(buttonList);
 let bindDict = bindKeysToButtonlist(buttonList);
@@ -232,6 +237,21 @@ function loadMainWindow(givenFormulas, goalFormula) {
         document.body.appendChild(cover);
         // TODO: get all the HTML from main window, plug it in here, set up
         // The boxes and the goal using givenFormulas and goalFormula
+        let mainBody = null;
+        fetch("./main_proof.html").then(function (response) {
+            return response.text();
+        }).then(function (html) {
+            let parser = new DOMParser();
+            mainBody = parser.parseFromString(html, "text/html");
+            document.body.innerHTML = mainBody.body.innerHTML;
+            document.body.appendChild(cover);
+
+            let script = document.createElement("script");
+            script.type = "module";
+            script.src = "../scripts/proof_window.js";
+            document.body.appendChild(script);
+            setUpProof(givenFormulas, goalFormula);
+        });
     }
 
     function animationEndListener (event) {

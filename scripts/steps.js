@@ -150,6 +150,77 @@ export class Box {
     
 }
 
+// Basic pattern matching framework for step UI input
+export class StepPatternMatch {
+    constructor() {
+        this._sources = [];
+        this._dest = null;
+    }
+
+    get sources () {
+        return this._sources;
+    }
+
+    get dest () {
+        return this._dest;
+    }
+
+    get fullyMatched () {
+        return (this._sources.length === this._sourceElems.length && this._dest);
+    }
+
+    setSourceRules (patternRules, patternElems) {
+        this._sourceRules = patternRules;
+        this._sourceElems = patternElems;
+        for (const e of patternElems) {
+            e.className = "proof-model-step";
+            e.innerText = "> Source Step ()";
+        }
+    }
+
+    setDestRule (destRule, destElem) {
+        this._destRule = destRule;
+        this._destElem = destElem;
+        this._destElem.className = "proof-model-step";
+        this._destElem.innerText = "> Destination Step ()";
+    }
+
+    setFinalRule (finalRule) {
+        this._finalRule = finalRule;
+    }
+
+    addStep (step) {
+        if (this._destRule(step)) {
+            if (this._dest) {
+                alert("Can only select one destination step");
+                return false;
+            }
+            this._dest = step;
+            this._destElem.classList.add("green-elem");
+            return true;
+        }
+
+        for (let i = 0; i < this._sourceRules.length; i++) {
+            console.log("checking rule " + i);
+            if (this._sourceRules[i](step) && !this._sources[i]) {
+                console.log("made rule " + i);
+                this._sources[i] = step;
+                this._sourceElems[i].classList.add("green-elem");
+                return true;
+            }
+        }
+        alert("Invalid source step selected");
+        return false;
+    }
+
+    attemptFinalise () {
+        if (this._sources.length === this._sourceRules.length && this._dest) {
+            return this._finalRule();
+        }
+        return;
+    }
+}
+
 export class Step {
     constructor (formula, containedIn) {
         this._formula = formula;
@@ -353,6 +424,44 @@ export class ImpEStep extends ImmediateStep {
     get label () {
         return "→E(" + this._sourceImp.calcLine() + ", " + this._sourceLeft.calcLine() + ")";
     }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+        let matchImp = function (step) {
+            // Matching the implication source step
+            // (left selected -> has same left) and (goal selected -> has same right)
+            if (step.GE || !(step.formula instanceof formulas.ImpliesFormula)) {
+                return false;
+            }
+            return (!pattern.sources[1] || pattern.sources[1].formula.equals(step.formula.leftChild))
+                 && (!pattern.dest || pattern.dest.formula.equals(step.formula.rightChild)); 
+        }
+
+        let matchLeft = function (step) {
+            // Matching the left-hand side step
+            // (imp selected -> is same as imp left)
+            if (step.GE) {
+                return false;
+            }
+            return (!pattern.sources[0] || pattern.sources[0].formula.leftChild.equals(step.formula));
+        }
+
+        let matchDest = function (step) {
+            // Matching the dest step
+            // Empty OR (imp selected -> is same as imp right)
+            if (!step.GE) {
+                return false;
+            }
+            return (step instanceof EmptyStep || (!pattern.sources[0] || pattern.sources[0].formula.rightChild.equals(step.formula)))
+        }
+
+        pattern.setSourceRules([matchImp, matchLeft], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(() => {
+            return new ImpEStep(pattern.sources[0], pattern.sources[1], pattern.dest.containedIn);
+        });
+        return pattern;
+    }
 }
 
 export class OrIStep extends ImmediateStep {
@@ -389,6 +498,36 @@ export class NotNotEStep extends ImmediateStep {
 
     get label () {
         return "¬¬E(" + this._source.calcLine() + ")";
+    }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+        let matchSource = function (step) {
+            // Matching the source step
+            // (goal selected -> internal formula is equal)
+            if (step.GE || !(step.formula instanceof formulas.NotFormula)
+                || !(step.formula.contents instanceof formulas.NotFormula)) {
+                return false;
+            }  
+            let internal = step.formula.contents.contents;
+            return (!pattern.dest || pattern.dest.formula.equals(internal));
+        }
+
+        let matchDest = function (step) {
+            // Matching the dest step
+            // (source selected -> internal formula is equal)
+            if (!step.GE) {
+                return false;
+            }
+            return (step instanceof EmptyStep || (!pattern.sources[0] || pattern.sources[0].formula.contents.contents.equals(step.formula)));
+        }
+
+        pattern.setSourceRules([matchSource], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(() => {
+            return new NotNotEStep(pattern.sources[0], pattern.dest.containedIn);
+        });
+        return pattern;
     }
 }
 
@@ -797,3 +936,10 @@ export class OrEStep extends Step {
         this._parentElem.remove();
     }
 }
+
+export const stepsList = [
+    OrIStep, OrEStep, AndIStep, AndEStep, NotIStep, NotEStep,
+    ImpIStep, ImpEStep, IffIStep, IffEStep, BottomIStep, BottomEStep,
+    TopIStep, NotNotEStep, ExcludedMiddleStep, PCStep, AllIStep, AllEStep,
+    ExistsIStep, ExistsEStep, EqualsSymStep, EqualsSubStep, EqualsReflexStep, AllImpEStep
+];
