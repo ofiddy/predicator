@@ -745,16 +745,16 @@ export class IffIStep extends ImmediateStep {
             if (step instanceof EmptyStep) {
                 return true;
             } else if (step.formula instanceof formulas.IffFormula) {
-                pattern.lToR = new formulas.ImpliesFormula(step.formula.rightChild, step.formula.leftChild);
-                pattern.rToL = new formulas.ImpliesFormula(step.formula.leftChild, step.formula.rightChild);
+                pattern.rToL = new formulas.ImpliesFormula(step.formula.rightChild, step.formula.leftChild);
+                pattern.lToR = new formulas.ImpliesFormula(step.formula.leftChild, step.formula.rightChild);
 
                 if (pattern.sources[0]) {
                     if (pattern.sources[0].formula.equals(pattern.lToR)) {
                         // First sources matches left-to-right
-                        return !(pattern.sources[1] && !pattern.sources[1].formula.equals(rToL));
+                        return !(pattern.sources[1] && !pattern.sources[1].formula.equals(pattern.rToL));
                     } else if (pattern.sources[0].formula.equals(pattern.rToL)) {
                         // First source matches right-to-left
-                        return !(pattern.sources[1] && !pattern.sources[1].formula.equals(lToR));
+                        return !(pattern.sources[1] && !pattern.sources[1].formula.equals(pattern.lToR));
                     }
                     return false;
                 }
@@ -790,6 +790,64 @@ export class IffEStep extends ImmediateStep {
 
     get label () {
         return "↔E(" + this._sourceImp.calcLine() + ", " + this._sourceMatch.calcLine() + ")"; 
+    }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+        let matchIff = function (step) {
+            // [source selected -> (one side matches source and goal selected -> matches other)] OR [goal selected -> one matches]
+            if (step.GE || !(step.formula instanceof formulas.IffFormula)) {
+                return false;
+            }
+            if (pattern.sources[1]) {
+                if (pattern.sources[1].formula.equals(step.formula.leftChild)) {
+                    return (!pattern.destIsGoal || pattern.dest.formula.equals(step.formula.rightChild));
+                } else if (pattern.sources[1].formula.equals(step.formula.rightChild)) {
+                    return (!pattern.destIsGoal || pattern.dest.formula.equals(step.formula.leftChild));
+                }
+                return false;
+            } else {
+                return (!pattern.destIsGoal || 
+                    pattern.dest.formula.equals(step.formula.leftChild) ||
+                    pattern.dest.formula.equals(step.formula.rightChild));
+            }
+        }
+
+        let matchSource = function (step) {
+            // iff selected -> matches one side
+            if (step.GE) {
+                return false;
+            }
+            return (!pattern.sources[0] || 
+                pattern.sources[0].formula.leftChild.equals(step.formula) ||
+                pattern.sources[0].formula.rightChild.equals(step.formula));
+        }
+
+        let matchDest = function (step) {
+            // iff selected -> (matches one side and [if source -> matches other])
+            if (!step.GE) {
+                return false;
+            }
+            if (step instanceof EmptyStep) {
+                return true;
+            }
+            if (pattern.sources[0]) {
+                if (pattern.sources[0].formula.leftChild.equals(step.formula)) {
+                    return (!pattern.sources[1] || pattern.sources[0].formula.rightChild.equals(step.formula));
+                } else if (pattern.sources[0].formula.rightChild.equals(step.formula)) {
+                    return (!pattern.sources[1] || pattern.sources[0].formula.leftChild.equals(step.formula));
+                }
+                return false;
+            }
+            return true;
+        }
+
+        pattern.setSourceRules([matchIff, matchSource], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(() => {
+            return new IffEStep(pattern.sources[0], pattern.sources[1], pattern.dest.containedIn);
+        });
+        return pattern;
     }
 }
 
