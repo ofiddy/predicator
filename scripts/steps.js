@@ -562,6 +562,33 @@ export class NotEStep extends ImmediateStep {
     get label () {
         return "¬E(" + this._source1.calcLine() + ", " + this._source2.calcLine() + ")";
     }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+        let matchFirst = function (step) {
+            return (!step.GE);
+        }
+        let matchSecond = function (step) {
+            // (first is not -> first contents is this) or (this is not -> this contents is first)
+            if (step.GE) {
+                return false;
+            }
+            return ((!(pattern.sources[0].formula instanceof formulas.NotFormula) || pattern.sources[0].formula.contents.equals(step.formula))
+            || (!(step.formula instanceof formulas.NotFormula) || step.formula.contents.equals(pattern.sources[0].formula)));
+        }
+
+        let matchDest = function (step) {
+            // Empty or Bottom
+            return (step.GE && (step instanceof EmptyStep || step.formula.equals(new formulas.BottomFormula())));
+        }
+
+        pattern.setSourceRules([matchFirst, matchSecond], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(() => {
+            return new NotEStep(pattern.sources[0], pattern.sources[1], pattern.dest.containedIn);
+        });
+        return pattern;
+    }
 }
 
 export class NotNotEStep extends ImmediateStep {
