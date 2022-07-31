@@ -676,6 +676,21 @@ export class TopIStep extends ImmediateStep {
     get label () {
         return "⊤I";
     }
+
+    static getPattern (_patternElems, destElem) {
+        // patternElems should be []
+        let pattern = new StepPatternMatch();
+        let matchDest = function (step) {
+            return (step.GE && (step instanceof EmptyStep || step.formula.equals(new formulas.TopFormula())))
+        }
+        
+        pattern.setSourceRules([], []);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(() => {
+            return new TopIStep(pattern.dest.containedIn);
+        });
+        return pattern;
+    }
 }
 
 export class IffIStep extends ImmediateStep {
