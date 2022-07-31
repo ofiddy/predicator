@@ -446,14 +446,10 @@ export class AndIStep extends ImmediateStep {
                 if (pattern.sources[0]) {
                     if (pattern.sources[0].formula.equals(step.formula.leftChild)) {
                         // First source matches the left child
-                        if (pattern.sources[1] && !pattern.sources[1].formula.equals(step.formula.rightChild)) {
-                            return false;
-                        }
+                        return !(pattern.sources[1] && !pattern.sources[1].formula.equals(step.formula.rightChild));
                     } else {
                         // First source matches the right child
-                        if (pattern.sources[1] && !pattern.sources[1].formula.equals(step.formula.leftChild)) {
-                            return false;
-                        }
+                        return !(pattern.sources[1] && !pattern.sources[1].formula.equals(step.formula.leftChild));
                     }
                 }
                 return true;
@@ -683,7 +679,7 @@ export class TopIStep extends ImmediateStep {
         let matchDest = function (step) {
             return (step.GE && (step instanceof EmptyStep || step.formula.equals(new formulas.TopFormula())))
         }
-        
+
         pattern.setSourceRules([], []);
         pattern.setDestRule(matchDest, destElem);
         pattern.setFinalRule(() => {
@@ -694,11 +690,8 @@ export class TopIStep extends ImmediateStep {
 }
 
 export class IffIStep extends ImmediateStep {
-    constructor (source1, source2, source2Order, containedIn) {
-        super ((source2Order ?
-            new formulas.IffFormula(source2.formula.leftChild, source2.formula.rightChild) :
-            new formulas.IffFormula(source1.formula.leftChild, source1.formula.rightChild)),
-            containedIn);
+    constructor (source1, source2, containedIn) {
+        super (new formulas.IffFormula(source1.formula.leftChild, source1.formula.rightChild), containedIn);
         this._source1 = source1;
         this._source2 = source2;
         this._finalSetUp();
@@ -706,6 +699,82 @@ export class IffIStep extends ImmediateStep {
 
     get label () {
         return "↔I(" + this._source1.calcLine() + ", " + this._source2.calcLine() + ")"; 
+    }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+        
+        let matchFirst = function (step) {
+            // Goal selected -> matches l-r or r-l
+            if (step.GE || !(step.formula instanceof formulas.ImpliesFormula)) {
+                return false;
+            }
+            if (pattern.destIsGoal) {
+                return (pattern.lToR.equals(step.formula) || pattern.rToL.equals(step.formula));
+            }
+            return true;
+        }
+
+        let matchSecond = function (step) {
+            // matches the other direction of source 0 AND
+            // Goal selected -> matches the one that sources[0] doesnt match
+            if (step.GE || !pattern.sources[0] || !(step.formula instanceof formulas.ImpliesFormula)) {
+                return false;
+            }
+            if (pattern.sources[0].formula.leftChild.equals(step.formula.rightChild) 
+            && pattern.sources[0].formula.rightChild.equals(step.formula.leftChild)) {
+                    if (pattern.destIsGoal) {
+                        if (pattern.lToR.equals(pattern.sources[0].formula)) {
+                            // left-to-right already matched, must match r-to-l
+                            return pattern.rToL.equals(step.formula);
+                        } else {
+                            // right-to-left already matched, must match l-to-r
+                            return pattern.lToR.equals(step.formula);
+                        }
+                    }
+                    return true;
+                }
+            return false;
+        }
+
+        let matchDest = function (step) {
+            // Empty OR (First selected -> matches one && right selected -> matches other)
+            if (!step.GE) {
+                return false;
+            }
+            if (step instanceof EmptyStep) {
+                return true;
+            } else if (step.formula instanceof formulas.IffFormula) {
+                pattern.lToR = new formulas.ImpliesFormula(step.formula.rightChild, step.formula.leftChild);
+                pattern.rToL = new formulas.ImpliesFormula(step.formula.leftChild, step.formula.rightChild);
+
+                if (pattern.sources[0]) {
+                    if (pattern.sources[0].formula.equals(pattern.lToR)) {
+                        // First sources matches left-to-right
+                        return !(pattern.sources[1] && !pattern.sources[1].formula.equals(rToL));
+                    } else if (pattern.sources[0].formula.equals(pattern.rToL)) {
+                        // First source matches right-to-left
+                        return !(pattern.sources[1] && !pattern.sources[1].formula.equals(lToR));
+                    }
+                    return false;
+                }
+                return true;
+            }
+            return false;
+        }
+
+        let finalRule = function () {
+            // If first source matches right-to-left of goal
+            if (pattern.destIsGoal && pattern.rToL.equals(pattern.sources[0])) {
+                return new IffIStep(pattern.sources[1], pattern.sources[0], pattern.dest.containedIn);
+            }
+            return new IffIStep(pattern.sources[0], pattern.sources[1], pattern.dest.containedIn);
+        }
+
+        pattern.setSourceRules([matchFirst, matchSecond], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(finalRule);
+        return pattern;
     }
 }
 
