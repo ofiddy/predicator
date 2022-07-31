@@ -196,6 +196,7 @@ export class StepPatternMatch {
                 return false;
             }
             this._dest = step;
+            this._destElem.innerText = "> Dest Step (" + step.calcLine() + ")";
             this._destElem.classList.add("green-elem");
             return true;
         }
@@ -205,6 +206,7 @@ export class StepPatternMatch {
             if (this._sourceRules[i](step) && !this._sources[i]) {
                 console.log("made rule " + i);
                 this._sources[i] = step;
+                this._sourceElems[i].innerText = "> Source Step (" + step.calcLine() + ")";
                 this._sourceElems[i].classList.add("green-elem");
                 return true;
             }
