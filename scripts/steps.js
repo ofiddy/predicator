@@ -645,6 +645,14 @@ export class BottomIStep extends ImmediateStep {
     get label () {
         return "⊥I(" + this._source1.calcLine() + ", " + this._source2.calcLine() + ")";
     }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = NotEStep.getPattern(patternElems, destElem);
+        pattern.setFinalRule(() => {
+            return new BottomIStep(pattern.sources[0], pattern.sources[1], pattern.dest.containedIn);
+        });
+        return pattern;
+    }
 }
 
 export class BottomEStep extends ImmediateStep {
