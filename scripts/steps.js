@@ -947,6 +947,37 @@ export class EqualsSymStep extends ImmediateStep {
     get label () {
         return "=sym(" + this._source.calcLine() + ")";
     }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+        let matchSource = function (step) {
+            // goal selected -> is same as goal but flipped
+            if (step.GE || !(step.formula instanceof formulas.EqualsFormula)) {
+                return false;
+            }
+            return (!pattern.destIsGoal || 
+                (pattern.dest.formula.leftVar.equals(step.formula.rightVar) &&
+                pattern.dest.formula.rightVar.equals(step.formula.leftVar)));
+        }
+
+        let matchDest = function (step) {
+            // source selected -> is same as source but flipped
+            if (!step.GE) {
+                return false;
+            }
+            return (step instanceof EmptyStep || 
+                (!pattern.sources[0] || 
+                    (pattern.sources[0].formula.leftVar.equals(step.formula.rightVar) &&
+                    pattern.sources[0].formula.rightVar.equals(step.formula.leftVar))));
+        }
+
+        pattern.setSourceRules([matchSource], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(() => {
+            return new EqualsSymStep(pattern.sources[0], pattern.dest.containedIn);
+        });
+        return pattern;
+    }
 }
 
 export class BoxStep extends Step {
