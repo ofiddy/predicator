@@ -155,6 +155,7 @@ export class StepPatternMatch {
     constructor() {
         this._sources = [];
         this._dest = null;
+        this._destIsGoal = false;
     }
 
     get sources () {
@@ -166,7 +167,11 @@ export class StepPatternMatch {
     }
 
     get fullyMatched () {
-        return (this._sources.length === this._sourceElems.length && this._dest);
+        return (this._sources.filter(Boolean).length === this._sourceElems.length && this._dest);
+    }
+
+    get destIsGoal () {
+        return this._destIsGoal;
     }
 
     setSourceRules (patternRules, patternElems) {
@@ -198,6 +203,7 @@ export class StepPatternMatch {
             this._dest = step;
             this._destElem.innerText = "> Dest Step (" + step.calcLine() + ")";
             this._destElem.classList.add("green-elem");
+            this._destIsGoal = (this._dest instanceof GoalStep);
             return true;
         }
 
@@ -401,6 +407,73 @@ export class AndIStep extends ImmediateStep {
     get label () {
         return "⋀I(" + this._source1.calcLine() + ", " + this._source2.calcLine() + ")";
     }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+        let matchFirst = function (step) {
+            // Matches the first source
+            // Goal selected -> matches left or matches right
+            if (step.GE) {
+                return false;
+            }
+            return (!pattern.destIsGoal || (pattern.dest.formula.leftChild.equals(step.formula) || pattern.dest.formula.rightChild.equals(step.formula)));
+        }
+
+        let matchSecond = function (step) {
+            // Goal selected -> matches the one that sources[0] doesnt match
+            if (step.GE || !pattern.sources[0]) {
+                return false;
+            }
+            if (pattern.destIsGoal) {
+                if (pattern.dest.formula.leftChild.equals(pattern.sources[0].formula)) {
+                    return pattern.dest.formula.rightChild.equals(step.formula);
+                } else {
+                    return pattern.dest.formula.leftChild.equals(step.formula);
+                }
+            } else {
+                return true;
+            }
+        }
+
+        let matchDest = function (step) {
+            // Empty OR (First selected -> Matches one && right selected -> matches other)
+            if (!step.GE) {
+                return false;
+            }
+            if (step instanceof EmptyStep) {
+                return true;
+            } else if (step.formula instanceof formulas.AndFormula) {
+                if (pattern.sources[0]) {
+                    if (pattern.sources[0].formula.equals(step.formula.leftChild)) {
+                        // First source matches the left child
+                        if (pattern.sources[1] && !pattern.sources[1].formula.equals(step.formula.rightChild)) {
+                            return false;
+                        }
+                    } else {
+                        // First source matches the right child
+                        if (pattern.sources[1] && !pattern.sources[1].formula.equals(step.formula.leftChild)) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+            return false;
+        }
+
+        let finalRule = function () {
+            if (pattern.destIsGoal && pattern.sources[0].formula.equals(pattern.dest.formula.rightChild)) {
+                // If first source matches the right child of a selected goal
+                return new AndIStep(pattern.sources[1], pattern.sources[0], pattern.dest.containedIn);
+            }
+            return new AndIStep(pattern.sources[0], pattern.sources[1], pattern.dest.containedIn);
+        }
+
+        pattern.setSourceRules([matchFirst, matchSecond], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(finalRule);
+        return pattern;
+    }
 }
 
 export class AndEStep extends ImmediateStep {
@@ -436,7 +509,7 @@ export class ImpEStep extends ImmediateStep {
                 return false;
             }
             return (!pattern.sources[1] || pattern.sources[1].formula.equals(step.formula.leftChild))
-                 && (!pattern.dest || pattern.dest.formula.equals(step.formula.rightChild)); 
+                 && (!pattern.destIsGoal || pattern.dest.formula.equals(step.formula.rightChild)); 
         }
 
         let matchLeft = function (step) {
@@ -512,7 +585,7 @@ export class NotNotEStep extends ImmediateStep {
                 return false;
             }  
             let internal = step.formula.contents.contents;
-            return (!pattern.dest || pattern.dest.formula.equals(internal));
+            return (!pattern.destIsGoal || pattern.dest.formula.equals(internal));
         }
 
         let matchDest = function (step) {
