@@ -422,7 +422,7 @@ export class NotFormula extends BasicFormula {
     }
 
     replaceVar(oldVar, newVar, bound) {
-        return this._contents.replaceVar(oldVar, newVar, bound);
+        return new NotFormula(this._contents.replaceVar(oldVar, newVar, bound));
     }
 
     getVar(bound) {
