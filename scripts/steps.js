@@ -209,9 +209,7 @@ export class StepPatternMatch {
         }
 
         for (let i = 0; i < this._sourceRules.length; i++) {
-            console.log("checking rule " + i);
             if (this._sourceRules[i](step) && !this._sources[i]) {
-                console.log("made rule " + i);
                 this._sources[i] = step;
                 this._sourceElems[i].innerText = "> Source Step (" + step.calcLine() + ")";
                 this._sourceElems[i].classList.add("green-elem");
