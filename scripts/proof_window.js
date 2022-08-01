@@ -21,7 +21,12 @@ function setModelBoxContents(modelElement) {
 function attemptDeleteStep (step) {
     if (!(step instanceof steps.GoalStep || step instanceof steps.AssStep ||
         step instanceof steps.GivenStep || step instanceof steps.EmptyStep)) {
-            step.containedIn.removeStep(step);
+            // Must have an empty step either before or after
+            let before = step.containedIn.steps[step.containedIn.steps.indexOf(step) - 1];
+            let after = step.containedIn.steps[step.containedIn.steps.indexOf(step) + 1];
+            if (before instanceof steps.EmptyStep || after instanceof steps.EmptyStep) {
+                step.containedIn.removeStep(step);   
+            }
     }
 }
 
