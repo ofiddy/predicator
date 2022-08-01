@@ -41,22 +41,28 @@ function beginPatternEvent(stepId) {
     function advancePatternEvent (event) {
         // Progresses the event if a step clicked on
         // Cancels the event if click off a step or pattern add fails
-        if (event.target.stepObject) {
-            let added = pattern.addStep(event.target.stepObject);
-            if (!added) {
+        try {
+            if (event.target.stepObject) {
+                let added = pattern.addStep(event.target.stepObject);
+                if (!added) {
+                    cancelPatternEvent();
+                    return;
+                }
+                if (pattern.fullyMatched) {
+                    let newStep = pattern.attemptFinalise();
+                    let dest = pattern.dest;
+                    dest.containedIn.insertTo(dest, newStep);
+                    console.log(dest.containedIn);
+                    cancelPatternEvent();
+                }
+            } else {
                 cancelPatternEvent();
-                return;
             }
-            if (pattern.fullyMatched) {
-                let newStep = pattern.attemptFinalise();
-                let dest = pattern.dest;
-                dest.containedIn.insertTo(dest, newStep);
-                console.log(dest.containedIn);
-                cancelPatternEvent();
-            }
-        } else {
+        } catch(err) {
+            alert("Error occured: make sure all derivation is possible.");
             cancelPatternEvent();
         }
+        
     }
 
     function cancelPatternEvent() {

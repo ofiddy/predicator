@@ -888,27 +888,101 @@ export class AllEStep extends ImmediateStep {
     }
 }
 
+function findSubbedFormula (allForm, leftForm) {
+    let subForm = allForm.subformula;
+
+    let newVar = Array.from(setDiff(leftForm.getVar(new Set()), allForm.getVar(new Set())).values())[0];
+    let oldVar = allForm.bound;
+
+    return subForm.replaceVar(oldVar, newVar, new Set());
+}
+
 export class AllImpEStep extends ImmediateStep {
-    constructor (sourceQuantImp, sourceLeft, containedIn) {
-        super(findSourceRight(sourceQuantImp, sourceLeft), containedIn);
+    constructor (sourceQuantImp, sourceLeft, containedIn, optionalRight) {
+        if (optionalRight) {
+            super(optionalRight, containedIn);
+        } else {
+            super(findSubbedFormula(sourceQuantImp.formula, sourceLeft.formula).rightChild, containedIn);
+        }
+        
         this._sourceQuantImp = sourceQuantImp;
         this._sourceLeft = sourceLeft;
         this._finalSetUp();
-
-        function findSourceRight (sourceQuantImp, sourceLeft) {
-            let allForm = sourceQuantImp.formula;
-            let impForm = allForm.subformula;
-            let leftForm = sourceLeft.formula;
-    
-            let newVar = Array.from(setDiff(leftForm.getVar(new Set()), allForm.getVar(new Set())).values())[0];
-            let oldVar = allForm.bound;
-    
-            return impForm.rightChild.replaceVar(oldVar, newVar, new Set());
-        }
     }
 
     get label () {
         return "∀→E(" + this._sourceLeft.calcLine() + ", " + this._sourceQuantImp.calcLine() + ")";
+    }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+        let varsConsistent = function (imp, left, dest) {
+            // Constructs a new implies from the left and the new goal (right)
+            // If vars are consistent, should only be one option for new variable
+            let newImp = new formulas.ImpliesFormula(left.formula, dest.formula);
+
+            let newVars = setDiff(newImp.getVar(new Set()), 
+                imp.formula.subformula.getVar(new Set()));
+            return newVars.size === 1;
+        }
+        
+        let matchImp = function (step) {
+            // (left selected -> matches when variable substituted) AND
+            // (goal selected -> matches when variable substituted) AND
+            // (bothOthers -> varsConsistent())
+            if (step.GE || !(step.formula instanceof formulas.AllFormula) ||
+                !(step.formula.subformula instanceof formulas.ImpliesFormula)) {
+                return false;
+            }
+            return ((!pattern.sources[1] || pattern.sources[1].formula.equals(
+                findSubbedFormula(new formulas.AllFormula(step.formula.bound, step.formula.subformula.leftChild),
+                pattern.sources[1].formula))) 
+            && (!pattern.destIsGoal || pattern.dest.formula.equals(
+                findSubbedFormula(new formulas.AllFormula(step.formula.bound, step.formula.subformula.rightChild),
+                pattern.dest.formula))) 
+            && (!pattern.sources[1] || !pattern.destIsGoal || varsConsistent(step, pattern.sources[1], pattern.dest)));
+        }
+        
+        let matchLeft = function (step) {
+            // (quantimp selected -> left matches when variable substituted) AND
+            // (bothOthers -> varsConsistent)
+            if (step.GE) {
+                return false;
+            }
+            return ((!pattern.sources[0] || step.formula.equals(
+                findSubbedFormula(new formulas.AllFormula(pattern.sources[0].formula.bound,
+                    pattern.sources[0].formula.subformula.leftChild), step.formula)))
+            && (!pattern.sources[0] || !pattern.destIsGoal || varsConsistent(pattern.sources[0], step, pattern.dest)));
+        }
+
+        let matchDest = function (step) {
+            // (Empty or (quantimp selected -> same as subbed right)) && 
+            // (bothOthers -> VarsConsistent)
+            if (!step.GE) {
+                return false;
+            }
+            if (step instanceof EmptyStep) {
+                return true;
+            }
+            return (!pattern.sources[0] || step.formula.equals(
+                findSubbedFormula(new formulas.AllFormula(pattern.sources[0].formula.bound,
+                pattern.sources[0].formula.subformula.rightChild), step.formula)))
+                && (!pattern.sources[0] || !pattern.sources[1] || varsConsistent(pattern.sources[0], pattern.sources[1], step));
+        }
+
+        let finalRule = function () {
+            // If left hand side is not bound by quant, manually supply the new var
+            // from goal if goal is present
+            if (pattern.destIsGoal && !pattern.sources[1].formula.getVar(new Set()).has(pattern.sources[0].formula.bound)) {
+                return new AllImpEStep(pattern.sources[0], pattern.sources[1], pattern.dest.containedIn, pattern.dest.formula);
+            }
+            return new AllImpEStep(pattern.sources[0], pattern.sources[1], pattern.dest.containedIn);
+        }
+
+        pattern.setSourceRules([matchImp, matchLeft], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(finalRule);
+        return pattern;
     }
 }
 
