@@ -1,6 +1,6 @@
 import * as formulas from "./formulas.js"
 import { boundSetHas, setDiff } from "./lib.js";
-import { andElimDialog, closeAndElimDialog, closeVarEnterDialog, varEnterDialog } from "./modals.js";
+import { andElimDialog, closeModal, formulaInputDialog, varEnterDialog } from "./modals.js";
 
 export class Box {
     // A box that can contain multiple steps
@@ -517,7 +517,7 @@ export class AndEStep extends ImmediateStep {
                 return new Promise((resolve) => {
                     andElimDialog(pattern.sources[0].formula, resolve);
                 }).then((result) => {
-                    closeAndElimDialog();
+                    closeModal();
                     if (result === "left") {
                         return new AndEStep(pattern.sources[0], true, pattern.dest.containedIn);
                     } else if (result === "right") {
@@ -713,6 +713,42 @@ export class BottomEStep extends ImmediateStep {
     get label () {
         return "⊥E(" + this._source.calcLine() + ")";
     }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+        let matchSource = function (step) {
+            // Must be a bottom formula
+            return (!step.GE && step.formula instanceof formulas.BottomFormula);
+        }
+
+        let matchDest = function (step) {
+            // Any goal or empty
+            return step.GE;
+        }
+
+        let finalRule = function () {
+            // If goal selected, extract the relevant formula
+            // Otherwise, open the modal dialog
+            if (pattern.destIsGoal) {
+                return new BottomEStep(pattern.sources[0], pattern.dest.formula, pattern.dest.containedIn);
+            } else {
+                return new Promise((resolve) => {
+                    let title = "⊥-Elimination"
+                    let desc = "Enter the formula to be obtained";
+                    
+                    formulaInputDialog(title, desc, resolve);
+                }).then((result) => {
+                    closeModal();
+                    return new BottomEStep(pattern.sources[0], result, pattern.dest.containedIn);
+                })
+            }
+        }
+
+        pattern.setSourceRules([matchSource], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(finalRule);
+        return pattern;
+    }
 }
 
 export class TopIStep extends ImmediateStep {
@@ -904,15 +940,54 @@ export class IffEStep extends ImmediateStep {
 }
 
 export class ExcludedMiddleStep extends ImmediateStep {
-    constructor (formula, containedIn, negateLeft) {
-        super((negateLeft ? new formulas.OrFormula(new formulas.NotFormula(formula), formula)
-            : new formulas.OrFormula(formula, new formulas.NotFormula(formula))),
-            containedIn);
-            this._finalSetUp();
+    constructor (formula, containedIn) {
+        super (formula, containedIn);
+        this._finalSetUp();
     }
 
     get label () {
         return "L.E.M."
+    }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+        let matchDest = function (step) {
+            // goal -> left is ~right OR right is ~left
+            if (!step.GE) {
+                return false;
+            }
+            if (step instanceof EmptyStep) {
+                return true;
+            }
+            if (step.formula instanceof formulas.OrFormula) {
+                let left = step.formula.leftChild;
+                let right = step.formula.rightChild;
+                return (!left instanceof formulas.NotFormula || left.contents.equals(right))
+                || (!right instanceof formulas.NotFormula || right.contents.equals(left));
+            }
+            return false;
+        }
+
+        let finalRule = function () {
+            if (pattern.destIsGoal) {
+                return new ExcludedMiddleStep(pattern.dest.formula, pattern.dest.containedIn);
+            } else {
+                return new Promise((resolve) => {
+                    let title = "Excluded Middle";
+                    let desc = "Enter ɸ to achieve ɸ⋁¬ɸ";
+                    
+                    formulaInputDialog(title, desc, resolve);
+                }).then((result) => {
+                    closeModal();
+                    return new ExcludedMiddleStep(new formulas.OrFormula(result, new formulas.NotFormula(result)), pattern.dest.containedIn);
+                });
+            }
+        }
+
+        pattern.setSourceRules([], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(finalRule);
+        return pattern;
     }
 }
 
@@ -975,7 +1050,7 @@ export class ExistsIStep extends ImmediateStep {
                     }
                     varEnterDialog(title, desc, formula, validate);
                 }).then((oldVarLabel) => {
-                    closeVarEnterDialog();
+                    closeModal();
                     desc = "Enter the new variable to replace " + oldVarLabel + " with";
                     return new Promise((resolve) => {
                         function validate(text) {
@@ -992,7 +1067,7 @@ export class ExistsIStep extends ImmediateStep {
                         varEnterDialog(title, desc, formula, validate);
                     })
                 }).then((result) => {
-                    closeVarEnterDialog();
+                    closeModal();
                     let oldVar = new formulas.VariableFormula(result[0]);
                     let newVar = new formulas.VariableFormula(result[1]);
                     return new ExistsIStep(oldVar, newVar, pattern.sources[0], pattern.dest.containedIn);
@@ -1199,7 +1274,7 @@ export class EqualsSubStep extends ImmediateStep {
                         }
                         varEnterDialog(title, desc, formula, validate);
                     }).then((result) => {
-                        closeVarEnterDialog();
+                        closeModal();
                         return new EqualsSubStep(pattern.sources[0], pattern.sources[1], pattern.dest.containedIn, result === right.name);
                     });
 

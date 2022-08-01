@@ -19,7 +19,7 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
     // Put the new content where the old content was
     
     let oldElem = targetFormula;
-    let oldIndex = targetFormula.dataset.formulaIndex
+    let oldIndex = targetFormula.dataset.formulaIndex;
     let oldFormula = formulaScope[oldIndex];
     let insertDest = oldElem.parentNode;
     let newElem;

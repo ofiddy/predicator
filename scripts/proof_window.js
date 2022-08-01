@@ -51,7 +51,6 @@ function beginPatternEvent(stepId) {
                 }
                 if (pattern.fullyMatched) {
                     let newStep = await pattern.attemptFinalise();
-                    console.log(newStep);
                     let dest = pattern.dest;
                     dest.containedIn.insertTo(dest, newStep);
                     cancelPatternEvent();

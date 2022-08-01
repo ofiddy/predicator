@@ -462,6 +462,7 @@ body {
     min-height: 260px;
     max-height: 400px;
     border: var(--element-color) 2px solid;
+    margin: auto;
 }
 
 .modal-body {
