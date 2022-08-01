@@ -221,11 +221,6 @@ document.getElementById("entry-confirm-button").onclick = function (event) {
         alert("Error detected in goal");
         return;
     }
-    
-    for (const f of givenFormulas) {
-        console.log(f.show());
-    }
-    console.log(goalFormula.show());
 
     loadMainWindow(givenFormulas, goalFormula);
 }

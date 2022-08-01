@@ -66,7 +66,6 @@ function beginPatternEvent(stepId) {
             }
         } catch(err) {
             alert("Error occured: make sure all derivation is possible.");
-            console.log(err);
             cancelPatternEvent();
         }
         
@@ -184,6 +183,5 @@ elim.boxL.insertTo(elim.boxL.lastStep, new steps.ImpEStep(box.firstStep, elim.bo
 document.body.addEventListener("click", (event) => {
     if (event.target.stepObject) {
         lastClickedElement = event.target;
-        console.log(event.target.stepObject.formulaText);
     };
 });
