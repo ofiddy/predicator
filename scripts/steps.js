@@ -1781,6 +1781,39 @@ export class OrEStep extends Step {
     boxRemove () {
         this._parentElem.remove();
     }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+
+        let matchSource = function (step) {
+            return (!step.GE && step.formula instanceof formulas.OrFormula);
+        }
+
+        let matchDest = function (step) {
+            return step.GE;
+        }
+
+        let finalRule = function () {
+            // If goal selected, introduce the same formula
+            // otherwise, prompt input
+            if (pattern.destIsGoal) {
+                return new OrEStep(pattern.dest.formula, pattern.sources[0], pattern.dest.containedIn);
+            }
+            let title = "⋁-Elimination";
+            let desc = "Enter the formula to prove by elimination"
+            return new Promise((resolve) => {
+                formulaInputDialog(title, desc, resolve);
+            }).then((result) => {
+                closeModal();
+                return new OrEStep(result, pattern.sources[0], pattern.dest.containedIn);
+            });
+        }
+
+        pattern.setSourceRules([matchSource], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(finalRule);
+        return pattern;
+    }
 }
 
 export const stepsList = [
