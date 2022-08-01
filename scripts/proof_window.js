@@ -1,6 +1,7 @@
 import {bindPhysicsButton, setDiff} from "./lib.js"
 import * as steps from "./steps.js"
 import * as formulas from "./formulas.js"
+import { setUpModals } from "./modals.js";
 
 let tutorialWindow;
 let stepModels;
@@ -38,7 +39,7 @@ function beginPatternEvent(stepId) {
 
     let pattern = stepsList[stepId].getPattern(sourceElems, destElem);
 
-    function advancePatternEvent (event) {
+    async function advancePatternEvent (event) {
         // Progresses the event if a step clicked on
         // Cancels the event if click off a step or pattern add fails
         try {
@@ -49,10 +50,10 @@ function beginPatternEvent(stepId) {
                     return;
                 }
                 if (pattern.fullyMatched) {
-                    let newStep = pattern.attemptFinalise();
+                    let newStep = await pattern.attemptFinalise();
+                    console.log(newStep);
                     let dest = pattern.dest;
                     dest.containedIn.insertTo(dest, newStep);
-                    console.log(dest.containedIn);
                     cancelPatternEvent();
                 }
             } else {
@@ -60,6 +61,7 @@ function beginPatternEvent(stepId) {
             }
         } catch(err) {
             alert("Error occured: make sure all derivation is possible.");
+            console.log(err);
             cancelPatternEvent();
         }
         
@@ -76,6 +78,9 @@ function beginPatternEvent(stepId) {
 export function setUpProof(givensList, goalFormula) {
     // First does all the behind the scenes setup
     tutorialWindow = document.getElementById("proof-tutorial-box");
+
+    // Import all modals
+    setUpModals();
 
     // Assign the model windows for each step
     stepModels = [];

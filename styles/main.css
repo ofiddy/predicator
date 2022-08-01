@@ -452,6 +452,9 @@ body {
     min-width: 100%;
     overflow: clip;
     display: none;
+    justify-content: center;
+    top: 0;
+    left: 0;
 }
 
 .modal-formula-input {
@@ -543,6 +546,7 @@ body {
     max-width: 500px;
     max-height: 260px;
     border: var(--element-color) 2px solid;
+    margin: auto;
 }
 
 #modal-imp-int {

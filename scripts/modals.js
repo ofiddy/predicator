@@ -1,3 +1,21 @@
+let modalDoc;
+
+export function setUpModals () {
+    fetch("./modals.html").then(function (response) {
+        return response.text();
+    }).then(function (html) {
+        let parser = new DOMParser();
+        modalDoc = parser.parseFromString(html, "text/html");
+        document.body.append(modalDoc.getElementById("modal-toplevel"));
+    });
+}
+
+function centerModal (modal) {
+    modal.style.left = "50%";
+    modal.style.top = "50%";
+    modal.style.transform = "translate(-50%, -50%)";
+}
+
 export function orIntModalSetup (priorFormula) {
     // Performs the setup for the Or-Introduction modal
     
@@ -17,4 +35,25 @@ export function orIntModalSetup (priorFormula) {
         }
         leftVisible = !leftVisible;
     });
+}
+
+export function andElimDialog (formula, resolve) {
+    // Sets up the dialog
+    let formulaText = formula.show();
+    let modalTop = document.getElementById("modal-toplevel");
+    modalTop.innerHTML = "";
+    let andElimModal = document.importNode(modalDoc.getElementById("modal-and-elim"), true);
+    modalTop.appendChild(andElimModal);
+
+    document.getElementById("modal-and-elim-formula").innerText = formulaText;
+    modalTop.style.display = "flex";
+    andElimModal.style.display = "block";
+
+    document.getElementById("modal-and-left-button").onclick = () => {resolve("left")};
+    document.getElementById("modal-and-right-button").onclick = () => {resolve("right")};
+}
+
+export function closeAndElimDialog () {
+    document.getElementById("modal-toplevel").innerHTML = "";
+    document.getElementById("modal-toplevel").style.display = "none";
 }

@@ -1,5 +1,6 @@
 import * as formulas from "./formulas.js"
 import { setDiff } from "./lib.js";
+import { andElimDialog, closeAndElimDialog } from "./modals.js";
 
 export class Box {
     // A box that can contain multiple steps
@@ -221,11 +222,11 @@ export class StepPatternMatch {
         return false;
     }
 
-    attemptFinalise () {
+    async attemptFinalise () {
         if (this._sources.length === this._sourceRules.length && this._dest) {
             return this._finalRule();
         }
-        return;
+        return null;
     }
 }
 
@@ -481,6 +482,57 @@ export class AndEStep extends ImmediateStep {
 
     get label () {
         return "⋀E(" + this._source.calcLine() + ")";
+    }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+        let matchSource = function (step) {
+            // (goal selected -> matches left or matches right)
+            if (step.GE || !(step.formula instanceof formulas.AndFormula)) {
+                return false;
+            }
+            return (!pattern.destIsGoal || (step.formula.leftChild.equals(pattern.dest.formula) ||
+            step.formula.rightChild.equals(pattern.dest.formula)));
+        }
+
+        let matchDest = function (step) {
+            // (source selected -> matches left or matches right)
+            if (!step.GE) {
+                return false;
+            }
+            if (step instanceof EmptyStep) {
+                return true;
+            }
+            return (!pattern.sources[0] || (step.formula.equals(pattern.sources[0].formula.leftChild) ||
+            step.formula.equals(pattern.sources[0].formula.rightChild)));
+        }
+
+        let finalRule = function () {
+            // If goal selected, extract the relevant formula
+            // Otherwise, open the modal dialog
+            if (pattern.destIsGoal) {
+                return new AndEStep(pattern.sources[0], pattern.dest.formula.equals(pattern.sources[0].formula.leftChild), 
+                pattern.dest.containedIn);
+            } else {
+                return new Promise((resolve) => {
+                    andElimDialog(pattern.sources[0].formula, resolve);
+                }).then((result) => {
+                    closeAndElimDialog();
+                    if (result === "left") {
+                        return new AndEStep(pattern.sources[0], true, pattern.dest.containedIn);
+                    } else if (result === "right") {
+                        return new AndEStep(pattern.sources[0], false, pattern.dest.containedIn);
+                    } else {
+                        return null;
+                    }
+                });
+            }
+        }
+
+        pattern.setSourceRules([matchSource], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(finalRule);
+        return pattern;
     }
 }
 
