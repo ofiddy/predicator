@@ -1824,8 +1824,9 @@ export class AllIStep extends BoxStep {
                 function validate (formula) {
                     if (formula instanceof formulas.AllFormula) {
                         resolve(formula);
+                    } else {
+                        alert("Must be an All Formula");
                     }
-                    alert("Must be an All Formula");
                 }
 
                 formulaInputDialog(title, desc, validate);
