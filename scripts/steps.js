@@ -1092,6 +1092,63 @@ export class AllEStep extends ImmediateStep {
     get label () {
         return "∀E(" + this._source.calcLine() + ")";
     }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+        let matchSource = function (step) {
+            // is all and (goal -> matches when subbed)
+            if (step.GE || !(step.formula instanceof formulas.AllFormula)) {
+                return false;
+            }
+            return (!pattern.destIsGoal || (
+                pattern.dest.formula.equals(findSubbedFormula(step.formula, pattern.dest.formula))
+            ));
+        }
+
+        let matchDest = function (step) {
+            // empty or matches when subbed
+            if (!step.GE) {
+                return false;
+            }
+            if (step instanceof EmptyStep) {
+                return true;
+            }
+            return (!pattern.sources[0] || 
+                step.formula.equals(findSubbedFormula(pattern.sources[0].formula, step.formula)));
+        }
+
+        let finalRule = function () {
+            // If goal selected, create the same formula
+            // Otherwise, open modal to enter new variable
+            if (pattern.destIsGoal) {
+                let newVar = Array.from(setDiff(pattern.dest.formula.getVar(new Set()), pattern.sources[0].formula.subformula.getVar(new Set())))[0];
+                return new AllEStep(pattern.sources[0].formula.bound, newVar, pattern.sources[0], pattern.dest.containedIn);
+            }
+            let title = "∀-Elimination";
+            let desc = "Enter the variable to replace " + pattern.sources[0].formula.bound.name;
+            let formula = pattern.sources[0].formula;
+            return new Promise((resolve) => {
+                function validate(text) {
+                    if (text) {
+                        resolve(text);
+                    } else {
+                        alert("Invalid Input");
+                    }
+                }
+
+                varEnterDialog(title, desc, formula, validate);
+            }).then((newVarLabel) => {
+                closeModal();
+                let newVar = new formulas.VariableFormula(newVarLabel);
+                return new AllEStep(pattern.sources[0].formula.bound, newVar, pattern.sources[0], pattern.dest.containedIn);
+            });
+        }
+
+        pattern.setSourceRules([matchSource], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(finalRule);
+        return pattern;
+    }
 }
 
 function findSubbedFormula (allForm, leftForm) {
