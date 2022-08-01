@@ -1129,6 +1129,91 @@ export class EqualsSubStep extends ImmediateStep {
     get label () {
         return "=sub(" + this._sourceFree.calcLine() + ", " + this._sourceEquals.calcLine() + ")";
     }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+        function allThreeMatch(free, eq, dest) {
+            if (!(free && eq && dest)) {
+                return true;
+            }
+            let left = eq.formula.leftVar;
+            let right = eq.formula.rightVar;
+            return (dest.formula.equals(free.formula.replaceVar(left, right, new Set())) ||
+            dest.formula.equals(free.formula.replaceVar(right, left, new Set())));
+        }
+
+        let matchEq = function (step) {
+            if (step.GE || !(step.formula instanceof formulas.EqualsFormula)) {
+                return false;
+            }
+            return (!pattern.destIsGoal || allThreeMatch(pattern.sources[1], step, pattern.dest));
+        }
+        
+        let matchFree = function (step) {
+            if (step.GE) {
+                return false;
+            }
+            return (!pattern.destIsGoal || allThreeMatch(step, pattern.sources[0], pattern.dest));
+        }
+
+        let matchDest = function (step) {
+            if (!step.GE) {
+                return false;
+            }
+            if (step instanceof EmptyStep) {
+                return true;
+            }
+            return (allThreeMatch(pattern.sources[1], pattern.sources[0], step));
+        }
+
+        let finalRule = function () {
+            // If dest is goal, figure out which way we need and sub
+            // If not and if source has both variables, ask user
+            let left = pattern.sources[0].formula.leftVar;
+            let right = pattern.sources[0].formula.rightVar;
+            
+            if (pattern.destIsGoal) {
+                return new EqualsSubStep(pattern.sources[0], pattern.sources[1],
+                    pattern.dest.containedIn, pattern.dest.formula.equals(
+                        pattern.sources[1].formula.replaceVar(right, left, new Set())));
+
+            } else {
+                // checks valid directions of substitution
+                let LwR = !(pattern.sources[1].formula.equals(
+                    pattern.sources[1].formula.replaceVar(left, right, new Set())));
+                let RwL = !(pattern.sources[1].formula.equals(
+                    pattern.sources[1].formula.replaceVar(right, left, new Set())));
+
+                if (RwL && LwR) {
+                    // Modal stuff
+                    let title = "=-Substitution";
+                    let desc = "Enter the variable to be replaced";
+                    let formula = pattern.sources[1].formula;
+                    return new Promise((resolve) => {
+                        function validate(text) {
+                            if (text && (text === left.name || text === right.name)) {
+                                resolve(text);
+                            } else {
+                                alert("Invalid input - check that the variable is in the formula");
+                            }
+                        }
+                        varEnterDialog(title, desc, formula, validate);
+                    }).then((result) => {
+                        closeVarEnterDialog();
+                        return new EqualsSubStep(pattern.sources[0], pattern.sources[1], pattern.dest.containedIn, result === right.name);
+                    });
+
+                } else {
+                    return new EqualsSubStep(pattern.sources[0], pattern.sources[1], pattern.dest.containedIn, RwL);
+                }
+            }
+        }
+        
+        pattern.setSourceRules([matchEq, matchFree], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(finalRule);
+        return pattern;
+    }
 }
 
 export class EqualsReflexStep extends ImmediateStep {
