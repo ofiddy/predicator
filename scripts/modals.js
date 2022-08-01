@@ -70,6 +70,12 @@ export function varEnterDialog (title, desc, formula, validation) {
     modalTop.style.display = "flex";
     varEnterModal.style.display = "block";
 
+    // Resizes entry as typed
+    function formulaSizeChange(event) {
+        event.target.setAttribute("style", "width: " + (event.target.value.length + 1) + "ch");
+    }
+    document.getElementById("modal-var-enter-entry").addEventListener("input", formulaSizeChange);
+
     document.getElementById("modal-imp-int-confirmation").onclick = () => {
         validation(document.getElementById("modal-var-enter-entry").children[0].value);
     };

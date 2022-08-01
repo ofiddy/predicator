@@ -1609,6 +1609,40 @@ export class ExistsEStep extends BoxStep {
             new GoalStep(this._formula, this._box)
         ]);
     }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+        
+        let matchSource = function (step) {
+            return (!step.GE && step.formula instanceof formulas.ExistsFormula);
+        }
+
+        let matchDest = function (step) {
+            return step.GE;
+        }
+
+        let finalRule = function () {
+            // If goal selected, thats the relevant formula
+            // Otherwise, open the modal 
+            if (pattern.destIsGoal) {
+                return new ExistsEStep(pattern.sources[0], pattern.dest.formula, pattern.dest.containedIn);
+            }
+            return new Promise((resolve) => {
+                let title = "∃-Elimination";
+                let desc = "Enter ɸ to prove by elimination"
+
+                formulaInputDialog(title, desc, resolve);
+            }).then((result) => {
+                closeModal();
+                return new ExistsEStep(pattern.sources[0], result, pattern.dest.containedIn);
+            });
+        }
+
+        pattern.setSourceRules([matchSource], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(finalRule);
+        return pattern;
+    }
 }
 
 export class AllIStep extends BoxStep {
@@ -1634,6 +1668,46 @@ export class AllIStep extends BoxStep {
             new EmptyStep(this._box),
             new GoalStep(newFormula, this._box)
         ]);
+    }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+
+        let matchDest = function (step) {
+            if (!step.GE) {
+                return false;
+            }
+            return (step instanceof EmptyStep || step.formula instanceof formulas.AllFormula);
+        }
+
+        let finalRule = function () {
+            // If goal selected, use that formula
+            // Otherwise, prompt user - must be an all formula
+            if (pattern.destIsGoal) {
+                return new AllIStep(pattern.dest.formula, pattern.dest.containedIn);
+            }
+            return new Promise((resolve) => {
+                let title = "∀-Introduction";
+                let desc = "Enter the ∀x[P(x)] formula to prove"
+
+                function validate (formula) {
+                    if (formula instanceof formulas.AllFormula) {
+                        resolve(formula);
+                    }
+                    alert("Must be an All Formula");
+                }
+
+                formulaInputDialog(title, desc, validate);
+            }).then((result) => {
+                closeModal();
+                return new AllIStep(result, pattern.dest.containedIn);
+            });
+        }
+
+        pattern.setSourceRules([], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(finalRule);
+        return pattern;
     }
 }
 

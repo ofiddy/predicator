@@ -65,7 +65,7 @@ export class BasicVarFormula extends BasicFormula {
     }
 
     readFromElements(element, formulaScope) {
-        if (element.value === "") {
+        if (element.value === "" || element.value.substring(0, 2) === "sk") {
             return false;
         } else {
             return new VariableFormula(element.value);
@@ -88,7 +88,7 @@ export class ExpandingVarFormula extends BasicVarFormula {
     }
 
     readFromElements(element, formulaScope) {
-        if (element.value === "") {
+        if (element.value === "" || element.value.substring(0, 2) === "sk") {
             return false;
         } else {
             return new VariableFormula(element.value);
