@@ -14,27 +14,6 @@ export function setUpModals () {
     });
 }
 
-export function orIntModalSetup (priorFormula) {
-    // Performs the setup for the Or-Introduction modal
-    
-    //let priorText = priorFormula.show();
-    let priorText = "lol";
-    document.getElementById("modal-or-int-prior-left").textContent = priorText + " ⋁ ";
-    document.getElementById("modal-or-int-prior-right").textContent = " ⋁ " + priorText;
-
-    let leftVisible = true;
-    document.getElementById("modal-or-int-swap").addEventListener("click", () => {
-        if (leftVisible) {
-            document.getElementById("modal-or-int-prior-left").style.display = "none";
-            document.getElementById("modal-or-int-prior-right").style.display = "block";
-        } else {
-            document.getElementById("modal-or-int-prior-left").style.display = "block";
-            document.getElementById("modal-or-int-prior-right").style.display = "none";
-        }
-        leftVisible = !leftVisible;
-    });
-}
-
 export function andElimDialog (formula, resolve) {
     // Sets up the dialog
     let formulaText = formula.show();
@@ -189,6 +168,48 @@ export function formulaInputDialog (title, desc, validation) {
             return;
         }
         validation(readForm);
+    }
+}
+
+export function orIntModal (resolve) {
+    formulaInputDialog("⋁-Introduction", "Enter Ѱ: ɸ has been selected", resolve);
+    let entry = document.getElementById("modal-formula-input-entry");
+
+    // Add the extra decoration
+    let hBox = document.createElement("div");
+    hBox.classList.add("h-flex-container-modal");
+    entry.parentElement.replaceChild(hBox, entry);
+
+    let leftLabel = document.createElement("div");
+    leftLabel.id = "modal-or-int-prior-left";
+    leftLabel.classList.add("modal-body-text", "modal-or-int-prior", "cyan-elem");
+    leftLabel.innerText = "ɸ ⋁ ";
+    let rightLabel = document.createElement("div");
+    rightLabel.id = "modal-or-int-prior-right";
+    rightLabel.classList.add("modal-body-text", "modal-or-int-prior", "cyan-elem");
+    rightLabel.innerText = " ⋁ ɸ";
+
+    hBox.appendChild(leftLabel);
+    hBox.appendChild(entry);
+    hBox.appendChild(rightLabel);
+    
+    let swapB = document.createElement("button");
+    swapB.id = "modal-or-int-swap";
+    swapB.classList.add("inheriting-button", "cyan-elem", "modal-body-button");
+    swapB.innerText = "Swap";
+    document.getElementById("modal-formula-input-confirmation").parentElement.insertBefore(swapB, document.getElementById("modal-formula-input-confirmation"));
+
+    swapB.leftVisible = true;
+    swapB.onclick = () => {
+        if (swapB.leftVisible) {
+            leftLabel.style.display = "none";
+            rightLabel.style.display = "block";
+            swapB.leftVisible = false;
+        } else {
+            leftLabel.style.display = "block";
+            rightLabel.style.display = "none";
+            swapB.leftVisible = true; 
+        }
     }
 }
 

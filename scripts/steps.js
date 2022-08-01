@@ -1,6 +1,6 @@
 import * as formulas from "./formulas.js"
 import { boundSetHas, setDiff } from "./lib.js";
-import { andElimDialog, closeModal, formulaInputDialog, varEnterDialog } from "./modals.js";
+import { andElimDialog, closeModal, formulaInputDialog, orIntModal, varEnterDialog } from "./modals.js";
 
 export class Box {
     // A box that can contain multiple steps
@@ -588,14 +588,63 @@ export class ImpEStep extends ImmediateStep {
 }
 
 export class OrIStep extends ImmediateStep {
-    constructor (source, other, sourceOnLeft, containedIn) {
-        super ((sourceOnLeft ? new formulas.OrFormula(source.formula, other) : new formulas.OrFormula(other, source.formula)), containedIn);
+    constructor (source, formula, containedIn) {
+        super (formula, containedIn);
         this._source = source;
         this._finalSetUp();
     }
 
     get label () {
         return "⋁I(" + this._source.calcLine() + ")";
+    }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+
+        let matchSource = function (step) {
+            // goal -> one of goal
+            if (step.GE) {
+                return false;
+            }
+            return (!pattern.destIsGoal || 
+                (pattern.dest.formula.leftChild.equals(step.formula) ||
+                pattern.dest.formula.rightChild.equals(step.formula)));
+        }
+
+        let matchDest = function (step) {
+            // source -> source is one of
+            if (!step.GE) {
+                return false
+            }
+            if (step instanceof EmptyStep) {
+                return true;
+            }
+            return (!(step.formula instanceof formulas.OrFormula) || !pattern.sources[0] || (
+                step.formula.leftChild.equals(pattern.sources[0].formula) ||
+                step.formula.rightChild.equals(pattern.sources[0].formula)));
+        }
+
+        let finalRule = function () {
+            // if goal, introduce the same as goal
+            if (pattern.destIsGoal) {
+                return new OrIStep(pattern.sources[0], pattern.dest.formula, pattern.dest.containedIn);
+            }
+            return new Promise((resolve) => {
+                orIntModal(resolve);
+            }).then((result) => {
+                let leftVisible = document.getElementById("modal-or-int-swap").leftVisible;
+                closeModal();
+                let newForm = (leftVisible ?
+                    new formulas.OrFormula(pattern.sources[0].formula, result) :
+                    new formulas.OrFormula(result, pattern.sources[0].formula));
+                return new OrIStep(pattern.sources[0], newForm, pattern.dest.containedIn);
+            });
+        }
+
+        pattern.setSourceRules([matchSource], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(finalRule);
+        return pattern;
     }
 }
 
