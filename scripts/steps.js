@@ -1357,6 +1357,50 @@ export class EqualsReflexStep extends ImmediateStep {
     get label () {
         return "reflexivity"
     }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+        
+        let matchDest = function (step) {
+            if (!step.GE) {
+                return false;
+            }
+            if (step instanceof EmptyStep) {
+                return true;
+            }
+            return ((step.formula instanceof formulas.EqualsFormula) &&
+            (step.formula.leftVar.equals(step.formula.rightVar)));
+        }
+
+        let finalRule = function () {
+            // If goal selected, introduce the same
+            // Otherwise prompt input
+            if (pattern.destIsGoal) {
+                return new EqualsReflexStep(pattern.dest.formula.leftVar, pattern.dest.containedIn);
+            }
+            let title = "Reflexivity";
+            let desc = "Show reflexivity of variable x";
+            let formula = new formulas.EqualsFormula(new formulas.VariableFormula("x"), new formulas.VariableFormula("x"));
+            return new Promise((resolve) => {
+                function validate(text) {
+                    if (text) {
+                        resolve(text);
+                    } else {
+                        alert("Must enter variable name");
+                    }
+                }
+                varEnterDialog(title, desc, formula, validate);
+            }).then((result) => {
+                closeModal();
+                return new EqualsReflexStep(new formulas.VariableFormula(result), pattern.dest.containedIn);
+            });
+        }
+
+        pattern.setSourceRules([], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(finalRule);
+        return pattern;
+    }
 }
 
 export class EqualsSymStep extends ImmediateStep {
