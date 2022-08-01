@@ -33,7 +33,6 @@ function attemptDeleteStep (step) {
 
 function beginPatternEvent(stepId) {
     // Begins the event of selecting sources for a step pattern
-    cancelPatternEvent();
     let tutElems = tutorialWindow.querySelector("#proof-tutorial-steps").children;
     let sourceElems = [];
     let destElem;
