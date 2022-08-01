@@ -562,4 +562,10 @@ body {
     max-width: 500px;
     max-height: 260px;
     border: var(--element-color) 2px solid;
+    margin: auto;
+}
+
+.modal-var-input {
+    color: var(--parent-color);
+    font-size: 30px;
 }

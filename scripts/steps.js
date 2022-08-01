@@ -1,6 +1,6 @@
 import * as formulas from "./formulas.js"
-import { setDiff } from "./lib.js";
-import { andElimDialog, closeAndElimDialog } from "./modals.js";
+import { boundSetHas, setDiff } from "./lib.js";
+import { andElimDialog, closeAndElimDialog, closeVarEnterDialog, varEnterDialog } from "./modals.js";
 
 export class Box {
     // A box that can contain multiple steps
@@ -917,14 +917,93 @@ export class ExcludedMiddleStep extends ImmediateStep {
 }
 
 export class ExistsIStep extends ImmediateStep {
-    constructor (oldVar, newVar, source, containedIn) {
-        super(new formulas.ExistsFormula(newVar, source.formula.replaceVar(oldVar, newVar, new Set())), containedIn);
+    constructor (oldVar, newVar, source, containedIn, formulaOverride) {
+        if (formulaOverride) {
+            super(formulaOverride, containedIn);
+        } else {
+            super(new formulas.ExistsFormula(newVar, source.formula.replaceVar(oldVar, newVar, new Set())), containedIn);
+        }
         this._source = source;
         this._finalSetUp();
     }
 
     get label () {
         return "∃I(" + this._source.calcLine() + ")";
+    }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+        let matchSource = function (step) {
+            // (has unbound variables) && (goal -> match when subbed)
+            if (step.GE || step.formula.getVar(new Set()).size === 0) {
+                return false;
+            }
+            return (!pattern.destIsGoal || (
+                step.formula.equals(findSubbedFormula(pattern.dest.formula, step.formula))));
+        }
+
+        let matchDest = function (step) {
+            // Empty or (source -> match when subbed)
+            if (!step.GE) {
+                return false;
+            }
+            if (step instanceof EmptyStep) {
+                return true;
+            }
+            return (step.formula instanceof formulas.ExistsFormula) && 
+                (!pattern.sources[0] || 
+                pattern.sources[0].formula.equals(findSubbedFormula(step.formula, pattern.sources[0].formula)));
+        }
+
+        let finalRule = function () {
+            // If goal selected, create the relevant formula
+            // Otherwise, open modal dialog
+            if (pattern.destIsGoal) {
+                return new ExistsIStep(null, null, pattern.sources[0], pattern.dest.containedIn, pattern.dest.formula);
+
+            } else {
+                let title = "∃-Introduction";
+                let desc = "Enter the variable to be substituted";
+                let formula = pattern.sources[0].formula;
+                return new Promise((resolve) => {
+                    function validate(text) {
+                        if (text && boundSetHas(formula.getVar(new Set()), new formulas.VariableFormula(text))) {
+                            resolve(text);
+                        } else {
+                            alert("Invalid Input");
+                        }
+                    }
+                    varEnterDialog(title, desc, formula, validate);
+                }).then((oldVarLabel) => {
+                    closeVarEnterDialog();
+                    desc = "Enter the new variable to replace " + oldVarLabel + " with";
+                    return new Promise((resolve) => {
+                        function validate(text) {
+                            if (text) {
+                                if (text.substring(0, 2) === "sk") {
+                                    alert("Skolem constants are reserved");
+                                } else {
+                                    resolve([oldVarLabel, text]);
+                                }
+                            } else {
+                                alert("Invalid Input");
+                            }
+                        }
+                        varEnterDialog(title, desc, formula, validate);
+                    })
+                }).then((result) => {
+                    closeVarEnterDialog();
+                    let oldVar = new formulas.VariableFormula(result[0]);
+                    let newVar = new formulas.VariableFormula(result[1]);
+                    return new ExistsIStep(oldVar, newVar, pattern.sources[0], pattern.dest.containedIn);
+                });
+            }
+        }
+
+        pattern.setSourceRules([matchSource], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(finalRule);
+        return pattern;
     }
 }
 

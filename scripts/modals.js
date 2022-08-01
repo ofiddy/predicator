@@ -57,3 +57,26 @@ export function closeAndElimDialog () {
     document.getElementById("modal-toplevel").innerHTML = "";
     document.getElementById("modal-toplevel").style.display = "none";
 }
+
+export function varEnterDialog (title, desc, formula, validation) {
+    // Sets up the dialog
+    let modalTop = document.getElementById("modal-toplevel");
+    modalTop.innerHTML = "";
+    let varEnterModal = document.importNode(modalDoc.getElementById("modal-var-enter"), true);
+    modalTop.appendChild(varEnterModal);
+
+    document.getElementById("modal-var-enter-title").innerText = title;
+    document.getElementById("modal-var-enter-desc").innerText = desc;
+    document.getElementById("modal-var-enter-display").innerText = formula.show();
+    modalTop.style.display = "flex";
+    varEnterModal.style.display = "block";
+
+    document.getElementById("modal-imp-int-confirmation").onclick = () => {
+        validation(document.getElementById("modal-var-enter-entry").children[0].value);
+    };
+}
+
+export function closeVarEnterDialog () {
+    document.getElementById("modal-toplevel").innerHTML = "";
+    document.getElementById("modal-toplevel").style.display = "none";
+}
