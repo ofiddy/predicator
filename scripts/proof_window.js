@@ -21,10 +21,11 @@ function setModelBoxContents(modelElement) {
 function attemptDeleteStep (step) {
     if (!(step instanceof steps.GoalStep || step instanceof steps.AssStep ||
         step instanceof steps.GivenStep || step instanceof steps.EmptyStep)) {
-            // Must have an empty step either before or after
+            // Must have an empty step either before or after, or be the last
             let before = step.containedIn.steps[step.containedIn.steps.indexOf(step) - 1];
             let after = step.containedIn.steps[step.containedIn.steps.indexOf(step) + 1];
-            if (before instanceof steps.EmptyStep || after instanceof steps.EmptyStep) {
+            if (before instanceof steps.EmptyStep || after instanceof steps.EmptyStep
+                || step === step.containedIn.lastStep) {
                 step.containedIn.removeStep(step);   
             }
     }

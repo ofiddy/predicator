@@ -1435,6 +1435,43 @@ export class NotIStep extends BoxStep {
             new GoalStep(new formulas.BottomFormula(), this._box)
         ]);
     }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+        let matchDest = function (step) {
+            // goal -> is a not formula
+            if (!step.GE) {
+                return false;
+            }
+            if (step instanceof EmptyStep || step.formula instanceof formulas.NotFormula) {
+                return true;
+            } 
+            return false;
+        }
+
+        let finalRule = function () {
+            // If goal selected, introduce the same formula
+            // Otherwise, prompt input of the non-negated form
+            if (pattern.destIsGoal) {
+                return new NotIStep(pattern.dest.formula, pattern.dest.containedIn);
+            } else {
+                return new Promise((resolve) => {
+                    let title = "¬-Introduction";
+                    let desc = "Enter ɸ to introduce ¬ɸ"
+
+                    formulaInputDialog(title, desc, resolve);
+                }).then((result) => {
+                    closeModal();
+                    return new NotIStep(new formulas.NotFormula(result), pattern.dest.containedIn);
+                });
+            }
+        }
+
+        pattern.setSourceRules([], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(finalRule);
+        return pattern;
+    }
 }
 
 export class PCStep extends BoxStep {
@@ -1457,6 +1494,16 @@ export class PCStep extends BoxStep {
             new EmptyStep(this._box),
             new GoalStep(new formulas.BottomFormula(), this._box),
         ]);
+    }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+
+        let matchDest = function (step) {
+            return step.GE;
+        }
+
+        let finalRule = function ()
     }
 }
 
