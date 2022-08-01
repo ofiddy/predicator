@@ -1512,6 +1512,46 @@ export class ImpIStep extends BoxStep {
             new GoalStep(this._formula.rightChild, this._box)
         ]);
     }
+
+    static getPattern (patternElems, destElem) {
+        let pattern = new StepPatternMatch();
+
+        let matchDest = function (step) {
+            // if goal, must be an implication
+            if (!step.GE) {
+                return false;
+            }
+            return (step instanceof EmptyStep || step.formula instanceof formulas.ImpliesFormula);
+        }
+
+        let finalRule = function () {
+            // if goal, use that, otherwise prompt and confirm implies
+            if (pattern.destIsGoal) {
+                return new ImpIStep(pattern.dest.formula, pattern.dest.containedIn);
+            }
+            let title = "→-Introduction"
+            let desc = "Enter desired ɸ → Ѱ formula"
+            return new Promise((resolve) => {
+                function validate (formula) {
+                    if (formula instanceof formulas.ImpliesFormula) {
+                        resolve(formula);
+                    } else {
+                        alert("Must input an implication formula");
+                    }
+                }
+
+                formulaInputDialog(title, desc, validate);
+            }).then((result) => {
+                closeModal();
+                return new ImpIStep(result, pattern.dest.containedIn);
+            });
+        }
+
+        pattern.setSourceRules([], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(finalRule);
+        return pattern;
+    }
 }
 
 export class NotIStep extends BoxStep {
