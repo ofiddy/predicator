@@ -1503,7 +1503,27 @@ export class PCStep extends BoxStep {
             return step.GE;
         }
 
-        let finalRule = function ()
+        let finalRule = function () {
+            // If goal selected, introduce the same formula
+            // Otherwise, promt input
+            if (pattern.destIsGoal) {
+                return new PCStep(pattern.dest.formula, pattern.dest.containedIn);
+            }
+            return new Promise((resolve) => {
+                let title = "Proof by Contradiction";
+                let desc = "Enter ɸ to prove by contradiction"
+
+                formulaInputDialog(title, desc, resolve);
+            }).then((result) => {
+                closeModal();
+                return new PCStep(result, pattern.dest.containedIn);
+            })
+        }
+
+        pattern.setSourceRules([], patternElems);
+        pattern.setDestRule(matchDest, destElem);
+        pattern.setFinalRule(finalRule);
+        return pattern;
     }
 }
 
