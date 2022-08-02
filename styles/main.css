@@ -571,3 +571,10 @@ body {
     color: var(--parent-color);
     font-size: 30px;
 }
+
+#modal-settings {
+    max-width: 500px;
+    max-height: 260px;
+    border: var(--element-color) 2px solid;
+    margin: auto;
+}

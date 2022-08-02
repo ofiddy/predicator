@@ -2,6 +2,7 @@ import { bindKeysToButtonlist, attemptInsertFormula, attemptDeleteFormula, readF
 import * as formulas from "./formulas.js"
 import { bindPhysicsButton } from "./lib.js"
 import { setUpProof } from "./proof_window.js";
+import { settingsModal, setUpModals } from "./modals.js";
 
 let lastClickedButton = null;
 let lastClickedFormula = null;
@@ -191,6 +192,14 @@ function addAllExpressionListeners (e) {
 document.addEventListener("click", () => {
     lastClickedButton = null;
     lastClickedFormula = null;
+});
+
+setUpModals();
+// Settings menu when escape pressed
+window.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+        settingsModal();
+    }
 });
 
 document.getElementById("entry-confirm-button").onclick = function (event) {

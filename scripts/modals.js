@@ -213,6 +213,67 @@ export function orIntModal (resolve) {
     }
 }
 
+export function settingsModal () {
+    let modalTop = document.getElementById("modal-toplevel");
+    modalTop.innerHTML = "";
+    let settingsModal = document.importNode(modalDoc.getElementById("modal-settings"), true);
+    modalTop.appendChild(settingsModal);
+
+    // Code to change the style
+    let root = document.querySelector(":root").style;
+    function changeToLight() {
+        root.setProperty("--bg-color", "#FFFFFF");
+        root.setProperty("--panel-color", "#D5D7D8");
+        root.setProperty("--element-color", "#A6A6A6");
+
+        root.setProperty("--red-theme", "#710D0D");
+        root.setProperty("--cyan-theme", "#1055FB");
+        root.setProperty("--yellow-theme", "#C68727");
+        root.setProperty("--green-theme", "#2E6D37");
+        root.setProperty("--orange-theme", "#AA3F16");
+        root.setProperty("--purple-theme", "#630C99");
+        root.setProperty("--greyblue-theme", "#2B4E87");
+        root.setProperty("--white-theme", "#050505");
+    }
+    document.getElementById("modal-settings-light").onclick = changeToLight;
+
+    function changeToColour() {
+        root.setProperty("--bg-color", "#000122");
+        root.setProperty("--panel-color", "#05213b");
+        root.setProperty("--element-color", "#537EAD");
+
+        root.setProperty("--red-theme", "#EB0D0D");
+        root.setProperty("--cyan-theme", "#10C4FB");
+        root.setProperty("--yellow-theme", "#EFE11D");
+        root.setProperty("--green-theme", "#2EE337");
+        root.setProperty("--orange-theme", "#FF802F");
+        root.setProperty("--purple-theme", "#CE0FC4");
+        root.setProperty("--greyblue-theme", "#4A86E8");
+        root.setProperty("--white-theme", "#f0f0f0");
+    }
+    document.getElementById("modal-settings-colour").onclick = changeToColour;
+
+    function changeToDark() {
+        root.setProperty("--bg-color", "#1E1E1E");
+        root.setProperty("--panel-color", "#252526");
+        root.setProperty("--element-color", "#333333");
+
+        root.setProperty("--red-theme", "#EB0D0D");
+        root.setProperty("--cyan-theme", "#10C4FB");
+        root.setProperty("--yellow-theme", "#EFE11D");
+        root.setProperty("--green-theme", "#2EE337");
+        root.setProperty("--orange-theme", "#FF802F");
+        root.setProperty("--purple-theme", "#CE0FC4");
+        root.setProperty("--greyblue-theme", "#4A86E8");
+        root.setProperty("--white-theme", "#f0f0f0");
+    }
+    document.getElementById("modal-settings-dark").onclick = changeToDark;
+
+    modalTop.onclick = closeModal;
+    modalTop.style.display = "flex";
+    settingsModal.style.display = "block";
+}
+
 export function closeModal () {
     document.getElementById("modal-toplevel").innerHTML = "";
     document.getElementById("modal-toplevel").style.display = "none";
