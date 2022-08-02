@@ -53,7 +53,7 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
 
         newFormula = new formulaToInsert(newLhsFormula, newRhsFormula);
         assignToScope(newElem, newFormula, formulaScope);
-        newElem.focus();
+        newElem.children[0].focus();
 
     } else if ((testForm instanceof formulas.BinaryFormula ||
         testForm instanceof formulas.EqualsFormula ||
@@ -93,7 +93,7 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
 
         newFormula = new formulaToInsert(newLhsFormula, newRhsFormula);
         assignToScope(newElem, newFormula, formulaScope);
-        newElem.focus();
+        newElem.children[0].focus();
 
     } else if ((testForm instanceof formulas.TopFormula || 
         testForm instanceof formulas.BottomFormula) &&
@@ -116,7 +116,7 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
         newElem.append(oldElem);
         newElem.append(")");
 
-        newElem.focus();
+        newElem.children[0].focus();
 
     } else if ((testForm instanceof formulas.PredicateFormula && oldFormula.isPredicate)
      || (testForm instanceof formulas.FunctionFormula && !oldFormula.isPredicate)) {
