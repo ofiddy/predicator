@@ -107,6 +107,11 @@ export function setUpProof(givensList, goalFormula) {
         let buttonEvent = {
             "onDragStart": () => {setModelBoxContents(stepModels[i])},
             "onClick": () => {beginPatternEvent(i)},
+            "onDragEnd": ((event, below) => {
+                beginPatternEvent(i);
+                below.click();
+            }),
+            "dragEndQuery": ".proof-expression",
         }
         bindPhysicsButton(buttons[i], buttonEvent);
     }
