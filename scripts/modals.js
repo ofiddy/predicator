@@ -78,7 +78,7 @@ export function formulaInputDialog (title, desc, validation) {
     let lastClickedFormula = null;
     let entry = document.getElementById("modal-formula-input-entry");
     entry.querySelector(".expression-input").dataset.formulaIndex = 0;
-    let formulaScope = [new formulas.BasicFormula()];
+    entry.assignedFormula = new formulas.BasicFormula();
 
     let buttonList = [];
     for (const e of document.getElementById("modal-formula-input-right-panel").children) {
@@ -133,10 +133,10 @@ export function formulaInputDialog (title, desc, validation) {
 
         lastClickedButton = event.target;
         if (document.activeElement.classList.contains("formula-elem")) {
-            attemptInsertFormula(event, document.activeElement, formulaScope);
+            attemptInsertFormula(event, document.activeElement);
         } else {
             if (lastClickedFormula !== null) {
-                attemptInsertFormula(event, lastClickedFormula, formulaScope);
+                attemptInsertFormula(event, lastClickedFormula);
             }
         }
         lastClickedFormula = null;
@@ -146,10 +146,10 @@ export function formulaInputDialog (title, desc, validation) {
         event.stopPropagation();
         if (lastClickedFormula === null) {
             if (document.activeElement.classList.contains("formula-elem")) {
-                attemptDeleteFormula(document.activeElement, formulaScope);
+                attemptDeleteFormula(document.activeElement);
             }
         } else {
-            attemptDeleteFormula(lastClickedFormula, formulaScope);
+            attemptDeleteFormula(lastClickedFormula);
         }
         lastClickedFormula = null;
     }
@@ -162,7 +162,7 @@ export function formulaInputDialog (title, desc, validation) {
     document.getElementById("modal-formula-input-confirmation").onclick = function (event) {
         // Translates the entry into the formula object
         // And if valid, progresses
-        let readForm = readFormulaFromElements(entry.children[0], formulaScope);
+        let readForm = readFormulaFromElements(entry.children[0]);
         if (!readForm) {
             alert("Error detected in expression");
             return;

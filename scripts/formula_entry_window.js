@@ -4,8 +4,7 @@ import { insertAfter } from "./lib.js";
 // These are the generic functions for any formula entry window to use
 
 // When a button pressed, inserts the relevant formula to the specified location
-export function attemptInsertFormula (event, targetFormula, formulaScope) {
-    // formulaScope is the list of formula objects for the html to refer to
+export function attemptInsertFormula (event, targetFormula) {
     let formulaToInsert = formulas.formulaList[event.target.dataset.formulaClassIndex];
     if (formulaToInsert === null || targetFormula.classList.contains("only-text")) {
         return false; // "Adding" an atom basically does nothing
@@ -19,16 +18,10 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
     // Put the new content where the old content was
     
     let oldElem = targetFormula;
-    let oldIndex = targetFormula.dataset.formulaIndex;
-    let oldFormula = formulaScope[oldIndex];
+    let oldFormula = oldElem.assignedFormula;
     let insertDest = oldElem.parentNode;
     let newElem;
     let newFormula;
-
-    function assignToScope (elem, formula, scope) {
-        elem.dataset.formulaIndex = scope.length;
-        scope.push(formula);
-    }
     let testForm = new formulaToInsert();
 
     if (testForm instanceof formulas.QuantifierFormula && oldFormula.isPredicate) {
@@ -36,7 +29,7 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
         let newLhs = formulas.BasicVarFormula.newElem();
         newLhs.classList.add("only-text");
         let newLhsFormula = new formulas.BasicVarFormula();
-        assignToScope(newLhs, newLhsFormula, formulaScope);
+        newLhs.assignedFormula = newLhsFormula;
 
         let newRhs = oldElem;
         let newRhsFormula = oldFormula;
@@ -52,7 +45,7 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
         newElem.append("]");
 
         newFormula = new formulaToInsert(newLhsFormula, newRhsFormula);
-        assignToScope(newElem, newFormula, formulaScope);
+        newElem.assignedFormula = newFormula;
         newElem.children[0].focus();
 
     } else if ((testForm instanceof formulas.BinaryFormula ||
@@ -64,7 +57,7 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
         if (formulaToInsert.prototype instanceof formulas.BinaryFormula) {
             newRhs = formulas.BasicFormula.newElem();
             newRhsFormula = new formulas.BasicFormula();
-            assignToScope(newRhs, newRhsFormula, formulaScope);
+            newRhs.assignedFormula = newRhsFormula;
 
             newLhs = oldElem;
             newLhsFormula = oldFormula;
@@ -72,13 +65,13 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
             // If adding Equals/NEquals, must create variable entries
             newLhs = formulas.BasicVarFormula.newElem();
             newLhsFormula = new formulas.BasicVarFormula();
-            assignToScope(newLhs, newLhsFormula, formulaScope);
+            newLhs.assignedFormula = newLhsFormula;
             if (oldElem.classList.contains("expression-input")) {
                 newLhs.value = oldElem.value;
             }
             newRhs = formulas.BasicVarFormula.newElem();
             newRhsFormula = new formulas.BasicVarFormula();
-            assignToScope(newRhs, newRhsFormula, formulaScope);
+            newRhs.assignedFormula = newRhsFormula;
         }
 
         newElem = formulaToInsert.newElem();
@@ -92,7 +85,7 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
         newElem.append(") ");
 
         newFormula = new formulaToInsert(newLhsFormula, newRhsFormula);
-        assignToScope(newElem, newFormula, formulaScope);
+        newElem.assignedFormula = newFormula;
         newElem.children[0].focus();
 
     } else if ((testForm instanceof formulas.TopFormula || 
@@ -101,7 +94,7 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
         // Bottom and Top Formulas
         let newElem = formulaToInsert.newElem();
         let newElemFormula = new formulaToInsert();
-        assignToScope(newElem, newElemFormula, formulaScope);
+        newElem.assignedFormula = newElemFormula;
         insertDest.replaceChild(newElem, oldElem);
         newElem.focus();
 
@@ -109,7 +102,7 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
         // Adding a Negation Formula
         let newElem = formulaToInsert.newElem();
         let newElemFormula = new formulaToInsert(oldFormula);
-        assignToScope(newElem, newElemFormula, formulaScope);
+        newElem.assignedFormula = newElemFormula;
         insertDest.replaceChild(newElem, oldElem);
         
         newElem.append("(");
@@ -124,7 +117,7 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
         let nameElem = formulas.BasicVarFormula.newElem();
         nameElem.classList.add("only-text");
         let nameElemFormula = new formulas.BasicVarFormula();
-        assignToScope(nameElem, nameElemFormula, formulaScope);
+        nameElem.assignedFormula = nameElemFormula;
 
         if (oldElem.classList.contains("expression-input")) {
             nameElem.value = oldElem.value;
@@ -133,12 +126,13 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
         let varsElem = formulas.ExpandingVarFormula.newElem();
         let varsElemFormula = new formulas.ExpandingVarFormula();
         varsElem.classList.add("first-var");
-        // Do not assign to scope: tracked via the parent
+        // Do not assign to scope: tracked via the parent TODO ROUND HERE
 
         let vars = [varsElemFormula];
         let newElem = formulaToInsert.newElem();
         let newElemFormula = new formulaToInsert("", vars);
-        assignToScope(newElem, newElemFormula, formulaScope);
+        newElem.assignedFormula = newElemFormula;
+
         insertDest.replaceChild(newElem, oldElem);
 
         newElem.append(nameElem);
@@ -150,7 +144,7 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
             if (event.target.classList.contains("expanding-var-input") &&
             event.key === ",") {
                 event.preventDefault();
-                attemptAddVariable(event.target, formulaScope);
+                attemptAddVariable(event.target);
             }
         }
 
@@ -158,7 +152,7 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
             if (event.target.classList.contains("expanding-var-input") &&
             event.key === "Backspace") {
                 if (event.target.value.length === 0 && !event.target.classList.contains("first-var")) {
-                    attemptDeleteVariable(event.target, formulaScope);
+                    attemptDeleteVariable(event.target);
                 }
             }
         }
@@ -173,7 +167,7 @@ export function attemptInsertFormula (event, targetFormula, formulaScope) {
     }
 }
 
-export function attemptDeleteFormula (targetFormula, formulaScope) {
+export function attemptDeleteFormula (targetFormula) {
     // Replaces the target formula with a blank formula
     // And removes the associated values from the formula index
     if (targetFormula.classList.contains("expression-input")) {
@@ -181,8 +175,7 @@ export function attemptDeleteFormula (targetFormula, formulaScope) {
     }
 
     let newElem, newElemFormula;
-    let oldIndex = targetFormula.dataset.formulaIndex;
-    if (formulaScope[oldIndex].isPredicate) {
+    if (targetFormula.assignedFormula.isPredicate) {
         newElem = formulas.BasicFormula.newElem();
         newElemFormula = new formulas.BasicFormula();
     } else {
@@ -190,21 +183,18 @@ export function attemptDeleteFormula (targetFormula, formulaScope) {
         newElemFormula = new formulas.BasicVarFormula;
     }
     
-    formulaScope[oldIndex] = newElemFormula;
-    newElem.dataset.formulaIndex = oldIndex;
-
-    // Remove all indices of children
+    newElem.assignedFormula = newElemFormula;
 
     // Replace the old node with the new blank
     targetFormula.parentNode.replaceChild(newElem, targetFormula);
     newElem.focus();
 }
 
-function attemptAddVariable (targetElem, formulaScope) {
+function attemptAddVariable (targetElem) {
     // When "," pressed, split the focused ".expanding-var-input" into two
     // PRE: targetElem is an ".expanding-var-input"
     // For Predicates and Functions
-    let parentFormula = formulaScope[targetElem.parentNode.dataset.formulaIndex];
+    let parentFormula = targetElem.parentNode.assignedFormula;
     let parentElem = targetElem.parentNode;
     let newElem = formulas.ExpandingVarFormula.newElem();
     let newVar = new formulas.ExpandingVarFormula();
@@ -219,11 +209,11 @@ function attemptAddVariable (targetElem, formulaScope) {
     newElem.focus();
 }
 
-function attemptDeleteVariable (targetElem, formulaScope) {
+function attemptDeleteVariable (targetElem) {
     // When "<-" pressed, remove target Elem and the preceeding comma
     // PRE: targetElem is an ".expanding-var-input" and not the first
     // For Predicates and Functions
-    let parentFormula = formulaScope[targetElem.parentNode.dataset.formulaIndex];
+    let parentFormula = targetElem.parentNode.assignedFormula;
     let parentElem = targetElem.parentNode;
 
     // Find the index of the selected targetFormula within the variables of the parent
@@ -263,7 +253,6 @@ export function bindKeysToButtonlist (buttonList) {
     return bindDict;
 }
 
-export function readFormulaFromElements (topLevelElement, formulaScope) {
-    let topLevelFormula = formulaScope[topLevelElement.dataset.formulaIndex];
-    return topLevelFormula.readFromElements(topLevelElement, formulaScope);
+export function readFormulaFromElements (topLevelElement) {
+    return topLevelElement.assignedFormula.readFromElements(topLevelElement);
 }

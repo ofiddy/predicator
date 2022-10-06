@@ -40,7 +40,7 @@ export class BasicFormula {
     // Returns the formula with all entries replaced by the proper values
     // In the case this is used as an entry, returns the contents of the input
     // As an atom
-    readFromElements(element, formulaScope) {
+    readFromElements(element) {
         if (element.value === "") {
             return false;
         } else {
@@ -64,7 +64,7 @@ export class BasicVarFormula extends BasicFormula {
         return elem;
     }
 
-    readFromElements(element, formulaScope) {
+    readFromElements(element) {
         if (element.value === "") {
             return false;
         } else {
@@ -87,7 +87,7 @@ export class ExpandingVarFormula extends BasicVarFormula {
         return elem;
     }
 
-    readFromElements(element, formulaScope) {
+    readFromElements(element) {
         if (element.value === "") {
             return false;
         } else {
@@ -138,7 +138,7 @@ export class VariableFormula extends BasicFormula {
     }
 
     // This should never happen
-    readFromElements(element, formulaScope) {
+    readFromElements(element) {
         return false;
     }
 }
@@ -213,7 +213,7 @@ export class FunctionFormula extends BasicFormula {
         return elem;
     }
 
-    readFromElements(element, formulaScope) {
+    readFromElements(element) {
         // Get the label, extract the name
         // Then get the list of variables
         // Then return a few function
@@ -224,7 +224,7 @@ export class FunctionFormula extends BasicFormula {
 
         let varList = [];
         for (let i = 0; i < this._variables.length; i++) {
-            let newVar = this._variables[i].readFromElements(element.children[i + 1], formulaScope);
+            let newVar = this._variables[i].readFromElements(element.children[i + 1]);
             if (!newVar) {
                 return false;
             }
@@ -252,7 +252,7 @@ export class AtomFormula extends BasicFormula {
     }
 
     // This should never happen
-    readFromElements(element, formulaScope) {
+    readFromElements(element) {
         return false;
     }
 }
@@ -276,7 +276,7 @@ export class BottomFormula extends BasicFormula {
         return elem;
     }
 
-    readFromElements(element, formulaScope) {
+    readFromElements(element) {
         return this;
     }
 }
@@ -300,7 +300,7 @@ export class TopFormula extends BasicFormula {
         return elem;
     }
 
-    readFromElements(element, formulaScope) {
+    readFromElements(element) {
         return this;
     }
 }
@@ -373,7 +373,7 @@ export class PredicateFormula extends BasicFormula {
         return elem;
     }
 
-    readFromElements(element, formulaScope) {
+    readFromElements(element) {
         // Get the label, extract the name
         // Then get the list of variables
         // Then return a few function
@@ -384,7 +384,7 @@ export class PredicateFormula extends BasicFormula {
 
         let varList = [];
         for (let i = 0; i < this._variables.length; i++) {
-            let newVar = this._variables[i].readFromElements(element.children[i + 1], formulaScope);
+            let newVar = this._variables[i].readFromElements(element.children[i + 1]);
             if (!newVar) {
                 return false;
             }
@@ -437,9 +437,9 @@ export class NotFormula extends BasicFormula {
         return elem;
     }
 
-    readFromElements(element, formulaScope) {
+    readFromElements(element) {
         let child = element.children[0];
-        let subFormula = formulaScope[child.dataset.formulaIndex].readFromElements(child, formulaScope);
+        let subFormula = child.assignedFormula.readFromElements(child);
         if (!subFormula) {
             return false;
         }
@@ -490,15 +490,15 @@ export class BinaryFormula extends BasicFormula {
         return (this._leftChild.equals(other._leftChild) && this._rightChild.equals(other._rightChild));
     }
 
-    readFromElements(element, formulaScope) {
+    readFromElements(element) {
         let leftChild = element.children[0];
-        let leftFormula = formulaScope[leftChild.dataset.formulaIndex].readFromElements(leftChild, formulaScope);
+        let leftFormula = leftChild.assignedFormula.readFromElements(leftChild);
         if (!leftFormula) {
             return false;
         }
 
         let rightChild = element.children[1];
-        let rightFormula = formulaScope[rightChild.dataset.formulaIndex].readFromElements(rightChild, formulaScope);
+        let rightFormula = rightChild.assignedFormula.readFromElements(rightChild);
         if (!rightFormula) {
             return false;
         }
@@ -633,15 +633,15 @@ export class EqualsFormula extends PredicateFormula {
         return elem;
     }
 
-    readFromElements(element, formulaScope) {
+    readFromElements(element) {
         let leftChild = element.children[0];
-        let leftFormula = formulaScope[leftChild.dataset.formulaIndex].readFromElements(leftChild, formulaScope);
+        let leftFormula = leftChild.assignedFormula.readFromElements(leftChild);
         if (!leftFormula) {
             return false;
         }
 
         let rightChild = element.children[1];
-        let rightFormula = formulaScope[rightChild.dataset.formulaIndex].readFromElements(rightChild, formulaScope);
+        let rightFormula = rightChild.assignedFormula.readFromElements(rightChild);
         if (!rightFormula) {
             return false;
         }
@@ -669,15 +669,15 @@ export class NotEqualsFormula extends NotFormula {
         return elem;
     }
 
-    readFromElements(element, formulaScope) {
+    readFromElements(element) {
         let leftChild = element.children[0];
-        let leftFormula = formulaScope[leftChild.dataset.formulaIndex].readFromElements(leftChild, formulaScope);
+        let leftFormula = leftChild.assignedFormula.readFromElements(leftChild);
         if (!leftFormula) {
             return false;
         }
 
         let rightChild = element.children[1];
-        let rightFormula = formulaScope[rightChild.dataset.formulaIndex].readFromElements(rightChild, formulaScope);
+        let rightFormula = rightChild.assignedFormula.readFromElements(rightChild);
         if (!rightFormula) {
             return false;
         }
@@ -713,7 +713,7 @@ export class QuantifierFormula extends BasicFormula {
         return varSet;
     }
 
-    readFromElements(element, formulaScope) {
+    readFromElements(element) {
         // Get the label, extract the name
         // Then get the list of variables
         // Then return a few function
@@ -723,7 +723,7 @@ export class QuantifierFormula extends BasicFormula {
         }
 
         let rightChild = element.children[1];
-        let rightFormula = formulaScope[rightChild.dataset.formulaIndex].readFromElements(rightChild, formulaScope);
+        let rightFormula = rightChild.assignedFormula.readFromElements(rightChild);
         if (!rightFormula) {
             return false;
         }

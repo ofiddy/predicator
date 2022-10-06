@@ -7,9 +7,6 @@ import { settingsModal, setUpModals } from "./modals.js";
 let lastClickedButton = null;
 let lastClickedFormula = null;
 
-let goalScope = [new formulas.BasicFormula()];
-let givenScopes = [[new formulas.BasicFormula()]];
-
 const colours = ["red-elem", "orange-elem", "yellow-elem", "green-elem", "cyan-elem", "purple-elem"];
 let expressionsAdded = 1;
 
@@ -60,30 +57,20 @@ function getExpressionFromFormula(formulaElem) {
     }
 }
 
-// Gets the scope a (element corresponding to a) formula resides in
-function getScope(formulaElem) {
-    let id = getExpressionFromFormula(formulaElem);
-    return (id === "goal" ? goalScope : givenScopes[id]);
-}
-
 // Mutate the given list if needed
 function checkThenMutateGivens (topLevelExpressionIndex, wasBackspace) {
     let givenList = document.getElementById("given-holder").children;
     let topLevelExpression = givenList[topLevelExpressionIndex];
-    let scope = givenScopes[topLevelExpressionIndex];
     let topLevelFormulaElement = topLevelExpression.querySelector(".formula-elem");
-    let topLevelFormula = scope[topLevelFormulaElement.dataset.formulaIndex];
+    let topLevelFormula = topLevelFormulaElement.assignedFormula;
 
     // If the expression is just an empty formula and an element exists below
     // Remove this element
     // Shuffle every other below element upwards
-    // Remove from the scope
     if (topLevelFormula.constructor.name === formulas.BasicFormula.name &&
         topLevelFormulaElement.value === "" && wasBackspace) {
         let nextTopLevelExpr = givenList[topLevelExpressionIndex + 1];
         if (nextTopLevelExpr) {
-            // Remove from the scope
-            givenScopes.splice(topLevelExpressionIndex, 1);
 
             // Suffle elements upwards
             for (let i = topLevelExpressionIndex; i < givenList.length; i++) {
@@ -97,7 +84,6 @@ function checkThenMutateGivens (topLevelExpressionIndex, wasBackspace) {
     } else {
         // If the expression is not empty and there is no expression below,
         // Add an expression below to the HTML
-        // Then add a new scope
         if (document.getElementById("given-holder").lastElementChild === topLevelExpression && !wasBackspace) {
             // Create the new expression HTML
             let newExp = document.createElement("div");
@@ -112,14 +98,12 @@ function checkThenMutateGivens (topLevelExpressionIndex, wasBackspace) {
             let newExpanding = document.createElement("div");
             newExpanding.classList.add("expanding-expression-input");
             let newBasic = formulas.BasicFormula.newElem();
-            newBasic.dataset.formulaIndex = 0;
+            newBasic.assignedFormula = new formulas.BasicFormula();
             newExpanding.appendChild(newBasic);
             newExp.appendChild(newExpanding);
 
             document.getElementById("given-holder").append(newExp);
             addAllExpressionListeners(newExp);
-
-            givenScopes.push([new formulas.BasicFormula()]);
         }
     }
 }
@@ -130,13 +114,13 @@ function checkThenAttemptInsert(event) {
 
     lastClickedButton = event.target;
     if (document.activeElement.classList.contains("formula-elem")) {
-        attemptInsertFormula(event, document.activeElement, getScope(document.activeElement));
+        attemptInsertFormula(event, document.activeElement);
         if (getExpressionFromFormula(document.activeElement) !== "goal") {
             checkThenMutateGivens(getExpressionFromFormula(document.activeElement), false);
         }
     } else {
         if (lastClickedFormula !== null) {
-            attemptInsertFormula(event, lastClickedFormula, getScope(lastClickedFormula));
+            attemptInsertFormula(event, lastClickedFormula);
             if (getExpressionFromFormula(document.activeElement) !== "goal") {
                 checkThenMutateGivens(getExpressionFromFormula(document.activeElement), false);
             }
@@ -150,10 +134,10 @@ function checkThenAttemptDelete(event) {
     event.stopPropagation();
     if (lastClickedFormula === null) {
         if (document.activeElement.classList.contains("formula-elem")) {
-            attemptDeleteFormula(document.activeElement, getScope(document.activeElement));
+            attemptDeleteFormula(document.activeElement);
         }
     } else {
-        attemptDeleteFormula(lastClickedFormula, getScope(lastClickedFormula));
+        attemptDeleteFormula(lastClickedFormula);
     }
     lastClickedFormula = null;
 }
@@ -175,8 +159,8 @@ for (const e of document.getElementById("entry-left-grid").children) {
 formulas.addFormulaData(buttonList);
 let bindDict = bindKeysToButtonlist(buttonList);
 
-document.getElementById("goal-holder").querySelector(".expression-input").dataset.formulaIndex = 0;
-document.getElementById("given-holder").querySelector(".expression-input").dataset.formulaIndex = 0;
+document.getElementById("goal-holder").querySelector(".expression-input").assignedFormula = new formulas.BasicFormula();
+document.getElementById("given-holder").querySelector(".expression-input").assignedFormula = new formulas.BasicFormula();
 
 // Does the initial application of event handlers to formula elements
 document.querySelectorAll(".expanding-expression-input").forEach(addAllExpressionListeners);
@@ -211,10 +195,10 @@ document.getElementById("entry-confirm-button").onclick = function (event) {
 
     for (let i = 0; i < givenElems.length; i++) {
         let elem = givenElems[i].children[1].children[0];
-        let formula = readFormulaFromElements(elem, givenScopes[i]);
+        let formula = readFormulaFromElements(elem);
         if (!formula) {
             // Ignore any empty blank formulas
-            if (givenScopes[i][elem.dataset.formulaIndex].constructor.name === formulas.BasicFormula.name) {
+            if (elem.assignedFormula.constructor.name === formulas.BasicFormula.name) {
                 continue;
             }
             alert("Error detected in Formula " + (i + 1));
@@ -225,7 +209,7 @@ document.getElementById("entry-confirm-button").onclick = function (event) {
     }
 
     let goalElem = document.getElementById("goal-holder").children[1].children[0];
-    let goalFormula = readFormulaFromElements(goalElem, goalScope);
+    let goalFormula = readFormulaFromElements(goalElem);
     if (!goalFormula) {
         alert("Error detected in goal");
         return;
