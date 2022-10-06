@@ -77,8 +77,7 @@ export function formulaInputDialog (title, desc, validation) {
     let lastClickedButton = null;
     let lastClickedFormula = null;
     let entry = document.getElementById("modal-formula-input-entry");
-    entry.querySelector(".expression-input").dataset.formulaIndex = 0;
-    entry.assignedFormula = new formulas.BasicFormula();
+    entry.children[0].assignedFormula = new formulas.BasicFormula();
 
     let buttonList = [];
     for (const e of document.getElementById("modal-formula-input-right-panel").children) {
@@ -107,6 +106,7 @@ export function formulaInputDialog (title, desc, validation) {
     function formulaKeyPress(event, _bindDict) {
         if (_bindDict[event.key]) {
             _bindDict[event.key].click();
+            event.preventDefault();
         }
     }
     entry.addEventListener("keypress", (event) => {formulaKeyPress(event, bindDict)});
