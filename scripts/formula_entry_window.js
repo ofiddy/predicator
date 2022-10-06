@@ -9,6 +9,7 @@ export function attemptInsertFormula (event, targetFormula) {
     if (formulaToInsert === null || targetFormula.classList.contains("only-text")) {
         return false; // "Adding" an atom basically does nothing
     }
+    console.log("Attempting insert");
 
     // Get the existing content
     // Remove it from its parent
@@ -126,7 +127,6 @@ export function attemptInsertFormula (event, targetFormula) {
         let varsElem = formulas.ExpandingVarFormula.newElem();
         let varsElemFormula = new formulas.ExpandingVarFormula();
         varsElem.classList.add("first-var");
-        // Do not assign to scope: tracked via the parent TODO ROUND HERE
 
         let vars = [varsElemFormula];
         let newElem = formulaToInsert.newElem();
@@ -140,11 +140,17 @@ export function attemptInsertFormula (event, targetFormula) {
         newElem.append(varsElem);
         newElem.append(")");
 
-        function expandingVarSplit(event) {
-            if (event.target.classList.contains("expanding-var-input") &&
-            event.key === ",") {
-                event.preventDefault();
-                attemptAddVariable(event.target);
+        function expandingVarEntry(event) {
+            if (event.target.classList.contains("expanding-var-input")) {
+                if (event.key === ",") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    attemptAddVariable(event.target);
+                } else if (event.key === ")") {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    attemptAddFunction(event.target);
+                }
             }
         }
 
@@ -157,7 +163,7 @@ export function attemptInsertFormula (event, targetFormula) {
             }
         }
 
-        newElem.addEventListener("keypress", expandingVarSplit);
+        newElem.addEventListener("keypress", expandingVarEntry);
         newElem.addEventListener("keydown", expandingVarBackspace);
 
         newElem.focus();
@@ -179,8 +185,16 @@ export function attemptDeleteFormula (targetFormula) {
         newElem = formulas.BasicFormula.newElem();
         newElemFormula = new formulas.BasicFormula();
     } else {
-        newElem = formulas.BasicVarFormula.newElem();
-        newElemFormula = new formulas.BasicVarFormula;
+        let parentElem = targetFormula.parentElement;
+        if (!(parentElem.assignedFormula instanceof formulas.EqualsFormula)) {
+            // Inside an expanding variable input
+            newElem = formulas.ExpandingVarFormula.newElem();
+            newElemFormula = new formulas.ExpandingVarFormula;
+        } else {
+            // Inside a regular input
+            newElem = formulas.BasicVarFormula.newElem();
+            newElemFormula = new formulas.BasicVarFormula;
+        }
     }
     
     newElem.assignedFormula = newElemFormula;
@@ -198,6 +212,7 @@ function attemptAddVariable (targetElem) {
     let parentElem = targetElem.parentNode;
     let newElem = formulas.ExpandingVarFormula.newElem();
     let newVar = new formulas.ExpandingVarFormula();
+    newElem.assignedFormula = newVar;
 
     // Find the index of the selected targetFormula within the variables of the parent
     let varIndex = Array.from(parentElem.children).indexOf(targetElem);
@@ -206,6 +221,37 @@ function attemptAddVariable (targetElem) {
     parentFormula.addVarAt(varIndex, newVar);
     insertAfter(newElem, targetElem);
     insertAfter(document.createTextNode(", "), targetElem);
+    newElem.focus();
+}
+
+function attemptAddFunction (targetElem) {
+    // Adds a function instead of an expanding variable formula inside a predicate or function
+    // PRE: targetElem is an ".expanding-var-input"
+    let parentElem = targetElem.parentNode;
+    let newElem = formulas.FunctionFormula.newElem();
+
+    let nameElem = formulas.BasicVarFormula.newElem();
+    nameElem.classList.add("only-text");
+    let nameElemFormula = new formulas.BasicVarFormula();
+    nameElem.assignedFormula = nameElemFormula;
+
+    nameElem.value = targetElem.value;
+
+    let varsElem = formulas.ExpandingVarFormula.newElem();
+    let varsElemFormula = new formulas.ExpandingVarFormula();
+    varsElem.assignedFormula = varsElemFormula;
+    varsElem.classList.add("first-var");
+
+    let vars = [varsElemFormula];
+    let newElemFormula = new formulas.FunctionFormula("", vars);
+    newElem.assignedFormula = newElemFormula;
+
+    parentElem.replaceChild(newElem, targetElem);
+    newElem.append(nameElem);
+    newElem.append("(");
+    newElem.append(varsElem);
+    newElem.append(")");
+
     newElem.focus();
 }
 
