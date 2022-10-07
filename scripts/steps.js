@@ -1,6 +1,6 @@
 import * as formulas from "./formulas.js"
 import { boundSetHas, setDiff } from "./lib.js";
-import { andElimDialog, closeModal, formulaInputDialog, orIntModal, varEnterDialog } from "./modals.js";
+import { andElimDialog, closeModal, formulaInputDialog, orIntModal, varEnterDialog, valueEnterDialog } from "./modals.js";
 import { readFormulaFromElements } from "./formula_entry_window.js";
 
 export class Box {
@@ -1183,7 +1183,7 @@ export class AllEStep extends ImmediateStep {
                         alert("Invalid Input");
                     }
                 }
-                varEnterDialog(title, desc, formula, validate);
+                valueEnterDialog(title, desc, formula, validate);
             }).then((elem) => {
                 let newVar = readFormulaFromElements(elem);
                 //let newVar = new formulas.VariableFormula(newVarLabel);
@@ -1431,14 +1431,13 @@ export class EqualsReflexStep extends ImmediateStep {
             let formula = new formulas.EqualsFormula(new formulas.VariableFormula("x"), new formulas.VariableFormula("x"));
             return new Promise((resolve) => {
                 function validate(elem) {
-                    console.log(elem.assignedFormula);
                     if (readFormulaFromElements(elem)) {
                         resolve(elem);
                     } else {
                         alert("Must enter variable name");
                     }
                 }
-                varEnterDialog(title, desc, formula, validate);
+                valueEnterDialog(title, desc, formula, validate);
             }).then((elem) => {
                 let newVar = readFormulaFromElements(elem);
                 closeModal();

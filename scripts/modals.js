@@ -41,6 +41,31 @@ export function varEnterDialog (title, desc, formula, validation) {
     modalTop.innerHTML = "";
     let varEnterModal = document.importNode(modalDoc.getElementById("modal-var-enter"), true);
     modalTop.appendChild(varEnterModal);
+
+    // Formats the window
+    document.getElementById("modal-var-enter-title").innerText = title;
+    document.getElementById("modal-var-enter-desc").innerText = desc;
+    document.getElementById("modal-var-enter-display").innerText = formula.show();
+    modalTop.style.display = "flex";
+    varEnterModal.style.display = "block";
+
+    // Resizes entry as typed
+    function formulaSizeChange(event) {
+        event.target.setAttribute("style", "width: " + (event.target.value.length + 1) + "ch");
+    }
+    document.getElementById("modal-var-enter-entry").addEventListener("input", formulaSizeChange);
+
+    document.getElementById("modal-imp-int-confirmation").onclick = () => {
+        validation(document.getElementById("modal-var-enter-entry").children[0].value);
+    };
+}
+
+export function valueEnterDialog (title, desc, formula, validation) {
+    // Sets up the dialog
+    let modalTop = document.getElementById("modal-toplevel");
+    modalTop.innerHTML = "";
+    let varEnterModal = document.importNode(modalDoc.getElementById("modal-var-enter"), true);
+    modalTop.appendChild(varEnterModal);
     
     // Formats the window
     document.getElementById("modal-var-enter-title").innerText = title;
