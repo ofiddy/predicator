@@ -308,6 +308,11 @@ function attemptDeleteSubfunction (targetElem) {
     parentFormula.addVarAt(varIndex, newVar);
     parentElem.replaceChild(newElem, targetElem);
 
+    // If only variable left, designate it as such
+    if (parentElem.children.length === 2) {
+        newElem.classList.add("first-var");
+    }
+
     newElem.focus();
 }
 
