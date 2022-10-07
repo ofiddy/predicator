@@ -65,6 +65,7 @@ export class BasicVarFormula extends BasicFormula {
     }
 
     readFromElements(element) {
+        console.log(element.value);
         if (element.value === "") {
             return false;
         } else {

@@ -41,13 +41,16 @@ export function varEnterDialog (title, desc, formula, validation) {
     modalTop.innerHTML = "";
     let varEnterModal = document.importNode(modalDoc.getElementById("modal-var-enter"), true);
     modalTop.appendChild(varEnterModal);
-
+    
     // Formats the window
     document.getElementById("modal-var-enter-title").innerText = title;
     document.getElementById("modal-var-enter-desc").innerText = desc;
     document.getElementById("modal-var-enter-display").innerText = formula.show();
     modalTop.style.display = "flex";
     varEnterModal.style.display = "block";
+    let newElem = formulas.BasicVarFormula.newElem();
+    document.getElementById("modal-var-enter-entry").children[0].replaceWith(newElem);
+    newElem.assignedFormula = new formulas.BasicVarFormula();
 
     // Resizes entry as typed
     function formulaSizeChange(event) {
@@ -56,8 +59,27 @@ export function varEnterDialog (title, desc, formula, validation) {
     document.getElementById("modal-var-enter-entry").addEventListener("input", formulaSizeChange);
 
     document.getElementById("modal-imp-int-confirmation").onclick = () => {
-        validation(document.getElementById("modal-var-enter-entry").children[0].value);
+        validation(document.getElementById("modal-var-enter-entry").children[0]);
     };
+
+    // Inserts a function when ( or ) pressed
+    function formulaKeyPress(event) {
+        if (event.key === "(" || event.key === ")") {
+            event.preventDefault();
+            event.stopPropagation();
+            attemptInsertFormula(event, document.activeElement, "function");
+        }
+    }
+    // And attempts to delete it when backspacing
+    function formulaBackspaceHandle(event) {
+        if ((event.key == "Backspace" || event.key == "Delete")  && !event.target.classList.contains("expanding-var-input")) {
+            if (!event.target.classList.contains("expression-input")) {
+                checkThenAttemptDelete(event);
+            }
+        }
+    }
+    document.getElementById("modal-var-enter-entry").addEventListener("keypress", (event) => {formulaKeyPress(event)});
+    document.getElementById("modal-var-enter-entry").addEventListener("keypress", (event) => {formulaBackspaceHandle(event)});
 }
 
 export function formulaInputDialog (title, desc, validation) {

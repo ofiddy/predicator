@@ -4,12 +4,14 @@ import { insertAfter } from "./lib.js";
 // These are the generic functions for any formula entry window to use
 
 // When a button pressed, inserts the relevant formula to the specified location
-export function attemptInsertFormula (event, targetFormula) {
+export function attemptInsertFormula (event, targetFormula, override) {
     let formulaToInsert = formulas.formulaList[event.target.dataset.formulaClassIndex];
+    if (override === "function") {
+        formulaToInsert = formulas.FunctionFormula;
+    }
     if (formulaToInsert === null || targetFormula.classList.contains("only-text")) {
         return false; // "Adding" an atom basically does nothing
     }
-    console.log("Attempting insert");
 
     // Get the existing content
     // Remove it from its parent
@@ -188,8 +190,8 @@ export function attemptDeleteFormula (targetFormula) {
         let parentElem = targetFormula.parentElement;
         if (!(parentElem.assignedFormula instanceof formulas.EqualsFormula)) {
             // Inside an expanding variable input
-            newElem = formulas.ExpandingVarFormula.newElem();
-            newElemFormula = new formulas.ExpandingVarFormula;
+            attemptDeleteSubfunction(targetFormula);
+            return;
         } else {
             // Inside a regular input
             newElem = formulas.BasicVarFormula.newElem();
@@ -222,6 +224,7 @@ function attemptAddVariable (targetElem) {
     insertAfter(newElem, targetElem);
     insertAfter(document.createTextNode(", "), targetElem);
     newElem.focus();
+    return newElem;
 }
 
 function attemptAddFunction (targetElem) {
@@ -229,6 +232,7 @@ function attemptAddFunction (targetElem) {
     // PRE: targetElem is an ".expanding-var-input"
     let parentElem = targetElem.parentNode;
     let newElem = formulas.FunctionFormula.newElem();
+    let parentFormula = parentElem.assignedFormula;
 
     let nameElem = formulas.BasicVarFormula.newElem();
     nameElem.classList.add("only-text");
@@ -245,6 +249,11 @@ function attemptAddFunction (targetElem) {
     let vars = [varsElemFormula];
     let newElemFormula = new formulas.FunctionFormula("", vars);
     newElem.assignedFormula = newElemFormula;
+
+    // Then replace the variable in the parent formula
+    let varIndex = Array.from(parentElem.children).indexOf(targetElem) - 1;
+    parentFormula.removeVarAt(varIndex);
+    parentFormula.addVarAt(varIndex, newElemFormula);
 
     parentElem.replaceChild(newElem, targetElem);
     newElem.append(nameElem);
@@ -277,6 +286,27 @@ function attemptDeleteVariable (targetElem) {
     } else {
         parentElem.children[varIndex - 1].focus();
     }
+}
+
+function attemptDeleteSubfunction (targetElem) {
+    // Attempts to delete a function and replace with with an expanding var
+    let parentFormula = targetElem.parentNode.assignedFormula;
+    let parentElem = targetElem.parentNode;
+
+    // Find index of selected subfunction
+    let varIndex = Array.from(parentElem.children).indexOf(targetElem);
+
+    // Create a new empty expanding var array
+    let newElem = formulas.ExpandingVarFormula.newElem();
+    let newVar = new formulas.ExpandingVarFormula();
+    newElem.assignedFormula = newVar;
+
+    // Remove from the formula and replace
+    parentFormula.removeVarAt(varIndex);
+    parentFormula.addVarAt(varIndex, newVar);
+    parentElem.replaceChild(newElem, targetElem);
+
+    newElem.focus();
 }
 
 // Maps each key to the effects of a button

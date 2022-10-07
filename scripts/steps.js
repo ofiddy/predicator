@@ -1,6 +1,7 @@
 import * as formulas from "./formulas.js"
 import { boundSetHas, setDiff } from "./lib.js";
 import { andElimDialog, closeModal, formulaInputDialog, orIntModal, varEnterDialog } from "./modals.js";
+import { readFormulaFromElements } from "./formula_entry_window.js";
 
 export class Box {
     // A box that can contain multiple steps
@@ -1175,18 +1176,18 @@ export class AllEStep extends ImmediateStep {
             let desc = "Enter the variable to replace " + pattern.sources[0].formula.bound.name;
             let formula = pattern.sources[0].formula;
             return new Promise((resolve) => {
-                function validate(text) {
-                    if (text) {
-                        resolve(text);
+                function validate(elem) {
+                    if (readFormulaFromElements(elem)) {
+                        resolve(elem);
                     } else {
                         alert("Invalid Input");
                     }
                 }
-
                 varEnterDialog(title, desc, formula, validate);
-            }).then((newVarLabel) => {
+            }).then((elem) => {
+                let newVar = readFormulaFromElements(elem);
+                //let newVar = new formulas.VariableFormula(newVarLabel);
                 closeModal();
-                let newVar = new formulas.VariableFormula(newVarLabel);
                 return new AllEStep(pattern.sources[0].formula.bound, newVar, pattern.sources[0], pattern.dest.containedIn);
             });
         }
@@ -1429,17 +1430,19 @@ export class EqualsReflexStep extends ImmediateStep {
             let desc = "Show reflexivity of variable x";
             let formula = new formulas.EqualsFormula(new formulas.VariableFormula("x"), new formulas.VariableFormula("x"));
             return new Promise((resolve) => {
-                function validate(text) {
-                    if (text) {
-                        resolve(text);
+                function validate(elem) {
+                    console.log(elem.assignedFormula);
+                    if (readFormulaFromElements(elem)) {
+                        resolve(elem);
                     } else {
                         alert("Must enter variable name");
                     }
                 }
                 varEnterDialog(title, desc, formula, validate);
-            }).then((result) => {
+            }).then((elem) => {
+                let newVar = readFormulaFromElements(elem);
                 closeModal();
-                return new EqualsReflexStep(new formulas.VariableFormula(result), pattern.dest.containedIn);
+                return new EqualsReflexStep(newVar, pattern.dest.containedIn);
             });
         }
 
