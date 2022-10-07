@@ -97,14 +97,17 @@ export function valueEnterDialog (title, desc, formula, validation) {
     }
     // And attempts to delete it when backspacing
     function formulaBackspaceHandle(event) {
-        if ((event.key == "Backspace" || event.key == "Delete")  && !event.target.classList.contains("expanding-var-input")) {
+        if ((event.key == "Backspace" || event.key == "Delete") ) {
             if (!event.target.classList.contains("expression-input")) {
-                checkThenAttemptDelete(event);
+                event.stopPropagation();
+                if (document.activeElement.classList.contains("formula-elem")) {
+                    attemptDeleteFormula(document.activeElement);
+                }
             }
         }
     }
     document.getElementById("modal-var-enter-entry").addEventListener("keypress", (event) => {formulaKeyPress(event)});
-    document.getElementById("modal-var-enter-entry").addEventListener("keypress", (event) => {formulaBackspaceHandle(event)});
+    document.getElementById("modal-var-enter-entry").addEventListener("keydown", (event) => {formulaBackspaceHandle(event)});
 }
 
 export function formulaInputDialog (title, desc, validation) {

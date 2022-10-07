@@ -159,6 +159,7 @@ export function attemptInsertFormula (event, targetFormula, override) {
         function expandingVarBackspace(event) {
             if (event.target.classList.contains("expanding-var-input") &&
             event.key === "Backspace") {
+                console.log("problem");
                 if (event.target.value.length === 0 && !event.target.classList.contains("first-var")) {
                     attemptDeleteVariable(event.target);
                 }
@@ -188,7 +189,7 @@ export function attemptDeleteFormula (targetFormula) {
         newElemFormula = new formulas.BasicFormula();
     } else {
         let parentElem = targetFormula.parentElement;
-        if (!(parentElem.assignedFormula instanceof formulas.EqualsFormula)) {
+        if (!(parentElem.assignedFormula instanceof formulas.EqualsFormula) && (parentElem.assignedFormula)) {
             // Inside an expanding variable input
             attemptDeleteSubfunction(targetFormula);
             return;
@@ -268,6 +269,7 @@ function attemptDeleteVariable (targetElem) {
     // When "<-" pressed, remove target Elem and the preceeding comma
     // PRE: targetElem is an ".expanding-var-input" and not the first
     // For Predicates and Functions
+    console.log("beep");
     let parentFormula = targetElem.parentNode.assignedFormula;
     let parentElem = targetElem.parentNode;
 
