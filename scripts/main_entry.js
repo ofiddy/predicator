@@ -1,6 +1,6 @@
 import { bindKeysToButtonlist, attemptInsertFormula, attemptDeleteFormula, readFormulaFromElements } from "./formula_entry_window.js"
 import * as formulas from "./formulas.js"
-import { bindPhysicsButton } from "./lib.js"
+import { bindPhysicsButton, getClosedTutorialWindow } from "./lib.js"
 import { setUpProof } from "./proof_window.js";
 import { escSettingsModal, settingsModal, setUpModals } from "./modals.js";
 
@@ -249,4 +249,9 @@ function loadMainWindow(givenFormulas, goalFormula) {
     cover.classList.add("doc-cover");
     cover.addEventListener("animationend", animationEndListener);
     document.body.append(cover);
+}
+
+if (!getClosedTutorialWindow()) {
+    alert("Welcome to Predicator!\n\nEnter symbols either by clicking the buttons, using the shortcuts beneath them, or dragging and dropping the button onto an open slot.\n\nGenerally, enter your formula using a \"depth-first\" method: the first formula you enter should be the highest-level formula.\n\nOnce your given formulas and your goal have been entered, click 'Confirm'!");
+    document.cookie="closedTut=true;";
 }

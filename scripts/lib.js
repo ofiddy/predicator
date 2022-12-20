@@ -120,3 +120,7 @@ export function bindPhysicsButton(button, bindEvents) {
         button.addEventListener("click", bindEvents["onClick"]);
     }
 }
+
+export function getClosedTutorialWindow () {
+    return document.cookie.split(';').find((row) => row.startsWith("closedTut="))?.split("=")[1] === "true";
+}
