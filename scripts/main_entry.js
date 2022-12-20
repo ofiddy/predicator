@@ -2,7 +2,7 @@ import { bindKeysToButtonlist, attemptInsertFormula, attemptDeleteFormula, readF
 import * as formulas from "./formulas.js"
 import { bindPhysicsButton } from "./lib.js"
 import { setUpProof } from "./proof_window.js";
-import { settingsModal, setUpModals } from "./modals.js";
+import { escSettingsModal, settingsModal, setUpModals } from "./modals.js";
 
 let lastClickedButton = null;
 let lastClickedFormula = null;
@@ -180,11 +180,7 @@ document.addEventListener("click", () => {
 
 setUpModals();
 // Settings menu when escape pressed
-window.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-        settingsModal();
-    }
-});
+window.addEventListener("keydown", escSettingsModal);
 
 document.getElementById("entry-confirm-button").onclick = function (event) {
     // Runs through every given and the goal

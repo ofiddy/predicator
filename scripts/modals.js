@@ -25,6 +25,8 @@ export function andElimDialog (formula, resolve) {
     document.getElementById("modal-and-elim-formula").innerText = formulaText;
     modalTop.style.display = "flex";
     andElimModal.style.display = "block";
+    window.removeEventListener("keydown", escSettingsModal);
+    window.addEventListener("keydown", escKillModal);
 
     document.getElementById("modal-and-left-button").onclick = () => {resolve("left")};
     document.getElementById("modal-and-right-button").onclick = () => {resolve("right")};
@@ -48,6 +50,8 @@ export function varEnterDialog (title, desc, formula, validation) {
     document.getElementById("modal-var-enter-display").innerText = formula.show();
     modalTop.style.display = "flex";
     varEnterModal.style.display = "block";
+    window.removeEventListener("keydown", escSettingsModal);
+    window.addEventListener("keydown", escKillModal);
 
     // Resizes entry as typed
     function formulaSizeChange(event) {
@@ -76,6 +80,8 @@ export function valueEnterDialog (title, desc, formula, validation) {
     let newElem = formulas.BasicVarFormula.newElem();
     document.getElementById("modal-var-enter-entry").children[0].replaceWith(newElem);
     newElem.assignedFormula = new formulas.BasicVarFormula();
+    window.removeEventListener("keydown", escSettingsModal);
+    window.addEventListener("keydown", escKillModal);
 
     // Resizes entry as typed
     function formulaSizeChange(event) {
@@ -122,6 +128,8 @@ export function formulaInputDialog (title, desc, validation) {
     document.getElementById("modal-formula-input-desc").innerText = desc;
     modalTop.style.display = "flex";
     formImpModal.style.display = "flex";
+    window.removeEventListener("keydown", escSettingsModal);
+    window.addEventListener("keydown", escKillModal);
 
     // Sets up every button and the actual formula input functionality
     let lastClickedButton = null;
@@ -327,4 +335,20 @@ export function settingsModal () {
 export function closeModal () {
     document.getElementById("modal-toplevel").innerHTML = "";
     document.getElementById("modal-toplevel").style.display = "none";
+}
+
+function escKillModal (event) {
+    if (event.key === "Escape") {
+        window.removeEventListener("keydown", escKillModal);
+        window.addEventListener("keydown", escSettingsModal);
+        document.getElementById("proof-tutorial-box").textContent = "";
+        document.onclick = null;
+        closeModal();
+    }
+}
+
+export function escSettingsModal (event) {
+    if (event.key === "Escape") {
+        settingsModal();
+    }
 }
